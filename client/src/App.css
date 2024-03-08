@@ -1,0 +1,25 @@
+* {
+  outline: none;
+}
+
+.product_swiper_lower .swiper-slide-thumb-active {
+  border: 2px solid var(--text);
+}
+
+.f-carousel {
+  /* max-width: 550px; */
+  margin: 0 auto;
+  background-color: var(--muted-bg);
+}
+
+.f-carousel__slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.f-carousel__slide img {
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+}

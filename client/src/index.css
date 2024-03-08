@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --text: #000000;
+    --muted-text: #808080;
+    --muted-bg: #f6f6f6;
+}
