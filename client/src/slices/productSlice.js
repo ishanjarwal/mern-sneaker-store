@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchAllProducts } from "../apis/productAPI";
+import { fetchAllProducts, fetchProductById } from "../apis/productAPI";
 
 const initialState = {
     products: [],
@@ -17,6 +17,14 @@ export const fetchAllProductsAsync = createAsyncThunk(
     }
 )
 
+export const fetchProductByIdAsync = createAsyncThunk(
+    'products/fetchProductByIdAsync',
+    async (id) => {
+        const response = await fetchProductById(id);
+        return response.data;
+    }
+)
+
 export const productSlice = createSlice({
     name: 'product',
     initialState: initialState,
@@ -31,19 +39,19 @@ export const productSlice = createSlice({
             .addCase(fetchAllProductsAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
                 state.totalItems = action.payload.totalItems;
-                const visibleProducts = action.payload.data.map((product, index) => (
-                    {
-                        name: product.name,
-                        price: product.sizes[0].price,
-                        discountPercentage: product.sizes[0].discountPercentage,
-                        images: product.images,
-                        thumbnail: product.images[0],
-                        brand: product.brand
-                    }
-                ))
-                state.products = visibleProducts;
+                state.products = action.payload.data;
             })
             .addCase(fetchAllProductsAsync.rejected, (state, action) => {
+                state.state = 'rejected';
+            })
+            .addCase(fetchProductByIdAsync.pending, (state, action) => {
+                state.state = 'pending';
+            })
+            .addCase(fetchProductByIdAsync.fulfilled, (state, action) => {
+                state.state = 'fulfilled';
+                state.currProduct = action.payload
+            })
+            .addCase(fetchProductByIdAsync.rejected, (state, action) => {
                 state.state = 'rejected';
             })
     }

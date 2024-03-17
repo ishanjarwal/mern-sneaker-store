@@ -896,3 +896,4 @@ export const product_images = [
 ]
 
 export const ITEMS_PER_PAGE = 15;
+export const MAX_CART_PRODUCT_QTY = 5;

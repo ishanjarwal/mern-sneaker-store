@@ -30,7 +30,7 @@ const ProductList = () => {
 
 
     const [paginationOptions, setPaginationOptions] = useState({ page: 1, limit: ITEMS_PER_PAGE });
-    const [sortOptions, setSortOptions] = useState({});
+    const [sortOptions, setSortOptions] = useState({ sort_by: 'created_at', order_by: 'asc', display: 'Newest' });
     const [filterOptions, setFilterOptions] = useState({});
 
     useEffect(() => {
@@ -46,11 +46,11 @@ const ProductList = () => {
 
     return (
         <div>
-            {state === 'pending' && (
+            {/* {state === 'pending' && (
                 <div className='h-screen w-screen bg-black/25 backdrop-blur-sm fixed top-0 left-0 z-50'>
 
                 </div>
-            )}
+            )} */}
             <FilterPanel setFilterMenu={setFilterMenu} filterMenu={filterMenu} filterOptions={filterOptions} setFilterOptions={setFilterOptions} />
             <div className='flex lg:flex-row flex-col justify-between items-start pt-2 pb-4 px-2 lg:border-b border-muted-text'>
                 <div className='w-full lg:mb-0 mb-2'>
@@ -79,12 +79,14 @@ const ProductList = () => {
                 <div className='lg:col-span-4 col-span-5 grid md:grid-cols-3 grid-cols-2 sm:gap-4 gap-0'>
                     {products.length > 0 && products.map((product, index) => (
                         <ProductCard key={index} data={{
+                            id: product.id,
                             name: product.name,
-                            mrp: product.price,
-                            sp: Math.floor(product.price * (1 - (product.discountPercentage / 100))),
+                            mrp: product.mrp,
+                            sp: product.sp,
                             brand: product.brand,
                             images: product.images,
-                            thumbnail: product.images[0]
+                            thumbnail: product.thumbnail,
+                            discountPercentage: product.discountPercentage
                         }} />
                     ))}
                 </div>

@@ -1,5 +1,5 @@
-import React, { Fragment, useState } from 'react';
-import { IoCheckmark, IoStar, IoStarOutline } from 'react-icons/io5';
+import React, { Fragment, useEffect, useState } from 'react';
+import { IoCheckmark, IoHeartCircle, IoHeartOutline, IoStar, IoStarOutline } from 'react-icons/io5';
 import { register } from 'swiper/element/bundle';
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { IoIosInformationCircleOutline } from "react-icons/io";
@@ -8,38 +8,39 @@ import { PiTruckLight } from "react-icons/pi";
 import { RiLoopLeftFill } from "react-icons/ri";
 import { MdMoneyOffCsred } from "react-icons/md";
 import ImageSlideshowModal from '../components/ImageSlideshowModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProductByIdAsync } from '../slices/productSlice';
+import { useParams } from 'react-router-dom';
+import { Controller, useForm } from 'react-hook-form';
 
 
 register();
 
 const ProductDetails = () => {
 
-    const product_images = [
-        "https://www.superkicks.in/cdn/shop/files/1-2023-12-21T164952.459.jpg?v=1703157691&width=1946",
-        "https://www.superkicks.in/cdn/shop/files/2-2023-12-21T164954.585.jpg?v=1703157691&width=1946",
-        "https://www.superkicks.in/cdn/shop/files/3-2023-12-21T164956.153.jpg?v=1703157691&width=1946",
-        "https://www.superkicks.in/cdn/shop/files/5_74.jpg?v=1703157691&width=1946",
-        "https://www.superkicks.in/cdn/shop/files/6_63.jpg?v=1703157691&width=1946",
-        "https://www.superkicks.in/cdn/shop/files/4-2023-12-21T164942.134.jpg?v=1703157691&width=1946"
-    ]
+    // todo : toggle in stock and out of stock
 
-    const sizes = [
-        {
-            size: 'S'
-        },
-        {
-            size: 'M'
-        },
-        {
-            size: 'L'
-        },
-        {
-            size: 'XL'
-        },
-        {
-            size: '2XL'
-        },
-    ]
+    const { handleSubmit, formState: { errors }, control, watch } = useForm();
+
+    const { id: pid } = useParams();
+    const product = useSelector(state => state.product.currProduct);
+    const dispatch = useDispatch();
+
+    function sendData(data) {
+        const sendable = {
+            uid: 1,
+            productId: product.id,
+            size: data.size,
+            qty: data.qty
+        }
+        console.log(sendable)
+    }
+
+    useEffect(() => {
+        dispatch(fetchProductByIdAsync(pid))
+        document.documentElement.scrollTop = 0;
+    }, [pid]);
+
 
     const variants = [
         {
@@ -56,29 +57,16 @@ const ProductDetails = () => {
         },
     ]
 
-    const details = [
-        {
-            tab: "Description",
-            data: "WE ARE F(AMI)LY. These Suede VTG sneakers from the second season of PUMA x AMI are guided by the creative vision of the Parisian label, finding the balance between relaxed and refined, amiable and edgy, streetwear and sportswear – just like every item from season one."
-        },
-        {
-            tab: "Specifications",
-            data: "manufacturer : Puma India Marketing Private Ltd. country_of_origin : Indonesia imported_by : Puma India Marketing Private Ltd. product_dimensions : weight : 0.95 KG generic_name : SHOE unit_of_measurement : 1 Pair marketed_by : Superkicks India Pvt. Ltd. article_code : 38667401"
-        }
-    ]
-
-    const [selected, setSelected] = useState(sizes[0])
-
     return (
 
-        // todo : description section just below image slideshow in desktop and at the bottom in mobile
-        // todo : wishlist button on product images
         <div>
             <div className='md:py-2'>
                 {/* breadcrumbs */}
             </div>
             <div className='grid grid-cols-9 md:gap-x-12'>
-                <div className='lg:col-span-6 md:col-span-5 col-span-9'>
+
+                {/* image slideshow */}
+                <div className='lg:col-span-5 col-span-9'>
                     {/* <div className='product_images_wrapper sticky top-0 w-full overflow-hidden bg-white'>
                         <div className='bg-muted-bg cursor-grab active:cursor-grabbing'>
                             <swiper-container
@@ -116,18 +104,26 @@ const ProductDetails = () => {
                             </swiper-container>
                         </div>
                     </div> */}
-                    <ImageSlideshowModal productImages={product_images} />
+                    <div className='md:sticky top-0'>
+                        {product && <ImageSlideshowModal key={product.id} productImages={product.images} />}
+                        <button className='absolute top-4 bg-white lg:w-10 w-12 h-10 rounded-full flex justify-center items-center lg:text-xl text-lg hover:bg-muted-bg right-4 duration-150 z-10'>
+                            <IoHeartOutline />
+                        </button>
+                    </div>
+                    {/* wishlist button */}
+
                 </div>
 
-
                 {/* left side */}
-                <div className='lg:col-span-3 md:col-span-4 col-span-9 md:px-0 px-4'>
-                    <div>
+                <div className='lg:col-span-4 col-span-9 md:px-0 px-4'>
+
+                    {/* general */}
+                    <form onSubmit={handleSubmit(data => { sendData(data) })}>
                         {/* brand */}
-                        <span className='text-muted-text text-sm'>NIKE</span>
+                        <span className='text-muted-text text-sm'>{product?.brand}</span>
 
                         {/* title */}
-                        <h1 className='text-3xl font-bold text-text uppercase'>AIR FORCE 1 '07 LV8 'DARK STUCCO/MEDIUM OLIVE-NEUTRAL OLIVE'</h1>
+                        <h1 className='text-3xl font-bold text-text uppercase'>{product?.name}</h1>
 
                         {/* reviews  */}
                         <div className='flex justify-start items-center mt-4'>
@@ -147,8 +143,18 @@ const ProductDetails = () => {
 
                         {/* price */}
                         <div className='flex items-center justify-start mt-4'>
-                            <span className='text-muted-text text-sm line-through'>{'₹'}11,299</span>
-                            <span className='text-text text-xl font-bold ms-2'>{'₹'}6,099</span>
+                            <span className='text-muted-text text-sm line-through'>
+                                {watch("size") &&
+                                    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, })
+                                        .format(product?.sizes.find(el => el.size == watch("size")).mrp)
+                                }
+                            </span>
+                            <span className='text-text text-xl font-bold ms-2'>
+                                {watch("size") &&
+                                    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, })
+                                        .format(product?.sizes.find(el => el.size == watch("size")).sp)
+                                }
+                            </span>
                         </div>
 
                         {/* variants if any */}
@@ -177,46 +183,65 @@ const ProductDetails = () => {
                         {/* size */}
                         <div className='mt-2'>
                             <span className='text-text font-bold text-sm mb-2'>SIZE</span>
-                            <RadioGroup>
-                                <div className="flex flex-wrap">
-                                    {sizes.map((item) => (
-                                        <RadioGroup.Option
-                                            key={item.size}
-                                            value={item.size}
-                                            className={({ active, checked }) =>
-                                                `${checked ? 'bg-black text-white hover:bg-black' : 'bg-white text-text hover:bg-muted-bg'}
+                            {product && (
+                                <Controller
+                                    name="size"
+                                    control={control}
+                                    defaultValue={product.sizes[0].size}
+                                    render={({ field: { value, onChange } }) =>
+                                    (
+                                        <RadioGroup value={value} onChange={onChange}>
+                                            <div className="flex flex-wrap">
+                                                {product?.sizes.map((item) => (
+                                                    <RadioGroup.Option
+                                                        key={item.size}
+                                                        value={item.size}
+                                                        className={({ active, checked }) =>
+                                                            `${checked ? 'bg-black text-white hover:bg-black' : 'bg-white text-text hover:bg-muted-bg'}
                                                 relative flex cursor-pointer rounded-lg px-6 py-4 border border-text me-2 mb-2  duration-150`
-                                            }
-                                        >
-                                            {({ active, checked }) => (
-                                                <>
-                                                    <div className="flex w-full items-center justify-center">
-                                                        <div className="flex items-center">
-                                                            <div className="text-sm">
-                                                                <RadioGroup.Label
-                                                                    as="p"
-                                                                    className={`font-medium  ${checked ? 'text-white' : 'text-text'
-                                                                        }`}
-                                                                >
-                                                                    {item.size}
-                                                                </RadioGroup.Label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </RadioGroup.Option>
-                                    ))}
-                                </div>
-                            </RadioGroup>
+                                                        }
+                                                    >
+                                                        {({ active, checked }) => (
+                                                            <>
+                                                                <div className="flex w-full items-center justify-center">
+                                                                    <div className="flex items-center">
+                                                                        <div className="text-sm">
+                                                                            <RadioGroup.Label
+                                                                                as="p"
+                                                                                className={`font-medium  ${checked ? 'text-white' : 'text-text'
+                                                                                    }`}
+                                                                            >
+                                                                                {item.size}
+                                                                            </RadioGroup.Label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </RadioGroup.Option>
+                                                ))}
+                                            </div>
+                                        </RadioGroup>
+                                    )
+                                    }
+                                />
+                            )}
                         </div>
 
                         {/* in stock */}
                         <div className='flex justify-start items-center mt-4'>
-                            <span className='text-lg text-green-500'><FaRegCircleCheck /></span>
-                            <span className='text-xs font-bold text-green-500 uppercase ms-1'>in stock</span>
-                            {/* <span className='text-lg text-red-500'><IoIosInformationCircleOutline /></span>
-                            <span className='text-xs font-bold text-red-500 uppercase ms-1'>only 2 left</span> */}
+                            {product?.sizes.reduce((acc, curr) => acc + curr.stock, 0) ? (
+                                <>
+                                    <span className='text-lg text-green-500'><FaRegCircleCheck /></span>
+                                    <span className='text-xs font-bold text-green-500 uppercase ms-1'>in stock</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className='text-lg text-red-500'><IoIosInformationCircleOutline /></span>
+                                    <span className='text-xs font-bold text-red-500 uppercase ms-1'>Out of Stock</span>
+                                </>
+                            )}
+
                         </div>
 
 
@@ -224,48 +249,55 @@ const ProductDetails = () => {
                         <div className='grid grid-cols-4 gap-2 mt-8'>
 
                             <div className='col-span-1 border border-text text-center'>
-                                <Listbox>
-                                    <div className="relative">
-                                        <Listbox.Button className="relative py-4 w-full cursor-pointer bg-white text-center sm:text-sm">
-                                            <span className="block truncate">{'Qty'}</span>
-                                        </Listbox.Button>
-                                        <Transition
-                                            as={Fragment}
-                                            leave="transition ease-in duration-100"
-                                            leaveFrom="opacity-100"
-                                            leaveTo="opacity-0"
-                                        >
-                                            <Listbox.Options className="absolute mt-2 border border-black max-h-60 min-w-12 w-full overflow-auto shadow-lg bg-white py-1 text-base sm:text-sm">
-                                                {[1, 2, 3, 4, 5].map((person, personIdx) => (
-                                                    <Listbox.Option
-                                                        key={personIdx}
-                                                        className={({ active, selected }) =>
-                                                            `relative cursor-pointer py-2 ${active ? 'bg-muted-bg text-text' : 'text-gray-900'
-                                                            } ${selected ? 'bg-muted-bg text-text' : ''}`
-                                                        }
-                                                        value={person}
-                                                    >
-                                                        {({ selected }) => (
-                                                            <>
-                                                                <span
-                                                                    className={`block truncate ${selected ? 'font-medium bg-muted-bg' : 'font-normal'
-                                                                        }`}
-                                                                >
-                                                                    {person}
-                                                                </span>
-                                                                {/* {selected ? (
+                                <Controller
+                                    name="qty"
+                                    control={control}
+                                    defaultValue={1}
+                                    render={({ field: { onChange, value } }) => (
+                                        <Listbox value={value} onChange={onChange}>
+                                            <div className="relative">
+                                                <Listbox.Button className="relative py-4 w-full cursor-pointer bg-white text-center sm:text-sm">
+                                                    <span className="block truncate">{'Qty : '}{value}</span>
+                                                </Listbox.Button>
+                                                <Transition
+                                                    as={Fragment}
+                                                    leave="transition ease-in duration-100"
+                                                    leaveFrom="opacity-100"
+                                                    leaveTo="opacity-0"
+                                                >
+                                                    <Listbox.Options className="absolute mt-2 border border-black max-h-60 min-w-12 w-full overflow-auto shadow-lg bg-white py-1 text-base sm:text-sm">
+                                                        {[1, 2, 3, 4, 5].map((person, personIdx) => (
+                                                            <Listbox.Option
+                                                                key={personIdx}
+                                                                className={({ active, selected }) =>
+                                                                    `relative cursor-pointer py-2 ${active ? 'bg-muted-bg text-text' : 'text-gray-900'
+                                                                    } ${selected ? 'bg-muted-bg text-text' : ''}`
+                                                                }
+                                                                value={person}
+                                                            >
+                                                                {({ selected }) => (
+                                                                    <>
+                                                                        <span
+                                                                            className={`block truncate ${selected ? 'font-medium bg-muted-bg' : 'font-normal'
+                                                                                }`}
+                                                                        >
+                                                                            {person}
+                                                                        </span>
+                                                                        {/* {selected ? (
                                                                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
                                                                         <CheckIcon className="h-5 w-5" aria-hidden="true" />
                                                                     </span>
                                                                 ) : null} */}
-                                                            </>
-                                                        )}
-                                                    </Listbox.Option>
-                                                ))}
-                                            </Listbox.Options>
-                                        </Transition>
-                                    </div>
-                                </Listbox>
+                                                                    </>
+                                                                )}
+                                                            </Listbox.Option>
+                                                        ))}
+                                                    </Listbox.Options>
+                                                </Transition>
+                                            </div>
+                                        </Listbox>
+                                    )}
+                                />
                             </div>
 
 
@@ -281,7 +313,7 @@ const ProductDetails = () => {
                             </div>
                         </div>
 
-                        {/* additional info like shipping details, returns  */}
+                        {/* additional info like shipping details, returns from delivery api */}
                         <div className='mt-4 flex flex-col space-y-2'>
                             <span className='flex justify-start items-center py-4 px-4 rounded-md bg-muted-bg'>
                                 <span className='me-4 text-green-500 text-2xl'><PiTruckLight /></span>
@@ -297,43 +329,116 @@ const ProductDetails = () => {
                             </span>
                         </div>
 
-                    </div>
-                </div>
-                <div className='lg:col-span-6 md:col-span-5 col-span-9 mt-16 outline-none xl:px-0 px-4'>
-                    {/* details tabs */}
-                    <Tab.Group>
-                        <Tab.List className="flex space-x-0 w-full bg-white">
-                            {details.map((el) => (
+                    </form>
+
+                    {/* tabs */}
+                    <div className='md:mt-12 mt-6 outline-none lg:px-0 px-2'>
+                        <Tab.Group>
+                            <Tab.List className="flex space-x-0 w-full bg-white">
+
+                                {/* description tab */}
                                 <Tab
-                                    key={el.tab}
                                     className={({ selected }) =>
                                     (
                                         `py-4 px-6 text-sm outline-none uppercase duration-150 ${selected
                                             ? 'bg-white text-text border-b-2 border-text bg-muted-bg font-bold'
-                                            : 'text-muted-text'}`
+                                            : 'text-muted-text border-b-2 border-gray-100'}`
                                     )
                                     }
                                 >
-                                    {el.tab}
+                                    Product Description
                                 </Tab>
-                            ))}
-                        </Tab.List>
-                        <Tab.Panels className="mt-2">
-                            {details.map((el, idx) => (
+
+                                {/* specs tab */}
+                                <Tab
+                                    className={({ selected }) =>
+                                    (
+                                        `py-4 px-6 text-sm outline-none uppercase duration-150 ${selected
+                                            ? 'bg-white text-text border-b-2 border-text bg-muted-bg font-bold'
+                                            : 'text-muted-text border-b-2 border-gray-100'}`
+                                    )
+                                    }
+                                >
+                                    Specifications
+                                </Tab>
+
+                            </Tab.List>
+                            <Tab.Panels className="mt-2">
+
+                                {/* description */}
                                 <Tab.Panel
-                                    key={idx}
                                     className='bg-white p-3'
                                 >
-                                    <p>
-                                        {el.data}
+                                    <p className='text-sm text-muted-text'>
+                                        {product?.additional_details.description.map((line, index) => (
+                                            <span className='block' key={index}>{line}<br /></span>
+                                        ))}
                                     </p>
                                 </Tab.Panel>
-                            ))}
-                        </Tab.Panels>
-                    </Tab.Group>
 
+                                {/* specs */}
+                                {product && (
+                                    <Tab.Panel
+                                        className='bg-white p-3'
+                                    >
+                                        <div className='grid grid-cols-2 gap-4'>
+
+
+                                            {/* shoe material */}
+                                            <div className='px-4 py-2 rounded-md bg-muted-bg'>
+                                                <span className='text-xs text-muted-text uppercase'>Shoe Materials</span>
+                                                <p className='text-xs font-bold capitalize'>{product.additional_details.specifications.shoe_materials.join("-")}</p>
+                                            </div>
+
+                                            {/* sole material */}
+                                            <div className='px-4 py-2 rounded-md bg-muted-bg'>
+                                                <span className='text-xs text-muted-text uppercase'>Sole Materials</span>
+                                                <p className='text-xs font-bold capitalize'>{product.additional_details.specifications.sole_materials.join("-")}</p>
+                                            </div>
+
+                                            {/* occasion */}
+                                            <div className='px-4 py-2 rounded-md bg-muted-bg'>
+                                                <span className='text-xs text-muted-text uppercase'>Occasion</span>
+                                                <p className='text-xs font-bold capitalize'>{product.additional_details.specifications.occasion}</p>
+                                            </div>
+
+                                            {/* color */}
+                                            <div className='px-4 py-2 rounded-md bg-muted-bg'>
+                                                <span className='text-xs text-muted-text uppercase'>Color</span>
+                                                <div className='flex justify-start space-x-2 items-center'>
+                                                    <span className='w-4 h-4 block rounded-full' style={{ backgroundColor: product.additional_details.specifications.color.hex }}></span>
+                                                    <p className='text-xs font-bold capitalize'>{product.additional_details.specifications.color.name}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* dimensions */}
+                                            <div className='px-4 py-2 rounded-md bg-muted-bg'>
+                                                <span className='text-xs text-muted-text uppercase'>Dimensions</span>
+                                                <p className='text-xs font-bold'>width : {product.additional_details.specifications.dimensions.width}{" "}{product.additional_details.specifications.dimensions.unit}</p>
+                                                <p className='text-xs font-bold'>length : {product.additional_details.specifications.dimensions.length}{" "}{product.additional_details.specifications.dimensions.unit}</p>
+                                                <p className='text-xs font-bold'>height : {product.additional_details.specifications.dimensions.height}{" "}{product.additional_details.specifications.dimensions.unit}</p>
+                                            </div>
+
+                                            {/* weight */}
+                                            <div className='px-4 py-2 rounded-md bg-muted-bg'>
+                                                <span className='text-xs text-muted-text uppercase'>Weight</span>
+                                                <p className='text-xs font-bold capitalize'>{product.additional_details.specifications.weight.value}{" "}{product.additional_details.specifications.weight.unit}</p>
+                                            </div>
+                                        </div>
+                                    </Tab.Panel>
+                                )}
+
+                            </Tab.Panels>
+                        </Tab.Group>
+
+                    </div>
                 </div>
+
+                {/* details tabs */}
+
             </div>
+
+            {/* related products */}
         </div >
     )
 }

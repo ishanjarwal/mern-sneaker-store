@@ -1,0 +1,13 @@
+TODOs
+# Cart Panel has only one function, to update the cart via dispatch (then send to checkout)
+# ❗use controller instead of register to make use of the defaultValue.
+# when user creates an account, also create a cart with empty array
+# add the cart id in user collection
+# in the cart panel, let the user select any size, and then show if that size is out of stock.
+# for now, quantity in details page and cart panel is decided by the or of const and if the stock is less than const
+# set the total Item and subtotal in cart with the state from react-hook-form
+# if user is not logged in, set the cart in localStorage, then if the user logs in, transfer the data to database.
+# add a flag field on product, so that it appears on the product card (new, latest etc.)
+# add a featured checkbox on product listing
+# there should be atleast one collection : new arrivals
+# ✅ add custom fields in specifications

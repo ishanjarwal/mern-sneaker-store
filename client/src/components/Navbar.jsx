@@ -3,6 +3,7 @@ import { IoBagOutline, IoHeartOutline, IoMenuOutline, IoPersonOutline, IoSearchO
 import { Menu, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { navLinks } from '../app/constants';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Navbar = ({ setMobileNav, setCartPanel, setWishlistModal }) => {
 
@@ -20,6 +21,8 @@ const Navbar = ({ setMobileNav, setCartPanel, setWishlistModal }) => {
             link: '/'
         },
     ]
+
+    const cartItems = useSelector(state => state.cart.items);
 
     return (
         <header className='bg-muted-bg'>
@@ -87,7 +90,7 @@ const Navbar = ({ setMobileNav, setCartPanel, setWishlistModal }) => {
                             onClick={() => { setCartPanel(true) }}
                         >
                             <span className='absolute -right-2 -top-2 text-xs min-w-4 px-1 py-1 h-4 flex justify-center items-center rounded-full bg-black text-white'>
-                                1
+                                {cartItems.length}
                             </span>
                             <span className='text-black text-2xl'>
                                 <span>

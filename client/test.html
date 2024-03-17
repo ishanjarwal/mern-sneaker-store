@@ -5225,7 +5225,13 @@
         ];
         const units = ["inch", "cm", "ft", "m"];
         const items = document.querySelectorAll('.product').forEach((el) => {
-            const img = el.querySelector('img').getAttribute('src');
+            const img = Array.from(el.querySelectorAll('img')).map(item => {
+                if (item.getAttribute('src')) {
+                    return item.getAttribute('src')
+                } else {
+                    return ""
+                }
+            })
             const name = el.querySelector('.info').querySelectorAll('p')[3].innerText;
             const randomNumber = Math.floor(Math.random() * (20000 - 5000 + 1)) + 5000;
             const category = categories[Math.floor(Math.random() * categories.length)];
@@ -5245,7 +5251,7 @@
                 def_price: sizes[0].price,
                 def_dicountPercentage: sizes[0].discountPercentage,
                 def_size: sizes[0].size,
-                images: [img],
+                images: img,
                 mrp: randomNumber,
                 category: category,
                 brand: brand,
@@ -5264,7 +5270,7 @@ Step into comfort with our innovative cushioning technology, providing superior 
                         "shoe_materials": [
                             ['suede leather', 'rubber']
                         ],
-                        "ocassion": occasions[Math.floor(Math.random() * occasions.length)],
+                        "occasion": occasions[Math.floor(Math.random() * occasions.length)],
                         "color": colors[Math.floor(Math.random() * colors.length)],
                         "dimensions": {
                             "unit": units[Math.floor(Math.random() * units.length)],

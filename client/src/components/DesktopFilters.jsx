@@ -26,8 +26,12 @@ const DesktopFilters = ({ filterOptions, setFilterOptions }) => {
         }
     ];
 
-    function handleFilters() {
-        console.log("filterobj");
+    function handleFilters(key, option) {
+        if (filterOptions[key]) {
+            setFilterOptions((prev => ({ ...prev, [key]: [...prev[key], option] })));
+        } else {
+            setFilterOptions((prev => ({ ...prev, [key]: [option] })));
+        }
     }
 
     return (
@@ -44,7 +48,10 @@ const DesktopFilters = ({ filterOptions, setFilterOptions }) => {
                                     <label className='flex justify-start space-x-2 items-center cursor-pointer'>
                                         <div className='relative w-5 h-5'>
                                             <input
-                                                onChange={() => { handleFilters() }}
+                                                onChange={() => {
+                                                    const key = (filter.name).toLowerCase();
+                                                    handleFilters(key, option)
+                                                }}
                                                 name='color'
                                                 type="checkbox"
                                                 className="peer relative appearance-none w-5 h-5 rounded-md border-blue-gray-200 cursor-pointer transition-allchecked:bg-gray-900 before:duration-150 ring ring-gray-300 ring-offset-1 checked:bg-black hover:ring-offset-2 duration-150"

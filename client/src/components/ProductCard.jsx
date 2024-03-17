@@ -16,7 +16,7 @@ const ProductCard = ({ data }) => {
     }
     const [startSlideshow, setStartSlideshow] = useState(false)
     return (
-        <Link to="/product">
+        <Link to={`/product/${data.id}`}>
             <div className='bg-white relative group overflow-hidden'>
 
                 {/* wishlist button */}
@@ -48,8 +48,8 @@ const ProductCard = ({ data }) => {
                                     <div className='w-full'>
                                         <img
                                             className='w-full object-cover object-center'
-                                            src={data.thumbnail}
-                                            alt=""
+                                            src={el}
+                                            alt={data.name}
                                         />
                                     </div>
                                 </swiper-slide>
@@ -61,8 +61,18 @@ const ProductCard = ({ data }) => {
                     <span className='text-muted-text text-xs uppercase'>{data.brand}</span>
                     <span className='text-pri text-sm font-bold uppercase'>{data.name}</span>
                     <div className='flex justify-start items-center space-x-1'>
-                        <span className='text-muted-text text-xs line-through'>{'₹'}{data.mrp}</span>
-                        <span className='text-pri text-sm font-bold'>{'₹'}{data.sp}</span>
+                        <span className='text-muted-text text-xs line-through'>
+                            {
+                                new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })
+                                    .format(data.mrp)
+                            }
+                        </span>
+                        <span className='text-pri text-sm font-bold'>
+                            {
+                                new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' })
+                                    .format(data.sp)
+                            }
+                        </span>
                     </div>
                 </div>
             </div>

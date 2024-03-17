@@ -1,58 +1,28 @@
 import { Dialog, Listbox, RadioGroup, Transition } from '@headlessui/react'
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { HiOutlineChevronUpDown } from "react-icons/hi2";
 import { FaCheck } from "react-icons/fa6"
-import { CiImageOn } from "react-icons/ci";
-import { MdDeleteOutline, MdOutlineCheckBox, MdOutlineCheckBoxOutlineBlank } from "react-icons/md";
-import { IoAddOutline, IoAddSharp, IoClose } from "react-icons/io5";
+import { MdDeleteOutline } from "react-icons/md";
+import { IoAddOutline, IoAddSharp, IoClose, IoTrashBinOutline } from "react-icons/io5";
+import axios from 'axios'
 
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import ImagePreview from '../../components/ImagePreview';
 
 
-const importProducts = [
-    {
-        id: 1,
-        title: "AIR JORDAN 1 LOW 'WHITE/BLACK-GREEN GLOW'",
-        href: '#',
-        color: 'Salmon',
-        sp: '$90.00',
-        quantity: 1,
-        thumbnail: 'https://images.vegnonveg.com/resized/400X328/10792/air-jordan-1-low-whiteblack-green-glow-white-65e5bb6851306.jpg',
-        imageAlt: 'Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt.',
-    },
-    {
-        id: 2,
-        title: "AIR JORDAN 1 LOW 'WHITE/BLACK-GREEN GLOW'",
-        href: '#',
-        color: 'Salmon',
-        sp: '$90.00',
-        quantity: 1,
-        thumbnail: 'https://images.vegnonveg.com/resized/400X328/10792/air-jordan-1-low-whiteblack-green-glow-white-65e5bb6851306.jpg',
-        imageAlt: 'Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt.',
-    },
-    {
-        id: 3,
-        title: "OZGAIA 'CLOUD WHITEOFF WHITEALMOST PINK",
-        href: '#',
-        color: 'Blue',
-        sp: '$32.00',
-        quantity: 1,
-        thumbnail: 'https://images.vegnonveg.com/resized/400X328/10724/ozgaia-cloud-whiteoff-whitealmost-pink-white-65e06b61cb340.jpg',
-        imageAlt:
-            'Front of satchel with blue canvas body, black straps and handle, drawstring top, and front zipper pouch.',
-    },
-]
 
 const AddProducts = () => {
+
+    // todo : cod availability
 
     const { register, unregister, handleSubmit, formState: { errors }, control, watch, setValue } = useForm();
     const { fields: imageFields, append: imageAppend, remove: imageRemove } = useFieldArray({ name: "images", control })
     const { fields: sizeFields, append: sizeAppend, remove: sizeRemove } = useFieldArray({ name: "sizes", control })
     const { fields: tagsFields, append: tagsAppend, remove: tagsRemove } = useFieldArray({ name: "tags", control })
+    const { fields: customFields, append: customAppend, remove: customRemove } = useFieldArray({ name: "custom", control })
+
 
     const [tag, setTag] = useState('');
-    // const [value, setValue] = useState({ tags: [] })
     const categories = ["Running", "Basketball", "Casual", "Athletic", "Training", "Skateboarding"];
     const brands = ["Nike", "Adidas", "Jordan", "Reebok", "Puma", "New Balance", "Vans", "Converse", "Under Armour"];
     const sizes = ['7', "8", "9", "10", "11"];
@@ -91,38 +61,31 @@ const AddProducts = () => {
         { name: "Magenta", hex: "#FF00FF" },
         { name: "Lime", hex: "#00FF00" }
     ];
-    const [catValue, setCatValue] = useState(categories[0]);
-    const [brandValue, setBrandValue] = useState(brands[0]);
+    const genders = ['men', 'women', 'kids', 'unisex'];
 
     const [showImportModal, setShowImportModal] = useState(false);
+    const [importedProduct, setImportedProduct] = useState(null);
+    function fillInputsWithImportedProduct() {
+        setValue("title", importedProduct?.name)
+        setValue("short_desc", importedProduct?.additional_details.description)
+        setValue("category", importedProduct?.category)
+        setValue("brand", importedProduct?.brand)
+        setValue("description", importedProduct?.additional_details.description)
+    }
+    useEffect(() => {
+        fillInputsWithImportedProduct();
+    }, [importedProduct]);
 
-    // const initialState = {
-    //     title: "",
-    //     short_desc: "",
-    //     category: "",
-    //     brand: "",
-    //     images: [],
-    //     sizes: [
-    //         { size: null, stock: 0, price: 0, discountPercentage: 0, def_currency: "inr" }
-    //     ],
-    //     long_description: "",
-    //     materials: [],
-    //     dimensions: {
-    //         unit: "inch",
-    //         length: 0,
-    //         width: 0,
-    //         height: 0
-    //     },
-    //     weight: {
-    //         unit: "kg",
-    //         value: 0
-    //     }
-    // }
 
 
     return (
         <div className='py-8 px-6'>
-            <ImportModal showImportModal={showImportModal} setShowImportModal={setShowImportModal} />
+            <ImportModal
+                showImportModal={showImportModal}
+                setShowImportModal={setShowImportModal}
+                setImportedProduct={setImportedProduct}
+                importedProduct={importedProduct}
+            />
             <h1 className='text-2xl font-bold uppercase mb-4'>Add a New Product</h1>
             <div className='my-8'>
                 <button
@@ -456,6 +419,69 @@ const AddProducts = () => {
                             </label>
                         </div>
 
+                        {/* gender */}
+                        <div className='col-span-2 mt-8'>
+                            <Controller
+                                name="gender"
+                                control={control}
+                                defaultValue={genders[0]}
+                                render={({ field: { onChange, value } }) => (
+                                    <Listbox value={value} onChange={onChange}>
+                                        <div className="relative mt-1">
+                                            <label
+                                                className="text-muted-text text-sm mb-2"
+                                            >
+                                                Select Gender
+                                            </label>
+                                            <Listbox.Button className="relative w-full cursor-pointer bg-gray-100 py-2 pl-3 pr-10 text-left sm:text-sm border-b-2 border-gray-300">
+                                                <span className="block truncate">{value}</span>
+                                                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                                    <HiOutlineChevronUpDown
+                                                        className="h-5 w-5 text-gray-400"
+                                                    />
+                                                </span>
+                                            </Listbox.Button>
+                                            <Transition
+                                                as={Fragment}
+                                                leave="transition ease-in duration-100"
+                                                leaveFrom="opacity-100"
+                                                leaveTo="opacity-0"
+                                            >
+                                                <Listbox.Options className="absolute z-10 mt-2 max-h-60 w-full overflow-auto  bg-white py-1 text-base  sm:text-sm border border-muted-text">
+                                                    {genders.map((gender, idx) => (
+                                                        <Listbox.Option
+                                                            key={idx}
+                                                            className={({ active }) =>
+                                                                `relative cursor-pointer select-none py-2 pl-10 pr-4 ${active ? 'bg-gray-200 text-text' : 'text-muted-text'
+                                                                }`
+                                                            }
+                                                            value={gender}
+                                                        >
+                                                            {({ selected }) => (
+                                                                <>
+                                                                    <span
+                                                                        className={`block truncate ${selected ? 'font-medium' : 'font-normal'
+                                                                            }`}
+                                                                    >
+                                                                        {gender}
+                                                                    </span>
+                                                                    {selected ? (
+                                                                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-text">
+                                                                            <FaCheck className="h-5 w-5" aria-hidden="true" />
+                                                                        </span>
+                                                                    ) : null}
+                                                                </>
+                                                            )}
+                                                        </Listbox.Option>
+                                                    ))}
+                                                </Listbox.Options>
+                                            </Transition>
+                                        </div>
+                                    </Listbox>
+                                )}
+                            />
+                        </div>
+
                         {/* shoe materials */}
                         <div className="col-span-1 relative z-0 w-full mt-8 group">
                             <input
@@ -760,6 +786,105 @@ const AddProducts = () => {
                         </div>
 
 
+                        {/* custom fields */}
+                        <div className='mt-8 col-span-2'>
+                            <label className="block text-sm text-muted-text mb-4">
+                                Add Custom Fields
+                            </label>
+                            <ul className='mb-4'>
+                                {customFields.map((item, index) => (
+                                    <li key={item.id} className='flex items-center justify-start space-x-4 mt-6'>
+                                        <div className="relative inline z-0 group w-full">
+                                            <input
+                                                type='text'
+                                                placeholder=''
+                                                className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black peer"
+                                                {...register(`custom.${index}.field`)} />
+                                            <label
+                                                className="peer-focus:font-medium absolute text-sm text-muted-text duration-300 transform -translate-y-8 scale-75 top-3 z-10 origin-[0] peer-focus:start-0 start-2 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-black  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8"
+                                            >
+                                                Field Name
+                                            </label>
+                                        </div>
+
+                                        <div className="relative inline z-0 group w-full">
+                                            <input
+                                                type='text'
+                                                placeholder=''
+                                                className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black peer"
+                                                {...register(`custom.${index}.field`)} />
+                                            <label
+                                                className="peer-focus:font-medium absolute text-sm text-muted-text duration-300 transform -translate-y-8 scale-75 top-3 z-10 origin-[0] peer-focus:start-0 start-2 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-black  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8"
+                                            >
+                                                Field Value
+                                            </label>
+                                        </div>
+                                        <button
+                                            className='py-3 px-3 rounded-md text-red-400 border-gray-300 border bg-white text-sm hover:brightness-90'
+                                            type="button"
+                                            onClick={() => customRemove(index)}>
+                                            <IoTrashBinOutline />
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <button
+                                type="button"
+                                className='py-2 px-4 rounded-md text-white border-text border bg-black text-sm hover:brightness-90'
+                                onClick={() => customAppend({ field: "", value: "" })}
+                            >
+                                {customFields.length > 0 ? "Add More" : "Add Custom Fields"}
+                            </button>
+                        </div>
+
+                        {/* Meta Description */}
+                        <div className='mt-8 col-span-2'>
+                            <label className="block text-sm text-muted-text mb-6">
+                                Add SEO Details (See preview)
+                            </label>
+                            <div className="col-span-2 relative z-0 w-full mb-6 group">
+                                <input
+                                    {...register("metainfo.title")}
+                                    type="text"
+                                    className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black peer"
+                                    placeholder=" "
+                                    required=""
+                                />
+                                <label
+                                    className="peer-focus:font-medium absolute text-sm text-muted-text duration-300 transform -translate-y-8 scale-75 top-3 z-10 origin-[0] peer-focus:start-0 start-2 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-black  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8 cursor-text"
+                                >
+                                    Meta Title of the Product
+                                </label>
+                            </div>
+                            <div className="col-span-2 relative z-0 w-full mb-6 group">
+                                <textarea
+                                    {...register("metainfo.description")}
+                                    type="text"
+                                    className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black resize-y peer"
+                                    style={{ minHeight: '45px', maxHeight: '100px' }}
+                                    placeholder=" "
+                                    required=""
+                                />
+                                <label
+                                    className="peer-focus:font-medium absolute text-sm text-muted-text duration-300 transform -translate-y-8 scale-75 top-3 z-10 origin-[0] peer-focus:start-0 start-2 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-black  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8 cursor-text"
+                                >
+                                    Meta Description
+                                </label>
+                            </div>
+
+                            {/* seo preview */}
+                            {(watch("metainfo.title")?.length > 0 || watch("metainfo.description")?.length > 0) && (
+                                <div className='bg-gray-100 p-4 rounded-md shadow-md'>
+                                    <h2 className='text-lg text-blue-600'>{watch("metainfo.title")}</h2>
+                                    <p className='text-sm text-gray-600 leading-tight'>{watch("metainfo.description")}</p>
+                                    <p className='text-xs text-green-500 mt-0 leading-tight'>
+                                        {"https://www.sneakers.com/" + watch("metainfo.title").replace(" ", "-").toLowerCase()}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
 
                         {/* action buttons */}
                         <div className='col-span-2 flex justify-end items-center space-x-4 mt-8 py-4 border-t border-gray-300'>
@@ -781,7 +906,18 @@ const AddProducts = () => {
 export default AddProducts
 
 
-const ImportModal = ({ showImportModal, setShowImportModal }) => {
+const ImportModal = ({ showImportModal, setShowImportModal, setImportedProduct, importedProduct }) => {
+
+    const [products, setProducts] = useState([])
+    async function getProducts() {
+        const response = await axios.get('http://localhost:3000/products')
+        setProducts(response.data);
+    }
+
+    useEffect(() => {
+        getProducts()
+    }, []);
+
     return (
         <Transition.Root show={showImportModal} as={Fragment}>
             <Dialog as="div" className="relative z-20" onClose={setShowImportModal}>
@@ -816,13 +952,20 @@ const ImportModal = ({ showImportModal, setShowImportModal }) => {
                                             Select Product
                                         </label>
                                         <div className='grid grid-cols-2 gap-2 mt-2 max-h-96 overflow-y-auto'>
-                                            {importProducts.map((product, idx) => (
-                                                <div className='md:col-span-1 col-span-2 bg-white'>
-                                                    <div key={idx} className="md:col-span-1 col-span-2 flex p-4 border border-gray-300 rounded-lg">
+                                            {products && products.map((product, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="md:col-span-1 col-span-2 bg-white cursor-pointer p-1"
+                                                    onClick={() => {
+                                                        setImportedProduct(product);
+                                                        setShowImportModal(false);
+                                                    }}
+                                                >
+                                                    <div className={`${importedProduct?.id === product.id ? 'border-2 border-gray-500' : 'border border-gray-300'} md:col-span-1 col-span-2 flex p-4 rounded-lg`}>
                                                         <div className="h-24 w-24 flex-shrink-0 rounded-md overflow-hidden bg-muted-bg border border-gray-300">
                                                             <img
-                                                                src={product.thumbnail}
-                                                                alt={product.title}
+                                                                src={product.images[0]}
+                                                                alt={product.name}
                                                                 className="w-full object-contain object-center"
                                                             />
                                                         </div>
@@ -831,9 +974,8 @@ const ImportModal = ({ showImportModal, setShowImportModal }) => {
                                                             <div>
                                                                 <div className="flex justify-between text-base font-medium text-gray-900">
                                                                     <h3>
-                                                                        <a href={product.href}>{product.title}</a>
+                                                                        <span>{product.name}</span>
                                                                     </h3>
-                                                                    <p className="ml-4">{product.sp}</p>
                                                                 </div>
                                                             </div>
                                                             <div className="flex flex-1 items-end justify-between text-sm">
@@ -857,8 +999,8 @@ const ImportModal = ({ showImportModal, setShowImportModal }) => {
                             </Dialog.Panel>
                         </Transition.Child>
                     </div>
-                </div>
-            </Dialog>
-        </Transition.Root>
+                </div >
+            </Dialog >
+        </Transition.Root >
     )
 }
