@@ -1,0 +1,22 @@
+import React from 'react'
+import { Outlet } from "react-router-dom"
+
+const AuthLayout = () => {
+    return (
+        <div className='w-full min-h-screen bg-gray-100 flex justify-center items-center'>
+            <div className='flex lg:flex-row flex-col max-w-6xl w-full bg-white'>
+                <div className='flex-1 overflow-hidden relative min-h-48'>
+                    <img
+                        src="https://i.pinimg.com/originals/95/4d/84/954d84d7da43726de372557d334b3cd5.jpg"
+                        className='absolute w-full h-full object-cover object-center'
+                    />
+                </div>
+                <div className='flex-1 py-8 lg:px-24 sm:px-16 px-8'>
+                    <Outlet />
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default AuthLayout

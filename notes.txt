@@ -1,0 +1,37 @@
+TODOs
+# try giving display id to size schema so that _id is unique (solved without it)
+# qty validation is needed in update and others
+# ✅ updateCart is not working properly while changing size
+# add returnable field in add product page.
+# ✅ Cart Panel has only one function, to update the cart via dispatch (then send to checkout)
+# ❗use controller instead of register to make use of the defaultValue.
+# ✅ when user creates an account, also create a cart with empty array (done by fetchCart)
+# ✅ add the user id in cart collection not the other way
+# in the cart panel, let the user select any size, and then show if that size is out of stock.
+# ✅ for now, quantity in details page and cart panel is decided by the or of const and if the stock is less than const
+# ✅ set the total Item and subtotal in cart with the state from react-hook-form
+# if user is not logged in, set the cart in localStorage, then if the user logs in, transfer the data to database.
+# add a flag field on product, so that it appears on the product card (new, latest etc.)
+# add a featured checkbox on product listing
+# there should be atleast one collection : new arrivals
+# ✅ add custom fields in specifications
+# while updating a product, don't delete the images from directory, just remove their path from db.
+
+// backend 
+# use virtuals to set the cart total value and user fullname
+# create such a model for orders that even single items can be cancelled or replaced.
+# 
+
+middlewares
+# validateProductDB : kya product exist karta hai
+# validateSizeDB : kya ye size ek particular product ki hi hai
+# validateUserDB : kya ye user exist karta hai
+
+// Things learnt
+# when using ecma script to use import statements, giving extensions is necessary
+# while using multer, the filename property of req.file gives that name which we have assigned
+# in multer, cb is a callback that takes 2 params, first is the error object and second is the value sent back to multer, if the second param is boolean, it means whether to accept a file or not.
+# I am unable to handle specific errors in multer as by default the cb returns res.send whereas I wanted res.json. also if I try to upload a large file of different mimetype, the request keeps on pending and eventually fails.
+# multipart/mixed is depricated
+# in mongodb query,  nested queries like : "items.qty" and "items.pid" will not ensure "AND" on the specific object of items but on the document it will. (use $elemMatch)
+

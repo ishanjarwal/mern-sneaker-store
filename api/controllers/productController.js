@@ -1,0 +1,250 @@
+import Product from "../models/productModel.js"
+import { v4 as uuidv4 } from 'uuid'
+import fs from 'fs'
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import mongoose from "mongoose";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+
+
+export const createProduct = async (req, res) => {
+    const {
+        name,
+        short_desc,
+        brand,
+        sizes,
+        category,
+        description,
+        sole_materials,
+        shoe_materials,
+        dimensions,
+        weight,
+        gender,
+        occasion,
+        color,
+        tags,
+        meta_info
+    } = req.body
+    const images = [];
+    if (req.files) {
+        req.files.forEach(item => {
+            images.push(item.filename)
+        })
+    }
+    const newProduct = new Product({
+        display_id: uuidv4(),
+        name: name,
+        short_desc: short_desc,
+        brand: JSON.parse(brand)._id,
+        category: JSON.parse(category)._id,
+        sizes: JSON.parse(sizes).filter(item => (
+            {
+                label: item.label,
+                stock: item.stock,
+                price: item.price,
+                discountPercentage: item.discountPercentage
+            }
+        )),
+        images: images,
+        additional_details: {
+            description: description,
+            specifications: {
+                gender: gender,
+                shoe_materials: shoe_materials.split(',').map(el => el.trim()),
+                sole_materials: sole_materials.split(',').map(el => el.trim()),
+                occasion: occasion,
+                tags: JSON.parse(tags),
+                color: {
+                    name: JSON.parse(color).name,
+                    hex: JSON.parse(color).hex
+                },
+                dimensions: {
+                    unit: JSON.parse(dimensions).unit,
+                    width: JSON.parse(dimensions).width,
+                    length: JSON.parse(dimensions)['length'],
+                    height: JSON.parse(dimensions).height
+                },
+                weight: {
+                    unit: JSON.parse(weight).unit,
+                    value: JSON.parse(weight).value
+                },
+            }
+        },
+        meta_info: JSON.parse(meta_info)
+    })
+    try {
+        const result = await newProduct.save()
+        res.status(201).json({ created: true, err: null })
+    } catch (err) {
+        // unlink images here
+        if (req.files) {
+            req.files.forEach(item => {
+                fs.unlinkSync(path.join(__dirname, "..", "uploads/product_images", item.filename))
+            });
+        }
+        res.status(500).json({ created: false, err: err })
+    }
+}
+
+// todo : make a sendable
+export const fetchProductsList = async (req, res) => {
+    try {
+        const result = await Product.find().populate('brand').populate('category');
+        const totalCount = await Product.countDocuments();
+        res.status(201).json({ data: result, err: null, totalProducts: totalCount })
+    } catch (err) {
+        res.status(400).json({ data: null, err: err })
+    }
+}
+
+export const fetchProductById = async (req, res) => {
+    try {
+        const { product_id, size } = req.params;
+        const result = await Product.findOne({ _id: product_id }).populate('brand').populate('category');
+        if (!result) {
+            res.status(400).json({ message: "No Product Found" })
+        }
+        const checkSize = mongoose.Types.ObjectId.isValid(size) && await Product.findOne({ $and: [{ _id: product_id }, { sizes: { $elemMatch: { _id: size } } }] })
+        let currSize;
+        if (!checkSize) {
+            currSize = result.sizes[0];
+        } else {
+            currSize = result.sizes.find(el => el._id.toString() === size)
+        }
+        const sendable = {
+            ...result._doc,
+            currSize: {
+                mrp: currSize.price,
+                sp: currSize.price * (1 - (currSize.discountPercentage / 100)),
+                discountPercentage: currSize.discountPercentage,
+                stock: currSize.stock,
+                _id: currSize._id,
+                label: currSize.label,
+            }
+        }
+        res.status(201).json(sendable)
+
+    } catch (err) {
+        res.status(400).json({ err: err, message: "An error occured, Product not found" })
+    }
+}
+
+
+// change image paths
+export const updateProduct = async (req, res) => {
+    const { id } = req.params;
+    if (!id) {
+        return res.status(400).json({ err: "no id recieved" });
+    }
+    const {
+        name,
+        short_desc,
+        brand,
+        sizes,
+        category,
+        description,
+        sole_materials,
+        shoe_materials,
+        dimensions,
+        weight,
+        gender,
+        occasion,
+        color,
+        tags
+    } = req.body
+
+    // remove previous images
+    const oldProduct = await Product.findById(id);
+    if (!oldProduct) {
+        return res.status(400).json({ err: "Invalid ID" });
+    }
+    const oldImages = oldProduct.images;
+    oldImages.forEach(item => {
+        const imagePath = path.join(__dirname, '..', 'uploads/product_images', item);
+        fs.unlinkSync(imagePath);
+    })
+    const images = [];
+    if (req.files) {
+        req.files.forEach(item => {
+            images.push(item.filename)
+        })
+    }
+    const modified = {
+        name: name,
+        short_desc: short_desc,
+        brand: JSON.parse(brand)._id,
+        category: JSON.parse(category)._id,
+        sizes: JSON.parse(sizes).filter(item => (
+            {
+                label: item.label,
+                stock: item.stock,
+                price: item.price,
+                discountPercentage: item.discountPercentage
+            }
+        )),
+        images: images,
+        additional_details: {
+            description: description,
+            specifications: {
+                gender: gender,
+                shoe_materials: shoe_materials.split(',').map(el => el.trim()),
+                sole_materials: sole_materials.split(',').map(el => el.trim()),
+                occasion: occasion,
+                tags: JSON.parse(tags),
+                color: {
+                    name: JSON.parse(color).name,
+                    hex: JSON.parse(color).hex
+                },
+                dimensions: {
+                    unit: JSON.parse(dimensions).unit,
+                    width: JSON.parse(dimensions).width,
+                    length: JSON.parse(dimensions)['length'],
+                    height: JSON.parse(dimensions).height
+                },
+                weight: {
+                    unit: JSON.parse(weight).unit,
+                    value: JSON.parse(weight).value
+                },
+            }
+        },
+        meta_info: JSON.parse(meta_info)
+    }
+    try {
+        const updatable = await Product.findOneAndUpdate({ _id: id }, modified);
+        res.status(201).json({ message: "Product Updated Successfully" })
+    } catch (err) {
+        res.status(400).json({ updated: false, err: err })
+    }
+}
+
+export const deleteProduct = async (req, res) => {
+    const { id } = req.body;
+    const product = await Product.findById(id);
+    if (!product) {
+        return res.status(400).json({ err: "Invalid ID" });
+    }
+    const oldImages = product.images;
+    oldImages.forEach(item => {
+        const imagePath = path.join(__dirname, '..', 'uploads/product_images', item);
+        fs.unlinkSync(imagePath);
+    })
+    try {
+        const deleteable = await Product.deleteOne({ _id: id })
+        res.status(201).json({ deleted: true, message: "Product Deleted Successfully" })
+    } catch (err) {
+        res.status(400).json({ err: err, deleted: false })
+    }
+}
+
+
+// admin controls
+export const fetchAllProductsAdmin = async (req, res) => {
+    try {
+        const result = await Product.find().populate('brand').populate('category');
+        res.status(201).json({ data: result, err: null })
+    } catch (err) {
+        res.status(400).json({ data: null, err: err })
+    }
+}
