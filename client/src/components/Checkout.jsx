@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchCartAsync, updateCartAsync } from '../slices/cartSlice';
 import CartItemsList from './CartItemsList';
 import CartFooter from './CartFooter';
+import AddressFormModal from './AddressFormModal';
 
 const Checkout = () => {
 
@@ -168,7 +169,8 @@ const Checkout = () => {
 
 
             {/* form modal */}
-            <Transition.Root show={formModal} as={Fragment}>
+            <AddressFormModal formModal={formModal} setFormModal={setFormModal} formActionType={"add"} />
+            {/* <Transition.Root show={formModal} as={Fragment}>
                 <Dialog as="div" className="relative z-20" onClose={setFormModal}>
                     <Transition.Child
                         as={Fragment}
@@ -300,7 +302,7 @@ const Checkout = () => {
                         </div>
                     </div>
                 </Dialog>
-            </Transition.Root>
+            </Transition.Root> */}
 
 
         </div >

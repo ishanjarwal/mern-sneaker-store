@@ -52,6 +52,13 @@ const productSchema = new Schema({
         title: { type: String, required: true },
         description: { type: String, required: true }
     }
+}, { timestamps: true });
+
+productSchema.virtual('price').get(function () {
+    return this.sizes[0].price;
+});
+productSchema.virtual('discountPercentage').get(function () {
+    return this.sizes[0].discountPercentage;
 });
 
 const Product = model('Product', productSchema);

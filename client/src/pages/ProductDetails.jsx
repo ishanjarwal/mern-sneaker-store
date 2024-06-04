@@ -342,6 +342,7 @@ const ProductDetails = () => {
                                                 {/* {product.additional_details.description.map((line, index) => (
                                                 <span className='block' key={index}>{line}<br /></span>
                                             ))} */}
+                                                {product.additional_details.description}
                                             </p>
                                         </Tab.Panel>
 

@@ -116,7 +116,6 @@ export const productSlice = createSlice({
                 state.apiMessage = "Product Added Successfully"
             })
             .addCase(createProductAsync.rejected, (state, action) => {
-                console.log(action)
                 state.state = 'rejected';
                 state.apiError = action.error.message
             })
@@ -128,7 +127,6 @@ export const productSlice = createSlice({
                 state.apiMessage = "Product Added Successfully"
             })
             .addCase(updateProducyAsync.rejected, (state, action) => {
-                console.log(action)
                 state.state = 'rejected';
                 state.apiError = action.error.message
             })

@@ -37,6 +37,7 @@ const MainLayout = () => {
     // fetchusercart
     useEffect(() => {
         dispatch(fetchCartAsync(userId));
+        dispatch(fetchWishlistAsync(userId));
     }, []);
     useEffect(() => {
         if (cartState == 'fulfilled') {
@@ -58,9 +59,6 @@ const MainLayout = () => {
 
 
     // fetch user wishlist
-    useEffect(() => {
-        dispatch(fetchWishlistAsync(userId));
-    }, []);
     useEffect(() => {
         if (wishlistState == 'fulfilled') {
             dispatch(fetchWishlistAsync(userId));

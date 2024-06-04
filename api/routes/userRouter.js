@@ -14,7 +14,7 @@ userRouter
     .post('/', createUser)
     .post('/login', loginUser)
     .get("/check-admin", isAdmin, checkAdmin)
-    .patch('/:user_id', validateUserDB, validateAddress, updateUser)
+    .patch('/:user_id', validateUserDB, updateUser)
     .patch('/address/:user_id', validateUserDB, validateAddress, updateUserAddress)
 
 export default userRouter

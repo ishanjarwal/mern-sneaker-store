@@ -12,10 +12,11 @@ export async function fetchAllProducts() {
 }
 
 export async function fetchProducts({ filters, sort, pagination }) {
+    // filters = {category:['', '']}
     let queryString = '';
     // pagination
-    queryString += "_page=" + pagination.page + "&" + "_limit=" + pagination.limit + "&";
-    queryString += "_sort=" + sort.sort_by + "&_order=" + sort.order_by + "&";
+    queryString += "page=" + pagination.page + "&" + "limit=" + pagination.limit + "&";
+    queryString += "sort=" + sort.sort_by + "&order=" + sort.order_by + "&";
 
     // filters 
     // todo : create a single string with comma seperated values for a single filter field
@@ -26,7 +27,7 @@ export async function fetchProducts({ filters, sort, pagination }) {
     }
     // const url = 'http://localhost:3000/api/product?' + queryString;
     try {
-        const url = 'http://localhost:8080/api/product';
+        const url = 'http://localhost:8080/api/product?' + queryString;
         const response = await axios.get(url);
         const data = response.data.data;
         const totalProducts = response.data.totalProducts
@@ -43,6 +44,7 @@ export async function fetchProducts({ filters, sort, pagination }) {
                 thumbnail: product.images[0]
             }
         ))
+        console.log(sendable)
         return { data: sendable, totalProducts: totalProducts };
     } catch (err) {
         throw err

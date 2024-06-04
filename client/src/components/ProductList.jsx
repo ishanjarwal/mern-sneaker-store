@@ -30,7 +30,7 @@ const ProductList = () => {
 
 
     const [paginationOptions, setPaginationOptions] = useState({ page: 1, limit: ITEMS_PER_PAGE });
-    const [sortOptions, setSortOptions] = useState({ sort_by: 'created_at', order_by: 'asc', display: 'Newest' });
+    const [sortOptions, setSortOptions] = useState({ sort_by: 'createdAt', order_by: 'asc', display: 'Newest' });
     const [filterOptions, setFilterOptions] = useState({});
 
     useEffect(() => {
@@ -76,6 +76,11 @@ const ProductList = () => {
                     {/* filters */}
                     <DesktopFilters filterOptions={filterOptions} setFilterOptions={setFilterOptions} />
                 </div>
+                {products && products.length <= 0 && (
+                    <div className='py-24 flex justify-center items-center col-span-4'>
+                        <h1 className='text-3xl font-bold text-center'>No Products☹️</h1>
+                    </div>
+                )}
                 <div className='lg:col-span-4 col-span-5 grid md:grid-cols-3 grid-cols-2 sm:gap-4 gap-0'>
                     {products.length > 0 && products.map((product, index) => (
                         <ProductCard key={index} data={{

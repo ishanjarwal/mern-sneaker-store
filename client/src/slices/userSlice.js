@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { checkAuth, createUser, loginUser, updateUserAddress } from "../apis/userAPI";
+import { checkAuth, createUser, loginUser, updateUser, updateUserAddress } from "../apis/userAPI";
 
 const initialState = {
     currUser: null,
@@ -40,11 +40,24 @@ export const updateUserAddressAsync = createAsyncThunk(
     }
 )
 
+export const updateUserAsync = createAsyncThunk(
+    'user/updateUserAsync',
+    async ({ user_id, data }) => {
+        const response = await updateUser({ user_id, data })
+        return response;
+    }
+)
+
 export const userSlice = createSlice({
     name: 'user',
     initialState: initialState,
     reducers: {
-
+        resetUserApiError(state) {
+            state.apiError = null;
+        },
+        resetUserApiMessage(state) {
+            state.apiMessage = null;
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -53,7 +66,6 @@ export const userSlice = createSlice({
             })
             .addCase(createUserAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
-                console.log(action.payload)
                 state.currUser = action.payload.user;
             })
             .addCase(createUserAsync.rejected, (state, action) => {
@@ -74,7 +86,7 @@ export const userSlice = createSlice({
                 state.state = 'pending';
             })
             .addCase(checkAuthAsync.fulfilled, (state, action) => {
-                state.state = 'fulfilled';
+                state.state = 'idle';
                 state.currUser = action.payload;
             })
             .addCase(checkAuthAsync.rejected, (state, action) => {
@@ -92,7 +104,20 @@ export const userSlice = createSlice({
                 state.state = 'rejected';
                 state.apiError = action.error.message
             })
+            .addCase(updateUserAsync.pending, (state, action) => {
+                state.state = 'pending';
+            })
+            .addCase(updateUserAsync.fulfilled, (state, action) => {
+                state.state = 'fulfilled';
+                state.apiMessage = action.payload.apiSuccessMessage;
+            })
+            .addCase(updateUserAsync.rejected, (state, action) => {
+                state.state = 'rejected';
+                state.apiError = action.error.message
+            })
     }
 })
+
+export const { resetUserApiError, resetUserApiMessage } = userSlice.actions;
 
 export default userSlice.reducer

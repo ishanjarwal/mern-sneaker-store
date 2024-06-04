@@ -1,7 +1,21 @@
-import React from 'react'
-import { Outlet } from "react-router-dom"
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { Navigate, Outlet } from "react-router-dom"
+import { checkAuthAsync } from '../slices/userSlice';
 
 const AuthLayout = () => {
+
+    const dispatch = useDispatch();
+    const user = useSelector(state => state.user.currUser);
+    const userState = useSelector(state => state.user.state)
+    const userApiError = useSelector(state => state.user.apiError)
+    useEffect(() => {
+        dispatch(checkAuthAsync());
+    }, [userState]);
+
+    if (user) {
+        return <Navigate to={"/"} />
+    }
     return (
         <div className='w-full min-h-screen bg-gray-100 flex justify-center items-center'>
             <div className='flex lg:flex-row flex-col max-w-6xl w-full bg-white'>

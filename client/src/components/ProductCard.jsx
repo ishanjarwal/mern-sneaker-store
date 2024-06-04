@@ -88,6 +88,9 @@ const ProductCard = ({ data }) => {
                     <div className='flex flex-col justify-start items-start p-2'>
                         <span className='text-muted-text text-xs uppercase'>{data.brand}</span>
                         <span className='text-pri text-sm font-bold uppercase'>{data.name}</span>
+                        <div className='flex justify-start'>
+                            <span className='text-xs text-red-400'>{data.discountPercentage}% OFF</span>
+                        </div>
                         <div className='flex justify-start items-center space-x-1'>
                             <span className='text-muted-text text-xs line-through'>
                                 {

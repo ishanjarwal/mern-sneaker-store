@@ -1,6 +1,6 @@
 TODOs
-# try giving display id to size schema so that _id is unique (solved without it)
-# qty validation is needed in update and others
+# ✅ try giving display id to size schema so that _id is unique (solved without it)
+# qty validation is needed in update and others (out of stock)
 # ✅ updateCart is not working properly while changing size
 # add returnable field in add product page.
 # ✅ Cart Panel has only one function, to update the cart via dispatch (then send to checkout)
@@ -16,6 +16,8 @@ TODOs
 # there should be atleast one collection : new arrivals
 # ✅ add custom fields in specifications
 # while updating a product, don't delete the images from directory, just remove their path from db.
+# pagination on admin side (products, users, categories etc.)
+
 
 // backend 
 # use virtuals to set the cart total value and user fullname

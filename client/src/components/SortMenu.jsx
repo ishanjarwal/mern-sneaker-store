@@ -5,26 +5,35 @@ export default function SortMenu({ sortOptions, setSortOptions }) {
 
     const sortValues = [
         {
-            sort_by: 'created_at',
+            sort_by: 'createdAt',
             order_by: 'asc',
             display: "Newest"
         },
         {
-            sort_by: 'def_price',
+            sort_by: 'createdAt',
+            order_by: 'desc',
+            display: "Oldest"
+        },
+        {
+            sort_by: 'price',
             order_by: 'asc',
             display: "Price Low to High"
         },
         {
-            sort_by: 'def_price',
+            sort_by: 'price',
             order_by: 'desc',
             display: "Price High to Low"
         },
         {
-            sort_by: 'def_discountPercentage',
+            sort_by: 'discountPercentage',
             order_by: 'desc',
-            display: "Discount"
+            display: "Most Discount"
+        },
+        {
+            sort_by: 'discountPercentage',
+            order_by: 'asc',
+            display: "Least Discount"
         }
-
     ]
 
     useEffect(() => {

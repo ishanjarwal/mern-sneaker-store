@@ -91,11 +91,57 @@ export const createProduct = async (req, res) => {
 // todo : make a sendable
 export const fetchProductsList = async (req, res) => {
     try {
-        const result = await Product.find().populate('brand').populate('category');
-        const totalCount = await Product.countDocuments();
-        res.status(201).json({ data: result, err: null, totalProducts: totalCount })
+        const { category, brand, color, gender, size, sort, order, page, limit } = req.query;
+        const pageNumber = parseInt(page) || 1;
+        const pageSize = parseInt(limit) || 15;
+        const orderBy = order || "asc";
+        const skip = (pageNumber - 1) * pageSize;
+        const categories = Array.isArray(category) ? category : category ? category.split(',') : [];
+        const brands = Array.isArray(brand) ? brand : brand ? brand.split(',') : [];
+        const colors = Array.isArray(color) ? color : color ? color.split(',') : [];
+        const sizes = Array.isArray(size) ? size : size ? size.split(',') : [];
+        let sortOptions = {};
+        switch (sort) {
+            case 'price':
+                sortOptions = { "sizes.0.price": orderBy }
+                break;
+            case 'discountPercentage':
+                sortOptions = { "sizes.0.discountPercentage": orderBy }
+                break;
+            default:
+                sortOptions = { "createdAt": "asc" }
+                break;
+        }
+        console.log(sortOptions)
+
+        const query = {};
+        if (categories && categories.length > 0) {
+            query.category = { $in: categories };
+        }
+        if (brands && brands.length > 0) {
+            query.brand = { $in: brands };
+        }
+        if (colors && colors.length > 0) {
+            query['additional_details.specifications.color.name'] = { $in: colors.map(el => (new RegExp(el, "i"))) };
+        }
+        if (sizes && sizes.length > 0) {
+            query.sizes = { $elemMatch: { label: { $in: sizes.map(el => (new RegExp(el, "i"))) } } }
+        }
+        if (gender) {
+            query['additional_details.specifications.gender'] = new RegExp(gender, "i")
+        }
+        const products = await Product.find(query)
+            .populate('brand')
+            .populate('category')
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(pageSize)
+            .exec();
+        const totalItems = await Product.countDocuments(query);
+        res.status(201).json({ totalProducts: totalItems, data: products })
     } catch (err) {
-        res.status(400).json({ data: null, err: err })
+        console.log(err)
+        res.status(400).json(err)
     }
 }
 
@@ -246,5 +292,35 @@ export const fetchAllProductsAdmin = async (req, res) => {
         res.status(201).json({ data: result, err: null })
     } catch (err) {
         res.status(400).json({ data: null, err: err })
+    }
+}
+
+export const fetchColors = async (req, res) => {
+    try {
+        const products = await Product.find();
+        const colors = products.map(el => el.additional_details.specifications.color.name);
+        res.status(201).json(colors);
+    } catch (error) {
+        res.status(400).json(error);
+    }
+}
+
+export const fetchGenders = async (req, res) => {
+    try {
+        const products = await Product.find();
+        const genders = products.map(el => el.additional_details.specifications.gender);
+        res.status(201).json(genders);
+    } catch (error) {
+        res.status(400).json(error);
+    }
+}
+
+export const fetchSizes = async (req, res) => {
+    try {
+        const products = await Product.find();
+        const genders = products.map(el => el.sizes.map);
+        res.status(201).json(genders);
+    } catch (error) {
+        res.status(400).json(error);
     }
 }

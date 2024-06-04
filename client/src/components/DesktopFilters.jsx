@@ -1,56 +1,74 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
 import { IoCheckmark } from 'react-icons/io5';
 
 const DesktopFilters = ({ filterOptions, setFilterOptions }) => {
+    const [filters, setFilters] = useState({});
+    useEffect(() => {
+        (async function () {
+            try {
+                const categories = await axios.get('http://localhost:8080/api/category');
+                setFilters(prev => ({ ...prev, category: categories.data.data }))
+                const brands = await axios.get('http://localhost:8080/api/brand');
+                setFilters(prev => ({ ...prev, brand: brands.data.data }))
+            } catch (error) {
+                console.log(error)
+            }
+        })();
 
-    const filters = [
-        {
-            name: "Brand",
-            options: ["Nike", "Adidas", "Jordan", "Puma", "Reebok", "New Balance", "Under Armour", "Converse", "Vans"]
-        },
-        {
-            name: "Color",
-            options: ["Black", "White", "Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Gray", "Brown", "Multicolor"]
-        },
-        {
-            name: "Size",
-            options: ["5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"]
-        },
-        {
-            name: "Gender",
-            options: ["Men", "Women", "Kids", "Unisex"]
-        },
-        {
-            name: "Style",
-            options: ["Running", "Basketball", "Casual", "Skateboarding", "Athletic", "Fashion", "Training", "Walking"]
-        }
-    ];
+    }, []);
+
+    // const filters = [
+    //     {
+    //         name: "Brand",
+    //         options: ["Nike", "Adidas", "Jordan", "Puma", "Reebok", "New Balance", "Under Armour", "Converse", "Vans"]
+    //     },
+    //     {
+    //         name: "Color",
+    //         options: ["Black", "White", "Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Gray", "Brown", "Multicolor"]
+    //     },
+    //     {
+    //         name: "Size",
+    //         options: ["5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"]
+    //     },
+    //     {
+    //         name: "Gender",
+    //         options: ["Men", "Women", "Kids", "Unisex"]
+    //     },
+    //     {
+    //         name: "Style",
+    //         options: ["Running", "Basketball", "Casual", "Skateboarding", "Athletic", "Fashion", "Training", "Walking"]
+    //     }
+    // ];
 
     function handleFilters(key, option) {
-        if (filterOptions[key]) {
-            setFilterOptions((prev => ({ ...prev, [key]: [...prev[key], option] })));
+        if (filterOptions[key] && filterOptions[key].includes(option)) {
+            setFilterOptions(prev => {
+                const newArr = prev[key].filter(el => el !== option);
+                return { ...prev, [key]: newArr }
+            })
         } else {
-            setFilterOptions((prev => ({ ...prev, [key]: [option] })));
+            setFilterOptions((prev => ({ ...prev, [key]: [...(prev[key] || []), option] })));
         }
     }
 
     return (
         <div className='p-4 '>
             {/* filters */}
-            <h2 className='text-xl font-bold text-text uppercase mb-4'>Filters</h2>
+            <h2 className='text-xl font-bold text-muted-text uppercase mb-4'>Filters</h2>
             <div>
-                {filters.map((filter, index) => (
+                {Object.keys(filters).map((filter, index) => (
                     <div className='mt-4' key={index}>
-                        <h2 className='text-lg font-bold mb-2'>{filter.name}</h2>
+                        <h2 className='text-lg text font-semibold mb-2 capitalize'>{filter}</h2>
                         <ul>
-                            {filter.options.map((option, index) => (
+                            {filters[filter].map((option, index) => (
                                 <li className='mb-2 flex justify-start' key={index}>
                                     <label className='flex justify-start space-x-2 items-center cursor-pointer'>
                                         <div className='relative w-5 h-5'>
                                             <input
                                                 onChange={() => {
-                                                    const key = (filter.name).toLowerCase();
-                                                    handleFilters(key, option)
+                                                    const key = (filter).toLowerCase();
+                                                    handleFilters(key, option._id)
                                                 }}
                                                 name='color'
                                                 type="checkbox"
@@ -62,7 +80,7 @@ const DesktopFilters = ({ filterOptions, setFilterOptions }) => {
                                                 <IoCheckmark />
                                             </span>
                                         </div>
-                                        <span>{option}</span>
+                                        <span>{option.name}</span>
                                     </label>
                                 </li>
                             ))}

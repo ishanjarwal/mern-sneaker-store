@@ -72,18 +72,16 @@ export const loginUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     try {
-        const { user_id } = req.params;
-        const updateOptions = {};
-        if (req.body.address && !req.body.address._id) {
-            updateOptions.$addToSet = { addresses: req.body.address };
-        }
-        if (req.body.fullname) {
-            updateOptions.fullname = req.body.fullname;
+        const { _id: user_id } = req.user;
+        const { fname, lname, email } = req.body
+        const updateOptions = {
+            fullname: fname + " " + lname,
+            email: email
         }
         const updatable = await User.findOneAndUpdate({ _id: user_id }, updateOptions, { new: false })
-        return res.status(201).json({ updatable });
+        return res.status(201).json({ apiSuccessMessage: "Details updated" });
     } catch (error) {
-        return res.status(500).json({ error });
+        return res.status(500).json({ apiErrorMessage: "Something went wrong", error });
     }
 }
 

@@ -1,19 +1,61 @@
-import React from 'react'
-import { Link, Outlet } from "react-router-dom"
-import { useDispatch } from "react-redux"
+import React, { useEffect } from 'react'
+import { Link, Navigate, Outlet } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
 import { showCart } from "../slices/cartSlice"
 import { showWishlist } from "../slices/wishlistSlice"
 import { IoBagOutline, IoHeartOutline, IoPersonOutline } from "react-icons/io5";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import { CiLogout } from "react-icons/ci";
+import { ToastContainer, toast, Flip } from 'react-toastify'
+import { checkAuthAsync, resetUserApiError, resetUserApiMessage } from '../slices/userSlice'
 
 
 const AccountLayout = () => {
 
     const dispatch = useDispatch();
+    const userState = useSelector(state => state.user.state);
+    const userApiError = useSelector(state => state.user.apiError)
+    const userApiMessage = useSelector(state => state.user.apiMessage)
+    const user = useSelector(state => state.user.currUser)
+    useEffect(() => {
+        dispatch(checkAuthAsync());
+    }, []);
+    useEffect(() => {
+        if (userState == 'fulfilled') {
+            dispatch(checkAuthAsync());
+        }
+    }, [userState]);
+
+    useEffect(() => {
+        if (userApiError) {
+            toast.error(userApiError, { toastId: "user error toast", containerId: "account-layout-toast-container" })
+        }
+        if (userApiMessage) {
+            toast.success(userApiMessage, { toastId: "user success toast", containerId: "account-layout-toast-container" })
+        }
+    }, [userState]);
+
+
+    if (!user) {
+        return <Navigate to={"/login"} />
+    }
 
     return (
         <div>
+            <ToastContainer
+                containerId={"account-layout-toast-container"}
+                position="bottom-center"
+                autoClose={1500}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+                transition={Flip}
+            />
             <section className='grid grid-cols-4 md:py-12'>
                 <div className='col-span-1 bg-gray-50 md:block hidden'>
                     <div className='flex justify-start items-center space-x-4 px-4 py-6 '>
@@ -27,7 +69,7 @@ const AccountLayout = () => {
                         <div>
                             <p>
                                 <span className='text-lg text-text'>
-                                    Jane Doe
+                                    {user && user.fullname}
                                 </span>
                             </p>
                             <Link to={'/logout'}>
