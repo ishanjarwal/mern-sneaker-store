@@ -12,7 +12,7 @@ const Navbar = ({ setMobileNav }) => {
 
     const dispatch = useDispatch();
     const cartShown = useSelector(state => state.cart.shown);
-
+    const user = useSelector(state => state.user.currUser);
     const profileMenu = [
         {
             name: 'Your Profile',
@@ -77,71 +77,101 @@ const Navbar = ({ setMobileNav }) => {
                         <button className='text-2xl'>
                             <IoSearchOutline />
                         </button>
-                        <div
-                            className='relative cursor-pointer'
-                            title='Your Wishlist'
-                            onClick={() => { dispatch(showWishlist()) }}
-                        >
-                            {wishlistItems.length > 0 && (
-                                <span className='absolute -right-2 -top-2 text-xs min-w-4 px-1 py-1 h-4 flex justify-center items-center rounded-full bg-black text-white'>
-                                    {wishlistItems.length}
+                        {user
+                            ?
+                            <div
+                                className='relative cursor-pointer'
+                                title='Your Wishlist'
+                                onClick={() => { dispatch(showWishlist()) }}
+                            >
+                                {wishlistItems.length > 0 && (
+                                    <span className='absolute -right-2 -top-2 text-xs min-w-4 px-1 py-1 h-4 flex justify-center items-center rounded-full bg-black text-white'>
+                                        {wishlistItems.length}
+                                    </span>
+                                )}
+                                <span className='text-black text-2xl'>
+                                    <span>
+                                        <IoHeartOutline />
+                                    </span>
                                 </span>
-                            )}
-                            <span className='text-black text-2xl'>
-                                <span>
-                                    <IoHeartOutline />
+                            </div>
+                            :
+                            <Link to={'/login'}>
+                                <span className='text-black text-2xl'>
+                                    <span>
+                                        <IoHeartOutline />
+                                    </span>
                                 </span>
-                            </span>
-                        </div>
-                        <div
-                            className='relative cursor-pointer'
-                            title='Your Cart'
-                            onClick={() => { dispatch(showCart()) }}
-                        >
-                            {cartItems.length > 0 && (
-                                <span className='absolute -right-2 -top-2 text-xs min-w-4 px-1 py-1 h-4 flex justify-center items-center rounded-full bg-black text-white'>
-                                    {cartItems.reduce((acc, curr) => { return (acc + curr.qty) }, 0)}
+                            </Link>
+                        }
+                        {user
+                            ?
+                            <div
+                                className='relative cursor-pointer'
+                                title='Your Cart'
+                                onClick={() => { dispatch(showCart()) }}
+                            >
+                                {cartItems.length > 0 && (
+                                    <span className='absolute -right-2 -top-2 text-xs min-w-4 px-1 py-1 h-4 flex justify-center items-center rounded-full bg-black text-white'>
+                                        {cartItems.reduce((acc, curr) => { return (acc + curr.qty) }, 0)}
+                                    </span>
+                                )}
+                                <span className='text-black text-2xl'>
+                                    <span>
+                                        <IoBagOutline />
+                                    </span>
                                 </span>
-                            )}
-                            <span className='text-black text-2xl'>
-                                <span>
-                                    <IoBagOutline />
+                            </div>
+                            :
+                            <Link to={'/login'}>
+                                <span className='text-black text-2xl'>
+                                    <span>
+                                        <IoBagOutline />
+                                    </span>
                                 </span>
-                            </span>
-                        </div>
+                            </Link>
+                        }
 
                         {/* profile menu */}
                         <div className=''>
-                            <Menu as="div" className="relative block text-left">
-                                <div>
-                                    <Menu.Button className="inline-flex w-full whitespace-nowrap justify-center  text-2xl font-medium text-text">
-                                        <IoPersonOutline />
-                                    </Menu.Button>
-                                </div>
-                                <Transition
-                                    as={Fragment}
-                                    enter="transition ease-out duration-100"
-                                    enterFrom="transform opacity-0 scale-95"
-                                    enterTo="transform opacity-100 scale-100"
-                                    leave="transition ease-in duration-75"
-                                    leaveFrom="transform opacity-100 scale-100"
-                                    leaveTo="transform opacity-0 scale-95"
-                                >
-                                    <Menu.Items className="absolute z-10 right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md overflow-hidden bg-white shadow-lg">
-                                        {profileMenu.map((el, index) => (
-                                            <Menu.Item key={index}>
-                                                {({ active }) => (
-                                                    <Link to={el.link}
-                                                        className='block py-2 px-3 text-text text-sm bg-white hover:bg-muted-bg w-full text-start'
-                                                    >
-                                                        {el.name}
-                                                    </Link>
-                                                )}
-                                            </Menu.Item>
-                                        ))}
-                                    </Menu.Items>
-                                </Transition>
-                            </Menu>
+                            {user
+                                ?
+                                <Menu as="div" className="relative block text-left">
+                                    <div>
+                                        <Menu.Button className="flex w-full whitespace-nowrap justify-center  text-2xl font-medium text-text">
+                                            <IoPersonOutline />
+                                        </Menu.Button>
+                                    </div>
+                                    <Transition
+                                        as={Fragment}
+                                        enter="transition ease-out duration-100"
+                                        enterFrom="transform opacity-0 scale-95"
+                                        enterTo="transform opacity-100 scale-100"
+                                        leave="transition ease-in duration-75"
+                                        leaveFrom="transform opacity-100 scale-100"
+                                        leaveTo="transform opacity-0 scale-95"
+                                    >
+                                        <Menu.Items className="absolute z-10 right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md overflow-hidden bg-white shadow-lg">
+                                            {profileMenu.map((el, index) => (
+                                                <Menu.Item key={index}>
+                                                    {({ active }) => (
+                                                        <Link to={el.link}
+                                                            className='block py-2 px-3 text-text text-sm bg-white hover:bg-muted-bg w-full text-start'
+                                                        >
+                                                            {el.name}
+                                                        </Link>
+                                                    )}
+                                                </Menu.Item>
+                                            ))}
+                                        </Menu.Items>
+                                    </Transition>
+                                </Menu>
+                                :
+                                <Link to={'/login'} className="flex w-full whitespace-nowrap justify-center items-center  text-2xl font-medium text-text">
+                                    <IoPersonOutline />
+                                </Link>
+                            }
+
                         </div>
 
                     </div>

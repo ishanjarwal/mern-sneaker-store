@@ -112,8 +112,6 @@ export const fetchProductsList = async (req, res) => {
                 sortOptions = { "createdAt": "asc" }
                 break;
         }
-        console.log(sortOptions)
-
         const query = {};
         if (categories && categories.length > 0) {
             query.category = { $in: categories };

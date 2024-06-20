@@ -11,7 +11,8 @@ const ProductCard = ({ data }) => {
     const dispatch = useDispatch();
     const wishlistItems = useSelector(state => state.wishlist.items);
     const wishlistState = useSelector(state => state.wishlist.state);
-    const userId = "661137f22a31832ceb92ddbc";
+    const user = useSelector(state => state.user.currUser);
+
 
     const swiper_options = {
         'space-between': '0',
@@ -37,9 +38,9 @@ const ProductCard = ({ data }) => {
                     onClick={
                         () => {
                             if (wishlistItems.find(el => el._id == data.id)) {
-                                dispatch(deleteFromWishlistAsync({ user_id: userId, product_id: data.id }))
+                                dispatch(deleteFromWishlistAsync({ user_id: user._id, product_id: data.id }))
                             } else {
-                                dispatch(addToWishlistAsync({ user_id: userId, product_id: data.id }))
+                                dispatch(addToWishlistAsync({ user_id: user._id, product_id: data.id }))
                             }
                         }}
                 >

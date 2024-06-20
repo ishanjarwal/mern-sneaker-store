@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 
 const WishlistModal = () => {
     const dispatch = useDispatch()
-    const userId = "661137f22a31832ceb92ddbc";
+    const user = useSelector(state => state.user.currUser);
     const wishlistShown = useSelector(state => state.wishlist.shown);
     const wishlistItems = useSelector(state => state.wishlist.items);
 
@@ -108,7 +108,7 @@ const WishlistModal = () => {
                                                                 </button> */}
                                                                 <button
                                                                     onClick={() => {
-                                                                        dispatch(deleteFromWishlistAsync({ user_id: userId, product_id: item._id }))
+                                                                        dispatch(deleteFromWishlistAsync({ user_id: user._id, product_id: item._id }))
                                                                     }}
                                                                     title='Remove from Wishlist'
                                                                     className="p-2 bg-white rounded-md text-lg text-red-400 hover:bg-muted-bg border border-gray-300 duration-100"

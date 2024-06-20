@@ -20,9 +20,14 @@ import UserProfile from './pages/UserProfile'
 import UserOrders from './pages/UserOrders'
 import AccountLayout from './layouts/AccountLayout'
 import ErrorPage from './pages/ErrorPage'
+import { useDispatch } from 'react-redux'
+import { checkAuthAsync } from './slices/userSlice'
 
 const App = () => {
-
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(checkAuthAsync());
+  }, []);
   return (
     <Routes>
       <Route path='/' element={<AuthLayout />}>

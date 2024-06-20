@@ -6,13 +6,13 @@ import { useDispatch } from "react-redux";
 
 const AddressFormModal = ({ formModal, setFormModal, formActionType }) => {
 
-    const userId = "661137f22a31832ceb92ddbc";
+    const user = useSelector(state => state.user.currUser);
     const dispatch = useDispatch();
     const { register, handleSubmit, formState: { errors }, control, watch, setValue, getValues } = useForm();
 
     function sendData(data) {
         const sendable = { address: data, type: formActionType }
-        dispatch(updateUserAddressAsync({ user_id: userId, data: sendable }))
+        dispatch(updateUserAddressAsync({ user_id: user._id, data: sendable }))
         console.log(data);
     }
     async function checkPincode(pincode) {

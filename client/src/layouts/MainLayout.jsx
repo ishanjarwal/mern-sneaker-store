@@ -11,7 +11,7 @@ import { fetchWishlistAsync, resetWishlistApiError, resetWishlistApiMessage } fr
 
 const MainLayout = () => {
 
-    const userId = "661137f22a31832ceb92ddbc";
+    const user = useSelector(state => state.user.currUser);
     const dispatch = useDispatch();
     const cartState = useSelector(state => state.cart.state);
     const cartApiError = useSelector(state => state.cart.apiError);
@@ -34,16 +34,23 @@ const MainLayout = () => {
     }, []);
 
 
-    // fetchusercart
+    // fetchusercart and wishlist
     useEffect(() => {
-        dispatch(fetchCartAsync(userId));
-        dispatch(fetchWishlistAsync(userId));
-    }, []);
-    useEffect(() => {
-        if (cartState == 'fulfilled') {
-            dispatch(fetchCartAsync(userId));
+        if (user) {
+            dispatch(fetchCartAsync(user._id));
+            dispatch(fetchWishlistAsync(user._id));
         }
-    }, [dispatch, cartState]);
+    }, [user]);
+
+    // wishlist and cart states should be idle always
+    useEffect(() => {
+        if (cartState == 'fulfilled' && user) {
+            dispatch(fetchCartAsync(user._id));
+        }
+        if (wishlistState == 'fulfilled' && user) {
+            dispatch(fetchWishlistAsync(user._id));
+        }
+    }, [dispatch, cartState, wishlistState, user]);
 
     // handle cart errors
     useEffect(() => {
@@ -57,13 +64,6 @@ const MainLayout = () => {
         dispatch(resetCartApiMessage())
     }, [cartState]);
 
-
-    // fetch user wishlist
-    useEffect(() => {
-        if (wishlistState == 'fulfilled') {
-            dispatch(fetchWishlistAsync(userId));
-        }
-    }, [dispatch, wishlistState]);
 
     // handle wishlist errors
     useEffect(() => {

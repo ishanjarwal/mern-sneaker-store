@@ -37,17 +37,19 @@ const Checkout = () => {
             phone: 1124423232
         }
     ]
-    const userId = "661137f22a31832ceb92ddbc";
+    const user = useSelector(state => state.user.currUser);
 
     function updateCart(data) {
-        dispatch(updateCartAsync({ user_id: userId, data: data }));
+        dispatch(updateCartAsync({ user_id: user._id, data: data }));
     }
     useEffect(() => {
-        dispatch(fetchCartAsync(userId));
+        if(user){
+            dispatch(fetchCartAsync(user._id));
+        }
     }, [dispatch, cartShown]);
     useEffect(() => {
-        if (state == 'fulfilled') {
-            dispatch(fetchCartAsync(userId));
+        if (state == 'fulfilled' && user) {
+            dispatch(fetchCartAsync(user._id));
         }
     }, [dispatch, state]);
 

@@ -23,7 +23,10 @@ const userSchema = new Schema({
     fullname: { type: String, required: true },
     cart_id: { type: Schema.Types.ObjectId, ref: "Cart" },
     addresses: [{ type: addressSchema }],
-    passwordResetToken: { type: String, default: null }
+    passwordResetToken: {
+        token: { type: String, default: null },
+        expiry: { type: Date }
+    }
 }, { timestamps: true });
 
 const User = model('User', userSchema);

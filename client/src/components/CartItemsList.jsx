@@ -12,13 +12,11 @@ import { addToWishlistAsync } from '../slices/wishlistSlice';
 const CartItemsList = () => {
     const dispatch = useDispatch()
     const cartItems = useSelector(state => state.cart.items);
-    const userId = "661137f22a31832ceb92ddbc";
-
-
+    const user = useSelector(state => state.user.currUser);
 
 
     function updateCart(data) {
-        dispatch(updateCartAsync({ user_id: userId, data: data }));
+        dispatch(updateCartAsync({ user_id: user._id, data: data }));
     }
     return (
         <ul>
@@ -155,8 +153,8 @@ const CartItemsList = () => {
                                             title='Move to Wishlist'
                                             className="p-2 bg-white rounded-md text-lg text-text hover:bg-muted-bg border border-gray-300 duration-100"
                                             onClick={() => {
-                                                dispatch(deleteFromCartAsync({ user_id: userId, product_id: item.product._id, size: item.size._id }))
-                                                dispatch(addToWishlistAsync({ user_id: userId, product_id: item.product._id }))
+                                                dispatch(deleteFromCartAsync({ user_id: user._id, product_id: item.product._id, size: item.size._id }))
+                                                dispatch(addToWishlistAsync({ user_id: user._id, product_id: item.product._id }))
                                             }}
                                         >
                                             <TbHeartUp />
@@ -165,7 +163,7 @@ const CartItemsList = () => {
                                             title='Remove from Cart'
                                             onClick={(e) => {
                                                 e.preventDefault();
-                                                dispatch(deleteFromCartAsync({ user_id: userId, product_id: item.product._id, size: item.size._id }))
+                                                dispatch(deleteFromCartAsync({ user_id: user._id, product_id: item.product._id, size: item.size._id }))
                                             }}
                                             className="p-2 bg-white rounded-md text-lg text-red-400 hover:bg-muted-bg border border-gray-300 duration-100"
                                         >

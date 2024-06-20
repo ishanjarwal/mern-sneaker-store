@@ -15,10 +15,9 @@ import AddressFormModal from '../components/AddressFormModal'
 
 
 const UserProfile = () => {
-
     const dispatch = useDispatch();
+    const user = useSelector(state => state.user.currUser);
     const { register, handleSubmit, formState: { errors }, control, watch, setValue, getValues } = useForm();
-    const user = useSelector(state => state.user.currUser)
     const [formModal, setFormModal] = useState(false);
     const [formActionType, setFormActionType] = useState("add");
     function sendData(data) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { IoArrowForwardOutline } from 'react-icons/io5'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { loginUserAsync } from '../slices/userSlice'
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -21,9 +21,11 @@ const Login = () => {
         <form>
             <h1 className='font-bold text-5xl'>Login</h1>
             <p className='text-muted-text mt-2'>Login to your account to access features of this store.</p>
-            <p className='text-red-400 text-lg'>
-                {userApiError}
-            </p>
+            {userApiError &&
+                <p className='text-red-400 text-lg'>
+                    {userApiError}
+                </p>
+            }
             <div className=" relative z-0 w-full mb-8 mt-8 group">
                 <input
                     onChange={(e) => {

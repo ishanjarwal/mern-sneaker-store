@@ -66,7 +66,7 @@ export const loginUser = async (req, res) => {
             if (err) {
                 return res.status(500).json({ apiErrorMessage: "Something went wrong" });
             }
-            return res.status(201).cookie('user', token).json({ apiSuccessMessage: "Login successful" });
+            return res.status(201).cookie('user', token).json({ apiSuccessMessage: "Login successful", data: { _id: check._id, name: check.fullname, email: check.email } });
         })
 }
 
@@ -133,7 +133,7 @@ export const checkAuth = (req, res) => {
     if (!user) {
         res.sendStatus(400); // unreachable due to middleware
     }
-    res.status(200).json(user);
+    res.status(200).json({ data: { _id: user._id, fullname: user.fullname, email: user.email } });
 }
 
 export const checkAdmin = (req, res) => {
@@ -151,6 +151,5 @@ export const sendResetPasswordToken = async (req, res) => {
 }
 export const resetPassword = async (req, res) => {
     // check token and reset password
-
 
 }

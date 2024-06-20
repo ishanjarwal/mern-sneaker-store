@@ -27,7 +27,7 @@ const ProductDetails = () => {
     const dispatch = useDispatch();
     const wishlistItems = useSelector(state => state.wishlist.items);
     const wishlistState = useSelector(state => state.wishlist.state);
-    const userId = "661137f22a31832ceb92ddbc"
+    const user = useSelector(state => state.user.currUser);
 
     const [qty, setQty] = useState(1);
     const [size, setSize] = useState(null);
@@ -37,7 +37,7 @@ const ProductDetails = () => {
             size: size || product.currSize._id,
             qty: qty
         }
-        dispatch(addToCartAsync({ user_id: userId, data: data }))
+        dispatch(addToCartAsync({ user_id: user._id, data: data }))
     }
 
     useEffect(() => {
@@ -90,9 +90,9 @@ const ProductDetails = () => {
                                         className='absolute md:top-4 top-16 bg-white lg:w-12 lg:h-12 w-10 h-10 rounded-full flex justify-center items-center lg:text-2xl text-xl hover:bg-muted-bg right-4 duration-150' style={{ "zIndex": 1 }}
                                         onClick={() => {
                                             if (wishlistItems.find(el => el._id == product._id)) {
-                                                dispatch(deleteFromWishlistAsync({ user_id: userId, product_id: product._id }))
+                                                dispatch(deleteFromWishlistAsync({ user_id: user._id, product_id: product._id }))
                                             } else {
-                                                dispatch(addToWishlistAsync({ user_id: userId, product_id: product._id }))
+                                                dispatch(addToWishlistAsync({ user_id: user._id, product_id: product._id }))
                                             }
                                         }}
                                         title={`${wishlistItems.find(el => el._id == product._id) ? "Remove from Wishlist" : "Add to Wishlist"}`}

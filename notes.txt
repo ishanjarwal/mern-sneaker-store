@@ -1,4 +1,8 @@
+NEXT 
+* complete user profile apis including addresses (crud)
+
 TODOs
+# in the order schema, don't use reference ids, add the actual data (bcoz that might be deleted)
 # ✅ try giving display id to size schema so that _id is unique (solved without it)
 # qty validation is needed in update and others (out of stock)
 # ✅ updateCart is not working properly while changing size
