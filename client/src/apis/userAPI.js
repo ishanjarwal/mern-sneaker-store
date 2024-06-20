@@ -19,6 +19,15 @@ export async function loginUser(data) {
     }
 }
 
+export async function logoutUser() {
+    try {
+        const response = await axios.get('http://localhost:8080/api/user/logout', { withCredentials: true });
+        return response.data
+    } catch (err) {
+        throw new Error(err.response.data.apiErrorMessage)
+    }
+}
+
 export async function checkAuth() {
     try {
         const response = await axios.get('http://localhost:8080/api/user/check-auth', { withCredentials: true });

@@ -22,6 +22,7 @@ import AccountLayout from './layouts/AccountLayout'
 import ErrorPage from './pages/ErrorPage'
 import { useDispatch } from 'react-redux'
 import { checkAuthAsync } from './slices/userSlice'
+import Logout from './components/Logout'
 
 const App = () => {
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ const App = () => {
   }, []);
   return (
     <Routes>
+      <Route path='/logout' element={<Logout />}></Route>
       <Route path='/' element={<AuthLayout />}>
         <Route path='/login' element={<Login />}></Route>
         <Route path='/signup' element={<SignUp />}></Route>

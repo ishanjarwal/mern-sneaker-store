@@ -1,5 +1,5 @@
 import express from 'express'
-import { checkAdmin, checkAuth, createUser, fetchUser, loginUser, updateUser, updateUserAddress } from '../controllers/userController.js';
+import { checkAdmin, checkAuth, createUser, fetchUser, loginUser, logoutUser, updateUser, updateUserAddress } from '../controllers/userController.js';
 import { isAuth } from '../middlewares/isAuth.js';
 import { isAdmin } from '../middlewares/isAdmin.js';
 import { validateUserDB } from '../middlewares/validateUserDB.js';
@@ -10,6 +10,7 @@ const userRouter = express.Router();
 
 userRouter
     .get("/check-auth", isAuth, checkAuth)
+    .get('/logout', logoutUser)
     .get('/:user_id', fetchUser)
     .post('/', createUser)
     .post('/login', loginUser)

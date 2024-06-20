@@ -66,9 +66,14 @@ export const loginUser = async (req, res) => {
             if (err) {
                 return res.status(500).json({ apiErrorMessage: "Something went wrong" });
             }
-            return res.status(201).cookie('user', token).json({ apiSuccessMessage: "Login successful", data: { _id: check._id, name: check.fullname, email: check.email } });
+            return res.status(201).cookie('user', token).json({ apiSuccessMessage: "Login successful", data: check });
         })
 }
+
+export const logoutUser = async (req, res) => {
+    await res.clearCookie('user').json({ apiSuccessMessage: "Logged Out", data: null })
+}
+
 
 export const updateUser = async (req, res) => {
     try {
@@ -133,7 +138,7 @@ export const checkAuth = (req, res) => {
     if (!user) {
         res.sendStatus(400); // unreachable due to middleware
     }
-    res.status(200).json({ data: { _id: user._id, fullname: user.fullname, email: user.email } });
+    res.status(200).json({ data: user });
 }
 
 export const checkAdmin = (req, res) => {
