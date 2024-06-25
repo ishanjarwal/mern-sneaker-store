@@ -1,28 +1,25 @@
 import nodemailer from "nodemailer";
 
-export const sendEmails = (to, msg) => {
+export const sendEmails = (to, html, subject) => {
     let transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'your_email@gmail.com', // Your Gmail address
-            pass: 'your_password' // Your Gmail password
+            user: process.env.MAIL_ID, // Your Gmail address
+            pass: process.env.MAIL_PASSWORD // Your Gmail password
         }
     });
 
     let mailOptions = {
-        from: 'your_email@gmail.com', // Sender address
-        to: 'recipient@example.com', // List of recipients
-        subject: 'Test Email', // Subject line
-        html: '<h1>Hello from Nodemailer!</h1><p>This is HTML content.</p>' // HTML content
+        from: 'sneakerstore@gmail.com', // Sender address
+        to: to, // List of recipients
+        subject: subject,
+        html: html
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.log('Error occurred:', error.message);
-            return;
+            throw error;
         }
-        console.log('Email sent successfully!');
-        console.log(info);
         return info;
     });
 }

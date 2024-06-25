@@ -22,7 +22,7 @@ const userSchema = new Schema({
     password: { type: String, required: true },
     fullname: { type: String, required: true },
     cart_id: { type: Schema.Types.ObjectId, ref: "Cart" },
-    addresses: [{ type: addressSchema }],
+    addresses: [{ type: addressSchema, required: false }],
     passwordResetToken: {
         token: { type: String, default: null },
         expiry: { type: Date }

@@ -2,6 +2,8 @@ import User from "../models/userModel.js";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
+import generateRandomString from '../utils/randomString.js'
+import { sendEmails } from "../utils/sendEmails.js";
 
 export const fetchUser = async (req, res) => {
     try {
@@ -151,10 +153,47 @@ export const checkAdmin = (req, res) => {
 
 export const sendResetPasswordToken = async (req, res) => {
     // send mail with token link and add token to db
+    try {
+        const user = req.user;
+        const now = new Date();
+        const emailToken = generateRandomString(16);
+        const expiry = new Date(now.getTime() + (10 * 60000));
+        const link = `http://localhost:5173/reset-password/${emailToken}`;
+        const editable = await User.findById(user._id);
+        if (!editable) {
+            return res.status(400).json({ message: "No user found" });
+        }
+        editable.passwordResetToken.token = emailToken;
+        editable.passwordResetToken.expiry = expiry;
+        await editable.save();
+        sendEmails("123@example.com", `<a href="${link}">RESET PASSWORD</a>`, "Rest Account Password");
+        return res.status(200).json({ message: "reset token sent" });
 
-
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: "Something went wrong" });
+    }
 }
 export const resetPassword = async (req, res) => {
     // check token and reset password
-
+    try {
+        const user = req.user;
+        const { newPassword } = req.body;
+        const { token } = req.params;
+        if (!token || !newPassword) {
+            return res.status(400).json({ message: "Insufficient Data" });
+        }
+        const now = new Date();
+        // const check = await User.findById(user._id);
+        const check = await User.findOne({ _id: user._id, "passwordResetToken.token": token, "passwordResetToken.expiry": { $gt: now } })
+        if (!check) {
+            return res.status(400).json({ message: "Time limit exceeded" });
+        }
+        const hashedPassword = bcrypt.hashSync(newPassword, bcrypt.genSaltSync(10));
+        check.password = hashedPassword;
+        await check.save();
+        return res.status(200).json({ message: "password updated" });
+    } catch (error) {
+        return res.status(500).json({ message: "Something went wrong", error: error });
+    }
 }

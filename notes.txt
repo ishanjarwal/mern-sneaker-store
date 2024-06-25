@@ -2,6 +2,7 @@ NEXT
 * complete user profile apis including addresses (crud)
 
 TODOs
+# create an api endpoint to clear the out of stock items from the cart. so that when checkout is hit, this api is called.
 # in the order schema, don't use reference ids, add the actual data (bcoz that might be deleted)
 # ✅ try giving display id to size schema so that _id is unique (solved without it)
 # qty validation is needed in update and others (out of stock)
