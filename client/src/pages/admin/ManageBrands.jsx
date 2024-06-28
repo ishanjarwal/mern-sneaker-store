@@ -2,6 +2,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import axios from 'axios';
 import React, { Fragment, useEffect, useState } from 'react'
 import { IoAddSharp, IoPencilSharp, IoTrashBinSharp } from 'react-icons/io5'
+import { DOMAIN } from '../../app/constants';
 
 const ManageBrands = () => {
 
@@ -11,7 +12,7 @@ const ManageBrands = () => {
 
     async function fetchBrands() {
         try {
-            const response = await axios.get('http://localhost:8080/api/brand')
+            const response = await axios.get(DOMAIN + '/api/brand')
             setData(response.data.data)
         } catch (error) {
             console.log(error)
@@ -87,7 +88,7 @@ const CreateBrand = ({ showCreateForm, setShowCreateForm }) => {
 
     const [value, setValue] = useState('');
     async function createBrand() {
-        const url = 'http://localhost:8080/api/brand'
+        const url = DOMAIN + '/api/brand'
         try {
             const response = await axios.post(url, { name: value });
             console.log(response)

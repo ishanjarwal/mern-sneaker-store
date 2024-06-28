@@ -3,6 +3,7 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { IoCloseOutline, IoInformationCircleOutline, IoPencilSharp, IoTrashBinSharp } from 'react-icons/io5';
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchAllProductsAsync } from '../../slices/productSlice.js'
+import { DOMAIN } from '../../app/constants.js';
 
 const ManageProducts = () => {
 
@@ -55,7 +56,7 @@ const ManageProducts = () => {
                                 <td className='text-start py-2 px-2 border border-muted-text'>
                                     <img
                                         className='w-32 h-24 object-cover object-center mx-auto'
-                                        src={`http://localhost:8080/uploads/product_images/${el.images[0]}`} />
+                                        src={`${DOMAIN}/uploads/product_images/${el.images[0]}`} />
                                 </td>
                                 <td className='text-start text-sm py-2 px-2 border border-muted-text'>{el.name}</td>
                                 <td className='text-start text-sm py-2 px-2 border border-muted-text'>{el.createdAt}</td>

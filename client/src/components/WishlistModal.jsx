@@ -64,7 +64,7 @@ const WishlistModal = () => {
                                                     <Link to={`/product/${item._id}`}>
                                                         <div className="h-24 w-24 flex-shrink-0 rounded-md overflow-hidden bg-muted-bg">
                                                             <img
-                                                                src={`http://localhost:8080/uploads/product_images/${item.thumbnail}`}
+                                                                src={`${DOMAIN}/uploads/product_images/${item.thumbnail}`}
                                                                 alt={item.name}
                                                                 className="w-full object-contain object-center"
                                                             />

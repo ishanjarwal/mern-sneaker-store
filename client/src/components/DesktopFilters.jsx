@@ -1,15 +1,16 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { IoCheckmark } from 'react-icons/io5';
+import { DOMAIN } from '../app/constants';
 
 const DesktopFilters = ({ filterOptions, setFilterOptions }) => {
     const [filters, setFilters] = useState({});
     useEffect(() => {
         (async function () {
             try {
-                const categories = await axios.get('http://localhost:8080/api/category');
+                const categories = await axios.get(DOMAIN + '/api/category');
                 setFilters(prev => ({ ...prev, category: categories.data.data }))
-                const brands = await axios.get('http://localhost:8080/api/brand');
+                const brands = await axios.get(DOMAIN + '/api/brand');
                 setFilters(prev => ({ ...prev, brand: brands.data.data }))
             } catch (error) {
                 console.log(error)

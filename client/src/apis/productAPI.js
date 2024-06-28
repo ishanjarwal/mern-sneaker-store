@@ -1,8 +1,9 @@
 import axios from 'axios'
+import { DOMAIN } from '../app/constants';
 
 export async function fetchAllProducts() {
     try {
-        const url = 'http://localhost:8080/api/product';
+        const url = DOMAIN + '/api/product';
         const response = await axios.get(url);
         const data = response.data;
         return data;
@@ -27,7 +28,7 @@ export async function fetchProducts({ filters, sort, pagination }) {
     }
     // const url = 'http://localhost:3000/api/product?' + queryString;
     try {
-        const url = 'http://localhost:8080/api/product?' + queryString;
+        const url = DOMAIN + '/api/product?' + queryString;
         const response = await axios.get(url);
         const data = response.data.data;
         const totalProducts = response.data.totalProducts
@@ -54,7 +55,7 @@ export async function fetchProducts({ filters, sort, pagination }) {
 
 export async function fetchProductById({ product_id, size }) {
     try {
-        const url = 'http://localhost:8080/api/product/' + product_id + "/" + size;
+        const url = DOMAIN + '/api/product/' + product_id + "/" + size;
         const response = await axios.get(url);
         const result = response.data;
         return result
@@ -89,7 +90,7 @@ export async function createProduct(data) {
         method: 'post',
         withCredentials: true,
         // maxBodyLength: 5242880,
-        url: 'http://localhost:8080/api/product',
+        url: DOMAIN + '/api/product',
         headers: {
             "Content-Type": "multipart/form-data"
         },
@@ -129,7 +130,7 @@ export async function updateProduct({ id, data }) {
         method: 'patch',
         withCredentials: true,
         // maxBodyLength: 5242880,
-        url: 'http://localhost:8080/api/product/' + id,
+        url: DOMAIN + '/api/product/' + id,
         headers: {
             "Content-Type": "multipart/form-data"
         },
@@ -147,7 +148,7 @@ export async function updateProduct({ id, data }) {
 export function fetchBrands() {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.get("http://localhost:8080/api/brand")
+            const response = await axios.get(DOMAIN + "/api/brand")
             resolve({ data: response.data })
         } catch (error) {
             reject({ err: error })
@@ -158,7 +159,7 @@ export function fetchBrands() {
 export function fetchCategories() {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.get("http://localhost:8080/api/category")
+            const response = await axios.get(DOMAIN + "/api/category")
             resolve({ data: response.data })
         } catch (error) {
             reject({ err: error })

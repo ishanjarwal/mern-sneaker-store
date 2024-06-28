@@ -5,6 +5,7 @@ import { Thumbs } from "@fancyapps/ui/dist/carousel/carousel.thumbs.esm.js"
 import "@fancyapps/ui/dist/carousel/carousel.thumbs.css"
 import { Fancybox as NativeFancybox } from "@fancyapps/ui"
 import "@fancyapps/ui/dist/fancybox/fancybox.css"
+import { DOMAIN } from "../app/constants"
 
 const ImageSlideshowModal = ({ productImages }) => {
     return (
@@ -24,11 +25,11 @@ const ImageSlideshowModal = ({ productImages }) => {
                             key={index}
                             className="f-carousel__slide cursor-zoom-in"
                             data-fancybox="gallery"
-                            data-src={`http://localhost:8080/uploads/product_images/${el}`}
-                            data-thumb-src={`http://localhost:8080/uploads/product_images/${el}`}
+                            data-src={`${DOMAIN}/uploads/product_images/${el}`}
+                            data-thumb-src={`${DOMAIN}/uploads/product_images/${el}`}
                         >
                             <img
-                                src={`http://localhost:8080/uploads/product_images/${el}`}
+                                src={`${DOMAIN}/uploads/product_images/${el}`}
                                 width="400"
                                 height="300"
                             />

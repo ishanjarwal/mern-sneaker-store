@@ -12,6 +12,7 @@ import { updateProducyAsync } from '../../slices/productSlice';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { DOMAIN } from '../../app/constants';
 
 
 const UpdateProduct = () => {
@@ -100,7 +101,7 @@ const UpdateProduct = () => {
     const [brands, setBrands] = useState(null);
     async function getBrands() {
         try {
-            const response = await axios.get("http://localhost:8080/api/brand")
+            const response = await axios.get(DOMAIN + "/api/brand")
             setBrands(response.data.data)
         } catch (error) {
             invokeToast("error", "Failed to fetch brands");
@@ -111,7 +112,7 @@ const UpdateProduct = () => {
     const [categories, setCategories] = useState(null);
     async function getCategories() {
         try {
-            const response = await axios.get("http://localhost:8080/api/category")
+            const response = await axios.get(DOMAIN + "/api/category")
             setCategories(response.data.data)
         } catch (error) {
             invokeToast("error", "Failed to fetch Categories");

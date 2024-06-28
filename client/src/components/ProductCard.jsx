@@ -66,7 +66,7 @@ const ProductCard = ({ data }) => {
                             <div className='w-full'>
                                 <img
                                     className='w-full object-cover object-center'
-                                    src={`http://localhost:8080/uploads/product_images/${data.thumbnail}`}
+                                    src={`${DOMAIN}/uploads/product_images/${data.thumbnail}`}
                                     alt=""
                                 />
                             </div>
@@ -77,7 +77,7 @@ const ProductCard = ({ data }) => {
                                         <div className='w-full'>
                                             <img
                                                 className='w-full object-cover object-center'
-                                                src={`http://localhost:8080/uploads/product_images/${el}`}
+                                                src={`${DOMAIN}/uploads/product_images/${el}`}
                                                 alt={data.name}
                                             />
                                         </div>

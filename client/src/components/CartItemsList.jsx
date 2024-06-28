@@ -5,6 +5,7 @@ import { Listbox, Transition } from '@headlessui/react';
 import { TbHeartUp } from 'react-icons/tb';
 import { IoTrashOutline } from 'react-icons/io5';
 import { addToWishlistAsync } from '../slices/wishlistSlice';
+import { DOMAIN } from '../app/constants';
 
 
 
@@ -25,7 +26,7 @@ const CartItemsList = () => {
                 <li key={index} className="flex py-4 border-b px-4 mb-4">
                     <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-muted-bg">
                         <img
-                            src={`http://localhost:8080/uploads/product_images/${item.product.thumbnail}`}
+                            src={`${DOMAIN}/uploads/product_images/${item.product.thumbnail}`}
                             className="h-full w-full object-contain object-center"
                         />
                     </div>

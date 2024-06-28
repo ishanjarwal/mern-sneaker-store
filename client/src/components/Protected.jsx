@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom';
 import axios from 'axios'
+import { DOMAIN } from '../app/constants';
 
 const Protected = ({ children }) => {
 
     const [auth, setAuth] = useState(null);
     async function checkAuth() {
         try {
-            const response = await axios.get("http://localhost:8080/api/user/check-auth");
+            const response = await axios.get(DOMAIN + "/api/user/check-auth");
             if (response.status == 200) {
                 setAuth(true)
             } else {

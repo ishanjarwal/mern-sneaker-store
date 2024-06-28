@@ -12,6 +12,7 @@ import { createProductAsync } from '../../slices/productSlice';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { DOMAIN } from '../../app/constants';
 
 
 const AddProducts = () => {
@@ -122,7 +123,7 @@ const AddProducts = () => {
     const [brands, setBrands] = useState(null);
     async function getBrands() {
         try {
-            const response = await axios.get("http://localhost:8080/api/brand")
+            const response = await axios.get(DOMAIN + "/api/brand")
             setBrands(response.data.data)
         } catch (error) {
             invokeToast("Failed to fetch brands");
@@ -133,7 +134,7 @@ const AddProducts = () => {
     const [categories, setCategories] = useState(null);
     async function getCategories() {
         try {
-            const response = await axios.get("http://localhost:8080/api/category")
+            const response = await axios.get(DOMAIN + "/api/category")
             setCategories(response.data.data)
         } catch (error) {
             invokeToast("Failed to fetch Categories");
@@ -1033,7 +1034,7 @@ const ImportModal = ({ showImportModal, setShowImportModal, setImportedProduct, 
     const [products, setProducts] = useState([])
     async function getProducts() {
         try {
-            const response = await axios.get('http://localhost:8080/api/product')
+            const response = await axios.get(DOMAIN + '/api/product')
             setProducts(response.data.data);
         } catch (err) {
             console.log(err);
@@ -1090,7 +1091,7 @@ const ImportModal = ({ showImportModal, setShowImportModal, setImportedProduct, 
                                                     <div className={`${importedProduct?.id === product.id ? 'border-2 border-gray-500' : 'border border-gray-300'} md:col-span-1 col-span-2 flex p-4 rounded-lg`}>
                                                         <div className="h-24 w-24 flex-shrink-0 rounded-md overflow-hidden bg-muted-bg border border-gray-300">
                                                             <img
-                                                                src={"http://localhost:8080/uploads/product_images/" + product.images[0]}
+                                                                src={DOMAIN + "/uploads/product_images/" + product.images[0]}
                                                                 alt={product.name}
                                                                 className="w-full object-contain object-center"
                                                             />

@@ -3,6 +3,7 @@ import axios from 'axios';
 import React, { Fragment, useEffect, useState } from 'react'
 import { IoAddSharp, IoPencilSharp, IoTrashBinSharp } from 'react-icons/io5'
 import { fetchCategories } from '../../../../api/controllers/categoryController';
+import { DOMAIN } from '../../app/constants';
 
 const ManageCategories = () => {
 
@@ -12,7 +13,7 @@ const ManageCategories = () => {
 
     async function fetchCategories() {
         try {
-            const response = await axios.get('http://localhost:8080/api/category')
+            const response = await axios.get(DOMAIN + '/api/category')
             setData(response.data.data)
         } catch (error) {
             console.log(error)
@@ -88,7 +89,7 @@ const CreateBrand = ({ showCreateForm, setShowCreateForm }) => {
 
     const [value, setValue] = useState('');
     async function createCategory() {
-        const url = 'http://localhost:8080/api/category'
+        const url = DOMAIN + '/api/category'
         try {
             const response = await axios.post(url, { name: value });
             console.log(response)
