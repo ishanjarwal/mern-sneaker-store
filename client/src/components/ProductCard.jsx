@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { register } from 'swiper/element/bundle';
 import { addToWishlistAsync, deleteFromWishlistAsync } from '../slices/wishlistSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { DOMAIN } from '../app/constants';
 register();
 
 const ProductCard = ({ data }) => {

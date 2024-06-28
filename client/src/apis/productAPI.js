@@ -45,7 +45,7 @@ export async function fetchProducts({ filters, sort, pagination }) {
                 thumbnail: product.images[0]
             }
         ))
-        console.log(sendable)
+        // console.log(sendable)
         return { data: sendable, totalProducts: totalProducts };
     } catch (err) {
         throw err

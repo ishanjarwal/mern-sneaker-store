@@ -4,7 +4,7 @@ import { IoBagAddOutline, IoCloseOutline, IoTerminalSharp, IoTrashOutline } from
 import { deleteFromWishlistAsync, hideWishlist } from '../slices/wishlistSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-
+import { DOMAIN } from '../app/constants';
 const WishlistModal = () => {
     const dispatch = useDispatch()
     const user = useSelector(state => state.user.currUser);
