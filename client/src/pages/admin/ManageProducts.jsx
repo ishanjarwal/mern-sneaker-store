@@ -2,34 +2,27 @@ import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, useEffect, useState } from 'react'
 import { IoCloseOutline, IoInformationCircleOutline, IoPencilSharp, IoTrashBinSharp } from 'react-icons/io5';
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchAllProductsAsync } from '../../slices/productSlice.js'
+import { fetchAllProductsAsync, fetchProductByIdAsync, resetCurrProduct } from '../../slices/productSlice.js'
 import { DOMAIN } from '../../app/constants.js';
 
 const ManageProducts = () => {
 
     const dispatch = useDispatch();
     const products = useSelector(state => state.product.products);
+    const currProduct = useSelector(state => state.product.currProduct);
 
-    const [showDetails, setShowDetails] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     useEffect(() => {
         dispatch(fetchAllProductsAsync())
     }, []);
 
-    const sampleProduct = {
-        id: 1,
-        thumbnail: 'https://example.com/image.jpg',
-        title: 'Sample Product ',
-        category: 'Sample Category',
-        brand: 'Sample Brand',
-        stock: 10
-    };
-
     return (
         <div className='py-8 px-6'>
             <DeleteModal showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} />
-            <DetailsModal product={sampleProduct} showDetails={showDetails} setShowDetails={setShowDetails} setShowDeleteModal={setShowDeleteModal} />
+            {currProduct &&
+                <DetailsModal product={currProduct} setShowDeleteModal={setShowDeleteModal} />
+            }
             <h1 className='text-2xl font-bold uppercase mb-4'>Manage Products</h1>
             <div className='overflow-auto'>
                 <table className='table-auto w-full border' style={{ minWidth: '768px' }}>
@@ -67,7 +60,7 @@ const ManageProducts = () => {
                                 <td className='text-start text-sm py-2 px-2 border border-muted-text'>
                                     <button
                                         className='py-2 px-3 rounded-md text-text text-sm bg-yellow-300 hover:brightness-75 mx-auto flex justify-center items-center space-x-2'
-                                        onClick={() => { setShowDetails(true) }}>
+                                        onClick={() => { dispatch(fetchProductByIdAsync({ product_id: el._id, size: null })) }}>
                                         <span><IoInformationCircleOutline /></span>
                                         <span>Details</span>
                                     </button>
@@ -75,7 +68,7 @@ const ManageProducts = () => {
                                 <td className='text-start py-2 px-2 border border-muted-text'>
                                     <button
                                         className='py-2 px-3 rounded-md text-white text-sm bg-blue-500 hover:brightness-75 mx-auto flex justify-center items-center space-x-2'
-                                        onClick={() => handleEdit(sampleProduct.id)}>
+                                        onClick={() => handleEdit(currProduct?.id)}>
                                         <span><IoPencilSharp /></span>
                                         <span>Edit</span>
                                     </button>
@@ -97,71 +90,13 @@ const ManageProducts = () => {
     )
 }
 
-const DetailsModal = ({ showDetails, setShowDetails, setShowDeleteModal }) => {
+const DetailsModal = ({ product, setShowDeleteModal }) => {
 
-    const product = {
-        "id": 1,
-        "title": "Classic Sneaker Shoe",
-        "short_description": "The Classic Sneaker Shoe is designed for comfort and style.",
-        "brand": "CoolKicks",
-        "category": "Sneakers",
-        "images": [
-            "https://example.com/sneaker_image1.jpg",
-            "https://example.com/sneaker_image2.jpg"
-        ],
-        "sizes": [
-            {
-                "size": 7,
-                "stock": 20,
-                "price": 79.99,
-                "discountPercentage": 0,
-                "def_currency": "usd"
-            },
-            {
-                "size": 8,
-                "stock": 15,
-                "price": 79.99,
-                "discountPercentage": 0,
-                "def_currency": "usd"
-            },
-            {
-                "size": 9,
-                "stock": 10,
-                "price": 79.99,
-                "discountPercentage": 0,
-                "def_currency": "usd"
-            }
-        ],
-        "total_stock": 45,
-        "created_at": 1646366400,
-        "variant_id": 98765,
-        "additional_details": {
-            "description": "The Classic Sneaker Shoe features a timeless design with durable construction. It's perfect for everyday wear and pairs well with any casual outfit.",
-            "specifications": {
-                "materials": ["Canvas", "Rubber"],
-                "fabrics": ["Cotton", "Polyester"],
-                "dimensions": {
-                    "unit": "inch",
-                    "width": 4.5,
-                    "depth": 11,
-                    "height": 5
-                },
-                "weight": {
-                    "unit": "kg",
-                    "value": 0.5
-                },
-                "custom": {
-                    "feature1": "Breathable design",
-                    "feature2": "Non-slip sole",
-                    "feature3": "Padded insole for comfort"
-                }
-            }
-        }
-    }
+    const dispatch = useDispatch();
 
     return (
-        <Transition.Root show={showDetails} as={Fragment}>
-            <Dialog as="div" className="relative z-10" onClose={setShowDetails}>
+        <Transition.Root show={product ? true : false} as={Fragment}>
+            <Dialog as="div" className="relative z-10" onClose={() => { }}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
@@ -192,7 +127,7 @@ const DetailsModal = ({ showDetails, setShowDetails, setShowDeleteModal }) => {
                                             <h2 className='text-2xl font-bold'>Product Details</h2>
                                             <button
                                                 className='p-2 text-2xl'
-                                                onClick={() => { setShowDetails(false) }}
+                                                onClick={() => { dispatch(resetCurrProduct()) }}
                                             >
                                                 <span>
                                                     <IoCloseOutline />
@@ -205,7 +140,7 @@ const DetailsModal = ({ showDetails, setShowDetails, setShowDeleteModal }) => {
                                                     <th>Thumbnail</th>
                                                     <td>
                                                         <img
-                                                            src={product.images[0]}
+                                                            src={`${DOMAIN}/uploads/product_images/${product.images[0]}`}
                                                             alt=""
                                                             className='w-24 h-16 object-cover object-center'
                                                         />
@@ -216,7 +151,7 @@ const DetailsModal = ({ showDetails, setShowDetails, setShowDeleteModal }) => {
                                                     <td>
                                                         {product.images.map((image, index) => (
                                                             <img
-                                                                src={image}
+                                                                src={`${DOMAIN}/uploads/product_images/${image}`}
                                                                 alt=""
                                                                 className='w-20 h-16 me-2 object-cover object-center inline'
                                                             />
@@ -225,27 +160,27 @@ const DetailsModal = ({ showDetails, setShowDetails, setShowDeleteModal }) => {
                                                 </tr>
                                                 <tr>
                                                     <th>Title</th>
-                                                    <td>{product.title}</td>
+                                                    <td>{product.name}</td>
                                                 </tr>
-                                                <tr>
+                                                {/* <tr>
                                                     <th>Short Description</th>
                                                     <td>{product.short_description}</td>
-                                                </tr>
+                                                </tr> */}
                                                 <tr>
                                                     <th>Long Description</th>
                                                     <td>{product.additional_details.description}</td>
                                                 </tr>
                                                 <tr>
                                                     <th>Brand</th>
-                                                    <td>{product.brand}</td>
+                                                    <td>{product.brand.name}</td>
                                                 </tr>
                                                 <tr>
                                                     <th>Category</th>
-                                                    <td>{product.category}</td>
+                                                    <td>{product.category.name}</td>
                                                 </tr>
                                                 <tr>
                                                     <th>Total Stock</th>
-                                                    <td>{product.total_stock}</td>
+                                                    <td>{product.sizes.reduce((acc, size) => acc + size.stock, 0)}</td>
                                                 </tr>
                                                 <tr>
                                                     <th>Sizes</th>
@@ -259,7 +194,7 @@ const DetailsModal = ({ showDetails, setShowDetails, setShowDeleteModal }) => {
                                                             </tr>
                                                             {product.sizes.map((item, index) => (
                                                                 <tr>
-                                                                    <td>{item.size}</td>
+                                                                    <td>{item.label}</td>
                                                                     <td>{item.stock}</td>
                                                                     <td>{item.price}</td>
                                                                     <td>{item.discountPercentage}</td>
@@ -270,22 +205,18 @@ const DetailsModal = ({ showDetails, setShowDetails, setShowDeleteModal }) => {
                                                 </tr>
                                                 <tr>
                                                     <th>Created At</th>
-                                                    <td>{product.created_at}</td>
+                                                    <td>{product?.createdAt}</td>
                                                 </tr>
                                                 <tr>
                                                     <th>Last Updated</th>
-                                                    <td>{product.created_at}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th></th>
-                                                    <td></td>
+                                                    <td>{product?.createdAt}</td>
                                                 </tr>
                                             </table>
                                         </div>
                                         <div className='flex justify-end pt-4 mt-8 space-x-2 border-t border-gray-300'>
                                             <button
                                                 className='py-2 px-3 rounded-md text-white text-sm bg-blue-500 hover:brightness-75 flex justify-center items-center space-x-2'
-                                                onClick={() => handleEdit(sampleProduct.id)}>
+                                                onClick={() => handleEdit(product?.id)}>
                                                 <span><IoPencilSharp /></span>
                                                 <span>Edit</span>
                                             </button>

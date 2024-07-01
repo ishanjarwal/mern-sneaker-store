@@ -72,7 +72,9 @@ export const productSlice = createSlice({
     name: 'product',
     initialState: initialState,
     reducers: {
-
+        resetCurrProduct(state) {
+            state.currProduct = null;
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -134,3 +136,4 @@ export const productSlice = createSlice({
 })
 
 export default productSlice.reducer
+export const { resetCurrProduct } = productSlice.actions;
