@@ -68,7 +68,8 @@ const ManageProducts = () => {
                                 <td className='text-start py-2 px-2 border border-muted-text'>
                                     <button
                                         className='py-2 px-3 rounded-md text-white text-sm bg-blue-500 hover:brightness-75 mx-auto flex justify-center items-center space-x-2'
-                                        onClick={() => handleEdit(currProduct?.id)}>
+                                    // onClick={() => handleEdit(currProduct?.id)}
+                                    >
                                         <span><IoPencilSharp /></span>
                                         <span>Edit</span>
                                     </button>

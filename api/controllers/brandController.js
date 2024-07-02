@@ -15,9 +15,21 @@ export const createBrand = async (req, res) => {
     }
 }
 
+export const updateBrand = async (req, res) => {
+    try {
+        const { name, id } = req.body;
+        const updatable = await Brand.findById(id);
+        updatable.name = name;
+        await updatable.save();
+        res.status(201).json({ updated: true })
+    } catch (err) {
+        res.status(400).json({ updated: false, err: err })
+    }
+}
+
 export const fetchBrands = async (req, res) => {
     try {
-        const result = await Brand.find();
+        const result = await Brand.find().populate('productCount').exec();
         res.status(201).json({ data: result, err: null })
     } catch (err) {
         res.status(400).json({ data: null, err: err })

@@ -15,10 +15,21 @@ export const createCategory = async (req, res) => {
     }
 }
 
+export const updateCategory = async (req, res) => {
+    try {
+        const { name, id } = req.body;
+        const updatable = await Category.findById(id);
+        updatable.name = name;
+        await updatable.save();
+        res.status(201).json({ updated: true })
+    } catch (err) {
+        res.status(400).json({ updated: false, err: err })
+    }
+}
 
 export const fetchCategories = async (req, res) => {
     try {
-        const result = await Category.find();
+        const result = await Category.find().populate('productCount').exec();
         res.status(201).json({ data: result, err: null })
     } catch (err) {
         res.status(400).json({ data: null, err: err })

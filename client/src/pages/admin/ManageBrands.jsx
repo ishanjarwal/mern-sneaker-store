@@ -3,35 +3,47 @@ import axios from 'axios';
 import React, { Fragment, useEffect, useState } from 'react'
 import { IoAddSharp, IoPencilSharp, IoTrashBinSharp } from 'react-icons/io5'
 import { DOMAIN } from '../../app/constants';
+import { useDispatch, useSelector } from 'react-redux';
+import { createBrandAsync, fetchBrandsAsync, updateBrandAsync } from '../../slices/brandSlice';
 
 const ManageBrands = () => {
 
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [showCreateForm, setShowCreateForm] = useState(false);
-    const [data, setData] = useState(null);
+    const dispatch = useDispatch();
+    const [apiData, setApiData] = useState({
+        type: null,
+        id: null,
+        name: ""
+    });
 
-    async function fetchBrands() {
-        try {
-            const response = await axios.get(DOMAIN + '/api/brand')
-            setData(response.data.data)
-        } catch (error) {
-            console.log(error)
-        }
-    }
+    const brands = useSelector(state => state.brand.brands);
+    const state = useSelector(state => state.brand.state);
 
     useEffect(() => {
-        fetchBrands();
+        dispatch(fetchBrandsAsync());
     }, []);
+
+    useEffect(() => {
+        if (state === 'fulfilled') {
+            dispatch(fetchBrandsAsync());
+        }
+    }, [state]);
+
+    useEffect(() => {
+        setApiData({
+            type: null,
+            id: null,
+            name: ""
+        })
+    }, [state]);
 
     return (
         <div className='py-8 px-6'>
-            <DeleteModal showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} />
-            <CreateBrand showCreateForm={showCreateForm} setShowCreateForm={setShowCreateForm} />
+            <Modal apiData={apiData} setApiData={setApiData} />
             <h1 className='text-2xl font-bold uppercase mb-4'>manage brands</h1>
             <div className='my-12'>
                 <button
                     className='flex justify-between items-center space-x-2 py-3 px-6 uppercase rounded-md bg-black text-white hover:scale-105 duration-150'
-                    onClick={() => { setShowCreateForm(true) }}
+                    onClick={() => { setApiData(prev => ({ ...prev, type: 'create' })) }}
                 >
                     <span>Create a New Brand</span>
                     <span className='text-lg'><IoAddSharp /></span>
@@ -46,31 +58,22 @@ const ManageBrands = () => {
                             <th className='text-start py-2 px-2 border border-muted-text'>Total Products</th>
                             <th className='text-start py-2 px-2 border border-muted-text'>Created At</th>
                             <th className='text-start py-2 px-2 border border-muted-text'>Update</th>
-                            <th className='text-start py-2 px-2 border border-muted-text'>Delete</th>
                         </tr>
                     </thead>
                     <tbody>
                         {/* Sample row */}
-                        {data && data.map((brand, index) => (
+                        {brands && brands.map((brand, index) => (
                             <tr key={index}>
                                 <td className='text-start py-2 px-2 border border-muted-text'>{index + 1}</td>
                                 <td className='text-start text-sm py-2 px-2 border border-muted-text'>{brand.name}</td>
-                                <td className='text-start text-sm py-2 px-2 border border-muted-text'>25</td>
+                                <td className='text-start text-sm py-2 px-2 border border-muted-text'>{brand.productCount}</td>
                                 <td className='text-start text-sm py-2 px-2 border border-muted-text'>{brand.createdAt}</td>
                                 <td className='text-start py-2 px-2 border border-muted-text'>
                                     <button
                                         className='py-2 px-3 rounded-md text-white text-sm bg-blue-500 hover:brightness-75 mx-auto flex justify-center items-center space-x-2'
-                                        onClick={() => { }}>
+                                        onClick={() => { setApiData({ id: brand._id, name: brand.name, type: 'update' }) }}>
                                         <span><IoPencilSharp /></span>
                                         <span>Edit</span>
-                                    </button>
-                                </td>
-                                <td className='text-start py-2 px-2 border border-muted-text'>
-                                    <button
-                                        className='py-2 px-3 rounded-md text-white text-sm bg-red-500 hover:brightness-75 mx-auto flex justify-center items-center space-x-2'
-                                        onClick={() => setShowDeleteModal(true)}>
-                                        <span><IoTrashBinSharp /></span>
-                                        <span>Delete</span>
                                     </button>
                                 </td>
                             </tr>
@@ -84,22 +87,21 @@ const ManageBrands = () => {
 
 export default ManageBrands
 
-const CreateBrand = ({ showCreateForm, setShowCreateForm }) => {
+const Modal = ({ apiData, setApiData }) => {
 
-    const [value, setValue] = useState('');
-    async function createBrand() {
-        const url = DOMAIN + '/api/brand'
-        try {
-            const response = await axios.post(url, { name: value });
-            console.log(response)
-        } catch (err) {
-            console.log(err)
+    const dispatch = useDispatch();
+
+    async function handleBrand() {
+        if (apiData.type === 'update') {
+            dispatch(updateBrandAsync({ id: apiData.id, name: apiData.name }))
+        } else {
+            dispatch(createBrandAsync(apiData.name))
         }
     }
 
     return (
-        <Transition.Root show={showCreateForm} as={Fragment}>
-            <Dialog as="div" className="relative z-20" onClose={setShowCreateForm}>
+        <Transition.Root show={apiData?.type ? true : false} as={Fragment}>
+            <Dialog as="div" className="relative z-20" onClose={() => { setApiData(prev => ({ ...prev, type: null, id: null, name: "" })) }}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
@@ -125,7 +127,7 @@ const CreateBrand = ({ showCreateForm, setShowCreateForm }) => {
                         >
                             <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                                 <div className='py-6 px-6'>
-                                    <h2 className='text-2xl font-bold uppercase'>Create a New Brand</h2>
+                                    <h2 className='text-2xl font-bold uppercase'>{apiData.type === "update" ? "Update" : "Create a New"} Brand</h2>
                                     <form className='mt-8'>
                                         <label>
                                             Brand Name
@@ -133,18 +135,19 @@ const CreateBrand = ({ showCreateForm, setShowCreateForm }) => {
                                         <input
                                             className='py-2 px-4 rounded-md border-gray-300 border w-full'
                                             type="text"
+                                            value={apiData.name}
                                             onChange={(e) => {
-                                                setValue(e.target.value)
+                                                setApiData(prev => ({ ...prev, name: e.target.value }))
                                             }}
                                         />
                                         <button
                                             className='py-2 px-4 rounded-md bg-black text-white uppercase mt-2 w-full'
                                             onClick={(e) => {
                                                 e.preventDefault()
-                                                createBrand();
+                                                handleBrand();
                                             }}
                                         >
-                                            Create
+                                            {apiData.type === 'update' ? "Update" : "Create"}
                                         </button>
                                     </form>
                                 </div>
@@ -156,74 +159,3 @@ const CreateBrand = ({ showCreateForm, setShowCreateForm }) => {
         </Transition.Root>
     )
 }
-
-const DeleteModal = ({ showDeleteModal, setShowDeleteModal }) => {
-    return (
-        <Transition.Root show={showDeleteModal} as={Fragment}>
-            <Dialog as="div" className="relative z-20" onClose={setShowDeleteModal}>
-                <Transition.Child
-                    as={Fragment}
-                    enter="ease-out duration-300"
-                    enterFrom="opacity-0"
-                    enterTo="opacity-100"
-                    leave="ease-in duration-200"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                >
-                    <div className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity" />
-                </Transition.Child>
-
-                <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                    <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                        <Transition.Child
-                            as={Fragment}
-                            enter="ease-out duration-300"
-                            enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                            enterTo="opacity-100 translate-y-0 sm:scale-100"
-                            leave="ease-in duration-200"
-                            leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                        >
-                            <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                                <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                                    <div className="sm:flex sm:items-start">
-                                        {/* <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                                            <ExclamationTriangleIcon className="h-6 w-6 text-red-600" aria-hidden="true" />
-                                        </div> */}
-                                        <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                                            <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                                                Alert
-                                            </Dialog.Title>
-                                            <div className="mt-2">
-                                                <p className="text-sm text-gray-500">
-                                                    Deleting this Brand will also delete all the products belonging to this brand. The Action can't be undone.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                    <button
-                                        type="button"
-                                        className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
-                                        onClick={() => setShowDeleteModal(false)}
-                                    >
-                                        Delete
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                                        onClick={() => setShowDeleteModal(false)}
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            </Dialog.Panel>
-                        </Transition.Child>
-                    </div>
-                </div>
-            </Dialog>
-        </Transition.Root>
-    )
-}
-
