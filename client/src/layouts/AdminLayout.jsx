@@ -5,29 +5,21 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 const AdminLayout = () => {
 
     const adminLinks = [
-        {
-            name: "Dashboard",
-            link: '/'
-        },
+        // {
+        //     name: "Dashboard",
+        //     link: '/'
+        // },
         {
             name: "Add New Product",
             link: "add-product"
         },
         {
-            name: "Drafts",
-            link: "manage-drafts"
-        },
-        {
             name: "Manage Products",
-            link: "manage-products"
+            link: ""
         },
         {
             name: "Manage Categories",
             link: "manage-categories"
-        },
-        {
-            name: "Manage Variants",
-            link: "manage-variants"
         },
         {
             name: "Manage Brands",
@@ -41,10 +33,10 @@ const AdminLayout = () => {
             name: "Manage Orders",
             link: "/"
         },
-        {
-            name: "Manage Collections",
-            link: "/"
-        },
+        // {
+        //     name: "Manage Collections",
+        //     link: "/"
+        // },
 
     ]
     const [sidepanel, setSidepanel] = useState(true);

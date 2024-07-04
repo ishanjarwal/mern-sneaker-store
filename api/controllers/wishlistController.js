@@ -37,7 +37,7 @@ export const fetchWishlist = async (req, res) => {
                 items: []
             })
             const result = await newWishlist.save()
-            return res.status(201).json(result)
+            return res.status(201).json({ status: "success", message: "wishlist created", data: result })
         } else {
             const sendable = userWishlist.items.map(item => {
                 const currSize = item.product_id.sizes[0];
@@ -55,10 +55,10 @@ export const fetchWishlist = async (req, res) => {
                     }
                 )
             })
-            return res.status(200).json(sendable)
+            return res.status(200).json({ status: "success", message: "wishlist fetched", data: sendable })
         }
     } catch (err) {
-        return res.status(500).json({ err: err, apiErrorMessage: "Couldn't fetch wishlist" })
+        return res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 }
 
@@ -70,18 +70,18 @@ export const addToWishlist = async (req, res) => {
 
         const checkWishlist = await Wishlist.findOne({ user_id: user_id });
         if (!checkWishlist) {
-            return res.status(400).json({ apiErrorMessage: "Wishlist not found" })
+            return res.status(400).json({ status: "fail", message: "couldn't find wishlist" })
         }
         const checkDuplicateItem = await Wishlist.findOne({ user_id: user_id, items: { $elemMatch: { product_id: product_id } } })
         if (checkDuplicateItem) {
-            return res.status(400).json({ apiErrorMessage: "Product is already in your wishlist" })
+            return res.status(200).json({ status: "success", message: "product already in your wishlist" })
         } else {
             const updatable = await Wishlist.findOneAndUpdate({ user_id: user_id }, { $push: { items: { product_id } } }, { new: false })
-            return res.status(201).json({ apiSuccessMessage: "Product added to your wishlist" })
+            return res.status(201).json({ status: "success", message: "product added to wishlist" })
         }
     }
     catch (err) {
-        return res.status(500).json({ err: err, apiErrorMessage: "An error occured, item was not added to cart" })
+        return res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 
 }
@@ -94,11 +94,11 @@ export const deleteFromWishlist = async (req, res) => {
             items: { $elemMatch: { product_id } }
         });
         if (!checkWishlist) {
-            return res.status(400).json({ apiErrorMessage: "No such item in your wishlist" })
+            return res.status(400).json({ status: "fail", message: "product not in your wishlist" })
         }
         const deletable = await Wishlist.findOneAndUpdate({ user_id: user_id }, { $pull: { items: { product_id } } }, { new: false })
-        res.status(201).json({ apiSuccessMessage: "Item deleted from wishlist" })
+        res.status(201).json({ status: "success", message: "item removed from wishlist" })
     } catch (err) {
-        res.status(500).json({ err: err, apiErrorMessage: "An error occured, item was not deleted from wishlist" })
+        res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 }

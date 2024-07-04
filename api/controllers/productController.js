@@ -76,7 +76,7 @@ export const createProduct = async (req, res) => {
     })
     try {
         const result = await newProduct.save()
-        res.status(201).json({ created: true, err: null })
+        res.status(201).json({ status: "success", message: "product added successfully" })
     } catch (err) {
         // unlink images here
         if (req.files) {
@@ -84,7 +84,7 @@ export const createProduct = async (req, res) => {
                 fs.unlinkSync(path.join(__dirname, "..", "uploads/product_images", item.filename))
             });
         }
-        res.status(500).json({ created: false, err: err })
+        res.status(500).json({ status: "error", message: "error occurred, product not added", err: err })
     }
 }
 
@@ -136,10 +136,10 @@ export const fetchProductsList = async (req, res) => {
             .limit(pageSize)
             .exec();
         const totalItems = await Product.countDocuments(query);
-        res.status(201).json({ totalProducts: totalItems, data: products })
+        res.status(201).json({ status: "success", message: "product list fetched", totalProducts: totalItems, data: products })
     } catch (err) {
         console.log(err)
-        res.status(400).json(err)
+        res.status(400).json({ status: "error", message: "error occurred, product list not fetched" })
     }
 }
 
@@ -148,7 +148,7 @@ export const fetchProductById = async (req, res) => {
         const { product_id, size } = req.params;
         const result = await Product.findOne({ _id: product_id }).populate('brand').populate('category');
         if (!result) {
-            res.status(400).json({ message: "No Product Found" })
+            res.status(400).json({ status: "fail", message: "no such product found" })
         }
         const checkSize = mongoose.Types.ObjectId.isValid(size) && await Product.findOne({ $and: [{ _id: product_id }, { sizes: { $elemMatch: { _id: size } } }] })
         let currSize;
@@ -168,10 +168,10 @@ export const fetchProductById = async (req, res) => {
                 label: currSize.label,
             }
         }
-        res.status(201).json(sendable)
+        res.status(201).json({ status: "success", message: "product fetched successfully", data: sendable })
 
     } catch (err) {
-        res.status(400).json({ err: err, message: "An error occured, Product not found" })
+        res.status(400).json({ err: err, status: "error", message: "error occurred, product not found" })
     }
 }
 
@@ -180,7 +180,7 @@ export const fetchProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
     const { id } = req.params;
     if (!id) {
-        return res.status(400).json({ err: "no id recieved" });
+        return res.status(400).json({ status: "fail", message: "no product id recieved" });
     }
     const {
         name,
@@ -191,10 +191,12 @@ export const updateProduct = async (req, res) => {
         description,
         sole_materials,
         shoe_materials,
+        old_images,
         dimensions,
         weight,
         gender,
         occasion,
+        meta_info,
         color,
         tags
     } = req.body
@@ -202,10 +204,10 @@ export const updateProduct = async (req, res) => {
     // remove previous images
     const oldProduct = await Product.findById(id);
     if (!oldProduct) {
-        return res.status(400).json({ err: "Invalid ID" });
+        return res.status(400).json({ status: "fail", message: "invalid product id recieved" });
     }
     const oldImages = oldProduct.images;
-    oldImages.forEach(item => {
+    oldImages.filter((item) => !JSON.parse(old_images).includes(item)).forEach(item => {
         const imagePath = path.join(__dirname, '..', 'uploads/product_images', item);
         fs.unlinkSync(imagePath);
     })
@@ -215,6 +217,9 @@ export const updateProduct = async (req, res) => {
             images.push(item.filename)
         })
     }
+    JSON.parse(old_images).forEach(item => {
+        images.push(item)
+    })
     const modified = {
         name: name,
         short_desc: short_desc,
@@ -257,9 +262,9 @@ export const updateProduct = async (req, res) => {
     }
     try {
         const updatable = await Product.findOneAndUpdate({ _id: id }, modified);
-        res.status(201).json({ message: "Product Updated Successfully" })
+        res.status(201).json({ status: "success", message: "product updated successfully" })
     } catch (err) {
-        res.status(400).json({ updated: false, err: err })
+        res.status(400).json({ status: "error", message: "error occurred, product not updated", err: err })
     }
 }
 

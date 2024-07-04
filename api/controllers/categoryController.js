@@ -9,9 +9,9 @@ export const createCategory = async (req, res) => {
     })
     try {
         const result = await newCategory.save();
-        res.status(201).json({ created: true })
+        res.status(201).json({ status: "success", message: "category created successfully" })
     } catch (err) {
-        res.status(400).json({ created: false, err: err })
+        res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 }
 
@@ -21,17 +21,17 @@ export const updateCategory = async (req, res) => {
         const updatable = await Category.findById(id);
         updatable.name = name;
         await updatable.save();
-        res.status(201).json({ updated: true })
+        res.status(201).json({ status: "success", message: "category updated successfully" })
     } catch (err) {
-        res.status(400).json({ updated: false, err: err })
+        res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 }
 
 export const fetchCategories = async (req, res) => {
     try {
         const result = await Category.find().populate('productCount').exec();
-        res.status(201).json({ data: result, err: null })
+        res.status(201).json({ status: "success", message: "category fetched", data: result })
     } catch (err) {
-        res.status(400).json({ data: null, err: err })
+        res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 }

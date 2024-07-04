@@ -4,6 +4,7 @@ import { IoCloseOutline, IoInformationCircleOutline, IoPencilSharp, IoTrashBinSh
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchAllProductsAsync, fetchProductByIdAsync, resetCurrProduct } from '../../slices/productSlice.js'
 import { DOMAIN } from '../../app/constants.js';
+import { Link } from 'react-router-dom';
 
 const ManageProducts = () => {
 
@@ -66,13 +67,13 @@ const ManageProducts = () => {
                                     </button>
                                 </td>
                                 <td className='text-start py-2 px-2 border border-muted-text'>
-                                    <button
+                                    <Link
+                                        to={`/admin/update-product/${el._id}`}
                                         className='py-2 px-3 rounded-md text-white text-sm bg-blue-500 hover:brightness-75 mx-auto flex justify-center items-center space-x-2'
-                                    // onClick={() => handleEdit(currProduct?.id)}
                                     >
                                         <span><IoPencilSharp /></span>
                                         <span>Edit</span>
-                                    </button>
+                                    </Link>
                                 </td>
                                 <td className='text-start py-2 px-2 border border-muted-text'>
                                     <button
@@ -210,7 +211,7 @@ const DetailsModal = ({ product, setShowDeleteModal }) => {
                                                 </tr>
                                                 <tr>
                                                     <th>Last Updated</th>
-                                                    <td>{product?.createdAt}</td>
+                                                    <td>{product?.updatedAt}</td>
                                                 </tr>
                                             </table>
                                         </div>

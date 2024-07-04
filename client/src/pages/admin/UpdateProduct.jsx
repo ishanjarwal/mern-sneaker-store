@@ -1,32 +1,39 @@
-import { Dialog, Listbox, RadioGroup, Transition } from '@headlessui/react'
+import { Listbox, Transition } from '@headlessui/react'
 import React, { Fragment, useEffect, useState } from 'react'
 import { HiOutlineChevronUpDown } from "react-icons/hi2";
 import { FaCheck } from "react-icons/fa6"
-import { MdCallMissedOutgoing, MdDeleteOutline } from "react-icons/md";
+import { MdDeleteOutline } from "react-icons/md";
 import { IoAddOutline, IoAddSharp, IoClose, IoTrashBinOutline } from "react-icons/io5";
-import axios from 'axios'
 import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import ImagePreview from '../../components/ImagePreview';
-import { updateProducyAsync } from '../../slices/productSlice';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { fetchProductByIdAsync, updateProductAsync } from '../../slices/productSlice';
+import { Navigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { fetchCategoriesAsync } from '../../slices/categorySlice'
+import { fetchBrandsAsync } from '../../slices/brandSlice'
 import { DOMAIN } from '../../app/constants';
-
 
 const UpdateProduct = () => {
 
     const { id } = useParams();
-
     const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(fetchProductByIdAsync({ product_id: id, size: null }));
+    }, []);
+
     const product = useSelector(state => state.product.currProduct);
-    const state = useSelector(state => state.product.state)
+    const state = useSelector(state => state.product.state);
     const apiError = useSelector(state => state.product.apiError);
     const apiMessage = useSelector(state => state.product.apiMessage);
 
-    const { register, handleSubmit, formState: { errors }, control, watch, setValue, getValues } = useForm();
-    const { fields: imageFields, append: imageAppend, remove: imageRemove } = useFieldArray({ name: "images", control, rules: { required: "Images are Required", maxLength: { value: 6, message: "Maximum 6 Images allowed" } } })
+    const categories = useSelector(state => state.category.categories)
+    const brands = useSelector(state => state.brand.brands)
+
+    const { register, handleSubmit, formState: { errors }, control, watch, setValue, getValues, setError, clearErrors } = useForm();
+    // const { fields: oldImageFields, append: oldImageAppend, remove: oldImageRemove } = useFieldArray({ name: "old_images", control, rules: { required: "Images are Required", maxLength: { value: 6, message: "Maximum 6 Images allowed" } } })
+    const { fields: imageFields, append: imageAppend, remove: imageRemove } = useFieldArray({ name: "images", control, rules: { required: "Atleast one image is required", maxLength: { value: 6, message: "Maximum 6 Images allowed" } } })
     const { fields: sizeFields, append: sizeAppend, remove: sizeRemove } = useFieldArray({
         name: "sizes", control, rules: {
             required: "Size is Required", minLength: { value: 1, message: "Minimum one size required" }
@@ -92,38 +99,37 @@ const UpdateProduct = () => {
     }, [state]);
 
 
-
-
     async function sendData(data) {
-        dispatch(updateProducyAsync({ id, data }));
-    }
-
-    const [brands, setBrands] = useState(null);
-    async function getBrands() {
-        try {
-            const response = await axios.get(DOMAIN + "/api/brand")
-            setBrands(response.data.data)
-        } catch (error) {
-            invokeToast("error", "Failed to fetch brands");
-            console.log(error);
-        }
-    }
-
-    const [categories, setCategories] = useState(null);
-    async function getCategories() {
-        try {
-            const response = await axios.get(DOMAIN + "/api/category")
-            setCategories(response.data.data)
-        } catch (error) {
-            invokeToast("error", "Failed to fetch Categories");
-            console.log(error);
-        }
+        dispatch(updateProductAsync({ id, data }));
     }
 
     useEffect(() => {
-        getBrands();
-        getCategories();
+        dispatch(fetchCategoriesAsync())
+        dispatch(fetchBrandsAsync());
     }, []);
+
+    function fillInputs() {
+        setValue("name", product?.name)
+        setValue("short_desc", product?.short_desc)
+        setValue("category", product?.category)
+        setValue("brand", product?.brand)
+        setValue("description", product?.additional_details.description)
+        setValue("shoe_materials", product?.additional_details.specifications.shoe_materials.join(', '))
+        // setValue("old_images", product?.images)
+        setValue("images", product?.images)
+        setValue("sole_materials", product?.additional_details.specifications.sole_materials.join(', '))
+        setValue("color", product?.additional_details.specifications.color)
+        setValue("dimensions", product?.additional_details.specifications.dimensions)
+        setValue("weight", product?.additional_details.specifications.weight)
+        setValue("meta_info", product?.meta_info)
+        setValue("tags", product?.additional_details.specifications.tags)
+        setValue("sizes", product?.sizes)
+        setValue("gender", product?.additional_details.specifications.gender)
+        setValue("occasion", product?.additional_details.specifications.occasion)
+    }
+    useEffect(() => {
+        fillInputs();
+    }, [product]);
 
 
     return (
@@ -322,6 +328,21 @@ const UpdateProduct = () => {
 
                             <div
                                 className='mt-2 bg-gray-100 rounded-lg shadow-sm border-dashed border border-gray-300 p-4 flex justify-start items-start flex-wrap'>
+                                {/* {oldImageFields.length > 0 && watch("old_images").map((card, idx) => (
+                                    <div key={idx} className='group relative bg-white border border-gray-200 h-24 w-24 rounded-md me-2 overflow-hidden'>
+                                        <div
+                                            onClick={() => {
+                                                oldImageRemove(idx);
+                                            }}
+                                            className='absolute top-0 left-0 w-full h-full bg-black/75 hidden flex-col items-center justify-center cursor-pointer duration-150 group-hover:flex'>
+                                            <span className='text-white text-3xl'>
+                                                <MdDeleteOutline />
+                                            </span>
+                                            <span className='text-white text-xs mt-1'>Remove</span>
+                                        </div>
+                                        <img src={`${DOMAIN}/uploads/product_images/${card}`} />
+                                    </div>
+                                ))} */}
                                 {imageFields.length > 0 && watch("images").map((card, idx) => (
                                     <div key={idx} className='group relative bg-white border border-gray-200 h-24 w-24 rounded-md me-2 overflow-hidden'>
                                         <div
@@ -334,7 +355,12 @@ const UpdateProduct = () => {
                                             </span>
                                             <span className='text-white text-xs mt-1'>Remove</span>
                                         </div>
-                                        <ImagePreview key={idx} file={card} />
+                                        {typeof (card) === "string"
+                                            ?
+                                            <img src={`${DOMAIN}/uploads/product_images/${card}`} />
+                                            :
+                                            <ImagePreview key={idx} file={card} />
+                                        }
                                     </div>
                                 ))}
                                 <label
@@ -979,7 +1005,7 @@ const UpdateProduct = () => {
                             <button
                                 type='submit'
                                 className='py-2 px-4 rounded-md text-white border-text border bg-black text-sm hover:brightness-90'>
-                                Publish Product
+                                Update Product
                             </button>
                         </div>
 

@@ -9,9 +9,9 @@ export const createBrand = async (req, res) => {
     })
     try {
         const result = await newBrand.save();
-        res.status(201).json({ created: true, err: null })
+        res.status(201).json({ status: "success", message: "brand created succesfully" })
     } catch (err) {
-        res.status(400).json({ created: false, err: err })
+        res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 }
 
@@ -21,17 +21,17 @@ export const updateBrand = async (req, res) => {
         const updatable = await Brand.findById(id);
         updatable.name = name;
         await updatable.save();
-        res.status(201).json({ updated: true })
+        res.status(201).json({ status: "success", message: "brand updated sucessfully" })
     } catch (err) {
-        res.status(400).json({ updated: false, err: err })
+        res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 }
 
 export const fetchBrands = async (req, res) => {
     try {
         const result = await Brand.find().populate('productCount').exec();
-        res.status(201).json({ data: result, err: null })
+        res.status(201).json({ status: "success", message: "brands fetched", data: result })
     } catch (err) {
-        res.status(400).json({ data: null, err: err })
+        res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 }

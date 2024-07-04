@@ -114,9 +114,10 @@ export async function updateProduct({ id, data }) {
     newProduct.append('category', JSON.stringify(data.category))
     newProduct.append('brand', JSON.stringify(data.brand))
     newProduct.append('dimensions', JSON.stringify(data.dimensions))
-    for (let i = 0; i < data.images.length; i++) {
-        newProduct.append('images', data.images[i]);
-    }
+    newProduct.append('old_images', JSON.stringify(data.images.filter(item => typeof item === 'string')));
+    data.images.filter(item => typeof item != 'string').forEach(element => {
+        newProduct.append("images", element)
+    });
     newProduct.append('shoe_materials', data.shoe_materials)
     newProduct.append('sole_materials', data.sole_materials)
     newProduct.append('occasion', data.occasion)

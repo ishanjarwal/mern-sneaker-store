@@ -9,9 +9,9 @@ export const fetchUser = async (req, res) => {
     try {
         const { user_id } = req.params;
         const user = await User.findById(user_id);
-        res.status(200).json(user);
-    } catch (error) {
-        res.status(500).json(error);
+        res.status(200).json({ status: "success", message: "user fetched", data: user });
+    } catch (err) {
+        res.status(500).json({ status: "error", message: "an error occurred, user not fetched", err: err });
     }
 }
 
@@ -37,24 +37,21 @@ export const createUser = async (req, res) => {
             {},
             (err, token) => {
                 if (err) {
-                    return res.status(500).json({ message: "Something went wrong" });
+                    return res.status(500).json({ status: "error", message: "something went wrong", err });
                 }
-                return res.cookie('user', token).json({ message: "Signup successful" })
+                return res.cookie('user', token).json({ status: "success", message: "user registered" })
             })
     } catch (err) {
-        return res.status(400).json({ err: err, message: "User Not Created" })
+        return res.status(400).json({ status: "error", message: "an error occurred, user not registered", err })
     }
 }
 
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
     const check = await User.findOne({ email: email });
-    if (!check) {
-        return res.status(400).json({ apiErrorMessage: "User not found" });
-    }
     const pass = bcrypt.compareSync(password, check.password);
-    if (!pass) {
-        return res.status(400).json({ apiErrorMessage: "Wrong Credentials" });
+    if (!pass || !check) {
+        return res.status(400).json({ status: "fail", message: "username or password is wrong" });
     }
     jwt.sign({
         "_id": check._id,
@@ -66,14 +63,18 @@ export const loginUser = async (req, res) => {
         {},
         (err, token) => {
             if (err) {
-                return res.status(500).json({ apiErrorMessage: "Something went wrong" });
+                return res.status(500).json({ status: "error", message: "something went wrong", err });
             }
-            return res.status(201).cookie('user', token).json({ apiSuccessMessage: "Login successful", data: check });
+            return res.status(201).cookie('user', token).json({ status: "success", message: "user logged in successfully", data: check });
         })
 }
 
 export const logoutUser = async (req, res) => {
-    await res.clearCookie('user').json({ apiSuccessMessage: "Logged Out", data: null })
+    try {
+        await res.clearCookie('user').status(200).json({ status: "success", message: "user logged out" })
+    } catch (err) {
+        return res.status(500).json({ status: "error", message: "something went wrong", err })
+    }
 }
 
 
@@ -86,9 +87,9 @@ export const updateUser = async (req, res) => {
             email: email
         }
         const updatable = await User.findOneAndUpdate({ _id: user_id }, updateOptions, { new: false })
-        return res.status(201).json({ apiSuccessMessage: "Details updated" });
-    } catch (error) {
-        return res.status(500).json({ apiErrorMessage: "Something went wrong", error });
+        return res.status(201).json({ status: "success", message: "user updated" });
+    } catch (err) {
+        return res.status(500).json({ status: "error", message: "error occurred, user not updated", err });
     }
 }
 
@@ -100,9 +101,9 @@ export const updateUserAddress = async (req, res) => {
             case 'add': {
                 const updatable = await User.findOneAndUpdate({ _id: user_id }, { $push: { addresses: address } }, { new: true });
                 if (updatable) {
-                    return res.status(201).json({ apiSuccessMessage: "Address added" });
+                    return res.status(201).json({ status: "success", message: "address added" });
                 } else {
-                    return res.status(400).json({ apiErrorMessage: "Address couldn't be added." });
+                    return res.status(400).json({ status: "fail", message: "an error occurred, address not added" });
                 }
                 break;
             }
@@ -111,26 +112,26 @@ export const updateUserAddress = async (req, res) => {
                 delete address["_id"];
                 const updatable = await User.findOneAndUpdate({ _id: user_id, addresses: { $elemMatch: { _id: addressId } } }, { "addresses.$": address }, { new: true });
                 if (updatable) {
-                    return res.status(201).json({ apiSuccessMessage: "Address updated" });
+                    return res.status(201).json({ status: "success", message: "address updated" });
                 } else {
-                    return res.status(400).json({ apiErrorMessage: "Address couldn't be updated." });
+                    return res.status(400).json({ status: "fail", message: "an error occurred, address not updated" });
                 }
                 break;
             }
             case 'delete': {
                 const deletable = await User.findOneAndUpdate({ _id: user_id, addresses: { $elemMatch: { _id: address._id } } }, { $pull: { addresses: address } });
                 if (deletable) {
-                    return res.status(201).json({ apiSuccessMessage: "Address deleted" });
+                    return res.status(201).json({ status: "success", message: "address deleted" });
                 } else {
-                    return res.status(400).json({ apiErrorMessage: "Address couldn't be deleted." });
+                    return res.status(400).json({ status: "fail", message: "an error occurred, address not deleted" });
                 }
             }
             default:
-                return res.status(400).json({ apiErrorMessage: "User not found" });
+                return res.status(400).json({ status: "fail", message: "insufficient data provided" });
                 break;
         }
     } catch (err) {
-        return res.status(500).json({ apiErrorMessage: "Something went wrong", err });
+        return res.status(500).json({ status: "error", message: "something went wrong", err });
     }
 }
 
@@ -140,7 +141,7 @@ export const checkAuth = (req, res) => {
     if (!user) {
         res.sendStatus(400); // unreachable due to middleware
     }
-    res.status(200).json({ data: user });
+    res.status(200).json({ status: "success", message: "user authenticated", data: user });
 }
 
 export const checkAdmin = (req, res) => {
@@ -161,17 +162,16 @@ export const sendResetPasswordToken = async (req, res) => {
         const link = `http://localhost:5173/reset-password/${emailToken}`;
         const editable = await User.findById(user._id);
         if (!editable) {
-            return res.status(400).json({ message: "No user found" });
+            return res.status(400).json({ status: "fail", message: "no user found" });
         }
         editable.passwordResetToken.token = emailToken;
         editable.passwordResetToken.expiry = expiry;
         await editable.save();
         sendEmails("123@example.com", `<a href="${link}">RESET PASSWORD</a>`, "Rest Account Password");
-        return res.status(200).json({ message: "reset token sent" });
+        return res.status(200).json({ status: "success", message: "reset password token sent" });
 
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({ message: "Something went wrong" });
+    } catch (err) {
+        return res.status(500).json({ status: "error", message: "something went wrong", err });
     }
 }
 export const resetPassword = async (req, res) => {
@@ -181,19 +181,19 @@ export const resetPassword = async (req, res) => {
         const { newPassword } = req.body;
         const { token } = req.params;
         if (!token || !newPassword) {
-            return res.status(400).json({ message: "Insufficient Data" });
+            return res.status(400).json({ status: "fail", message: "insufficient data" });
         }
         const now = new Date();
         // const check = await User.findById(user._id);
         const check = await User.findOne({ _id: user._id, "passwordResetToken.token": token, "passwordResetToken.expiry": { $gt: now } })
         if (!check) {
-            return res.status(400).json({ message: "Time limit exceeded" });
+            return res.status(400).json({ status: "fail", message: "invalid token" });
         }
         const hashedPassword = bcrypt.hashSync(newPassword, bcrypt.genSaltSync(10));
         check.password = hashedPassword;
         await check.save();
-        return res.status(200).json({ message: "password updated" });
-    } catch (error) {
-        return res.status(500).json({ message: "Something went wrong", error: error });
+        return res.status(200).json({ status: "success", message: "password updated" });
+    } catch (err) {
+        return res.status(500).json({ status: "error", message: "something went wrong", err });
     }
 }

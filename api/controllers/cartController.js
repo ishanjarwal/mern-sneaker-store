@@ -36,7 +36,7 @@ export const fetchCart = async (req, res) => {
                 items: []
             })
             const result = await newCart.save()
-            return res.status(201).json(result)
+            res.status(201).json({ status: "success", message: "cart created successfully", data: result })
         } else {
             const sendable = userCart.items.map(item => {
                 const currSize = item.product_id.sizes.find(el => el._id.toString() == item.size);
@@ -57,10 +57,10 @@ export const fetchCart = async (req, res) => {
                     }
                 )
             })
-            return res.status(200).json(sendable)
+            res.status(201).json({ status: "success", message: "cart fetched", data: sendable })
         }
     } catch (err) {
-        return res.status(500).json({ err: err, apiErrorMessage: "Couldn't fetch cart" })
+        res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 }
 
@@ -72,7 +72,7 @@ export const addToCart = async (req, res) => {
 
         const checkCart = await Cart.findOne({ user_id: user_id });
         if (!checkCart) {
-            return res.status(400).json({ apiErrorMessage: "Cart not found" })
+            return res.status(400).json({ status: "fail", message: "cart not found" })
         }
         const checkDuplicateItem = await Cart.findOne({ user_id: user_id, items: { $elemMatch: { product_id: product_id, size: size } } })
         if (checkDuplicateItem) {
@@ -84,14 +84,14 @@ export const addToCart = async (req, res) => {
                     $inc: { "items.$.qty": qty },
                 }
             )
-            return res.status(201).json({ apiSuccessMessage: "Product added to Cart" })
+            return res.status(201).json({ status: "success", message: "product added to cart" })
         } else {
             const updatable = await Cart.findOneAndUpdate({ user_id: user_id }, { $push: { items: { product_id, size, qty } } }, { new: false })
-            return res.status(201).json({ apiSuccessMessage: "Product added to Cart" })
+            return res.status(201).json({ status: "success", message: "product added to cart" })
         }
     }
     catch (err) {
-        return res.status(500).json({ err: err, apiErrorMessage: "An error occured, item was not added to cart" })
+        return res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 
 }
@@ -101,13 +101,13 @@ export const deleteFromCart = async (req, res) => {
         const { user_id, product_id, size } = req.params;
         const checkCart = await Cart.findOne({ $and: [{ user_id: user_id }, { items: { $elemMatch: { product_id: product_id } } }, { items: { $elemMatch: { size: size } } }] });
         if (!checkCart) {
-            return res.status(400).json({ apiErrorMessage: "No such item in user cart" })
+            return res.status(400).json({ status: "fail", message: "no such item in cart" })
         }
         const deletable = await Cart.findOneAndUpdate({ user_id: user_id }, { $pull: { items: { $and: [{ product_id: product_id }, { size: size }] } } }, { new: false })
-        res.status(201).json({ apiSuccessMessage: "Item deleted from cart" })
+        return res.status(201).json({ status: "success", message: "product deleted from cart" })
     } catch (err) {
-        console.log(err)
-        res.status(500).json({ err: err, apiErrorMessage: "An error occured, item was not deleted from cart" })
+        return res.status(500).json({ status: "error", message: "something went wrong", err })
+
     }
 
 }
@@ -123,7 +123,7 @@ export const updateCart = async (req, res) => {
             "items.size": oldSize
         })
         if (!checkCart) {  // no item exists
-            return res.status(400).json({ apiErrorMessage: "No such item in user cart" })
+            return res.status(400).json({ status: "fail", message: "no such item in cart" })
         }
 
         if (size === oldSize) { // only qty is different
@@ -135,7 +135,7 @@ export const updateCart = async (req, res) => {
                     $set: { "items.$.qty": qty },
                 }
             )
-            res.status(200).json({ apiSuccessMessage: "Cart updated" })
+            return res.status(201).json({ status: "success", message: "cart updated" })
         } else {
             const checkDuplicateItem = await Cart.findOne({
                 user_id: user_id,
@@ -168,10 +168,10 @@ export const updateCart = async (req, res) => {
                     {
                         $pull: { items: { product_id: product_id, size: oldSize } },
                     })
-                return res.status(200).json({ apiSuccessMessage: "Cart updated" })
+                return res.status(201).json({ status: "success", message: "cart updated" })
             }
         }
     } catch (err) {
-        res.status(500).json({ err: err, apiErrorMessage: "error occured, cart not updated" })
+        res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 }

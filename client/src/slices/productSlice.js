@@ -36,22 +36,6 @@ export const fetchProductByIdAsync = createAsyncThunk(
     }
 )
 
-export const fetchBrandsAsync = createAsyncThunk(
-    'products/fetchBrandsAsync',
-    async () => {
-        const response = await fetchBrands();
-        return response.data;
-    }
-)
-
-export const fetchCategoriesAsync = createAsyncThunk(
-    'products/fetchCategoriesAsync',
-    async () => {
-        const response = await fetchCategories();
-        return response.data;
-    }
-)
-
 export const createProductAsync = createAsyncThunk(
     'products/createProductAsync',
     async (data) => {
@@ -60,7 +44,7 @@ export const createProductAsync = createAsyncThunk(
     }
 )
 
-export const updateProducyAsync = createAsyncThunk(
+export const updateProductAsync = createAsyncThunk(
     'products/updateProductAsync',
     async ({ id, data }) => {
         const response = await updateProduct({ id, data });
@@ -121,14 +105,14 @@ export const productSlice = createSlice({
                 state.state = 'rejected';
                 state.apiError = action.error.message
             })
-            .addCase(updateProducyAsync.pending, (state, action) => {
+            .addCase(updateProductAsync.pending, (state, action) => {
                 state.state = 'pending';
             })
-            .addCase(updateProducyAsync.fulfilled, (state, action) => {
+            .addCase(updateProductAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
-                state.apiMessage = "Product Added Successfully"
+                state.apiMessage = "Product Updated Successfully"
             })
-            .addCase(updateProducyAsync.rejected, (state, action) => {
+            .addCase(updateProductAsync.rejected, (state, action) => {
                 state.state = 'rejected';
                 state.apiError = action.error.message
             })
