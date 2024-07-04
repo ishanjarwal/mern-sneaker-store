@@ -4,7 +4,7 @@ import Product from "../models/productModel.js";
 export const validateSizeDB = async (req, res, next, size) => {
     const { qty } = req.body
     if (!qty) {
-        return res.status(400).json({ errMessage: "Invalid Quantity" })
+        return res.status(400).json({ status: "fail", message: "Invalid Quantity" })
     }
     const check = await Product.findOne({
         $and: [
@@ -13,7 +13,7 @@ export const validateSizeDB = async (req, res, next, size) => {
         ]
     });
     if (!check) {
-        return res.status(400).json({ errMessage: "Invalid Product or Size ID" })
+        return res.status(400).json({ status: "fail", message: "Invalid Product or Size ID" })
     }
     next();
 }
