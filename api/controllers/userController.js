@@ -15,23 +15,67 @@ export const fetchUser = async (req, res) => {
     }
 }
 
+export const fetchUsers = async (req, res) => {
+    try {
+        const users = await User.find().populate({
+            path: 'cart',
+            populate: {
+                path: 'items.product_id',
+                model: 'Product'
+            }
+        }).populate({
+            path: 'wishlist',
+            populate: {
+                path: 'items.product_id',
+                model: 'Product'
+            }
+        }).exec();
+        const sendable = users.map(el => ({
+            email: el.email,
+            fullname: el.fullname,
+            addresses: el.addresses,
+            cart: el.cart.items.map(product => ({
+                name: product.product_id.name,
+                img: product.product_id.images[0],
+                size: product.product_id.sizes.find(el => el._id.toString() === product.size.toString()),
+                qty: product.qty,
+                id: product.product_id._id
+            })),
+            wishlist: el.wishlist.items.map(product => ({
+                name: product.product_id.name,
+                img: product.product_id.images[0],
+                id: product.product_id._id
+            })),
+            createdAt: el.createdAt,
+            updatedAt: el.updatedAt
+        }))
+        return res.status(200).json({ status: "success", data: sendable });
+    } catch (err) {
+        return res.status(500).json({ status: "error", message: "something went wrong", err });
+    }
+}
+
 
 export const createUser = async (req, res) => {
     try {
         const { email, fullname, password } = req.body;
+        const check = await User.findOne({ email });
+        if (check) {
+            return res.status(400).json({ status: "fail", message: "user already exists" })
+        }
         const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
         const newUser = new User({
             display_id: uuidv4(),
             email: email,
             fullname: fullname,
-            password: hashedPassword
+            password: hashedPassword,
         })
         const response = await newUser.save()
         jwt.sign({
             "_id": response._id,
             "fullname": response.fullname,
             "email": response.email,
-            "role": response.role
+            "role": response.role,
         },
             process.env.JWT_SECRET,
             {},
@@ -49,8 +93,11 @@ export const createUser = async (req, res) => {
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
     const check = await User.findOne({ email: email });
+    if (!check) {
+        return res.status(400).json({ status: "fail", message: "username or password is wrong" });
+    }
     const pass = bcrypt.compareSync(password, check.password);
-    if (!pass || !check) {
+    if (!pass) {
         return res.status(400).json({ status: "fail", message: "username or password is wrong" });
     }
     jwt.sign({

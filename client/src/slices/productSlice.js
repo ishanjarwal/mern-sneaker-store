@@ -6,49 +6,68 @@ const initialState = {
     currProduct: null,
     totalItems: 0,
     state: 'idle',
-    apiError: null,
-    apiMessage: null
+    responses: []
 }
 
 // only for admin
 export const fetchAllProductsAsync = createAsyncThunk(
     'products/fetchAllProductsAsync',
-    async () => {
-        const response = await fetchAllProducts();
-        return response
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await fetchAllProducts();
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
     }
 )
 
 // with filters
 export const fetchProductsAsync = createAsyncThunk(
     'products/fetchProductsAsync',
-    async (options) => {
-        const response = await fetchProducts(options);
-        return response
+    async (options, { rejectWithValue }) => {
+        try {
+            const response = await fetchProducts(options);
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
     }
 )
 
 export const fetchProductByIdAsync = createAsyncThunk(
     'products/fetchProductByIdAsync',
-    async ({ product_id, size }) => {
-        const response = await fetchProductById({ product_id, size });
-        return response;
+    async ({ product_id, size }, { rejectWithValue }) => {
+        try {
+            const response = await fetchProductById({ product_id, size });
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
     }
 )
 
 export const createProductAsync = createAsyncThunk(
     'products/createProductAsync',
-    async (data) => {
-        const response = await createProduct(data);
-        return response;
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await createProduct(data);
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
     }
 )
 
 export const updateProductAsync = createAsyncThunk(
     'products/updateProductAsync',
-    async ({ id, data }) => {
-        const response = await updateProduct({ id, data });
-        return response;
+    async ({ id, data }, { rejectWithValue }) => {
+        try {
+            const response = await updateProduct({ id, data });
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
     }
 )
 
@@ -58,6 +77,9 @@ export const productSlice = createSlice({
     reducers: {
         resetCurrProduct(state) {
             state.currProduct = null;
+        },
+        resetProductResponses(state) {
+            state.responses = [];
         }
     },
     extraReducers: (builder) => {
@@ -71,6 +93,7 @@ export const productSlice = createSlice({
             })
             .addCase(fetchAllProductsAsync.rejected, (state, action) => {
                 state.state = 'rejected';
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(fetchProductsAsync.pending, (state, action) => {
                 state.state = 'pending';
@@ -82,42 +105,43 @@ export const productSlice = createSlice({
             })
             .addCase(fetchProductsAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.apiError = action.error.message
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(fetchProductByIdAsync.pending, (state, action) => {
                 state.state = 'pending';
             })
             .addCase(fetchProductByIdAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
-                state.currProduct = action.payload
+                state.currProduct = action.payload.data
             })
             .addCase(fetchProductByIdAsync.rejected, (state, action) => {
                 state.state = 'rejected';
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(createProductAsync.pending, (state, action) => {
                 state.state = 'pending';
             })
             .addCase(createProductAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
-                state.apiMessage = "Product Added Successfully"
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(createProductAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.apiError = action.error.message
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(updateProductAsync.pending, (state, action) => {
                 state.state = 'pending';
             })
             .addCase(updateProductAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
-                state.apiMessage = "Product Updated Successfully"
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(updateProductAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.apiError = action.error.message
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
     }
 })
 
 export default productSlice.reducer
-export const { resetCurrProduct } = productSlice.actions;
+export const { resetCurrProduct, resetProductResponses } = productSlice.actions;

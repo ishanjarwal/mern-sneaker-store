@@ -1,58 +1,95 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { checkAuth, createUser, loginUser, logoutUser, updateUser, updateUserAddress } from "../apis/userAPI";
+import { checkAuth, createUser, fetchUsers, loginUser, logoutUser, updateUser, updateUserAddress } from "../apis/userAPI";
 
 const initialState = {
     currUser: null,
     users: null,
+    user: null,
     state: 'idle',
-    apiError: null,
-    apiMessage: null
+    responses: []
 }
 
 export const createUserAsync = createAsyncThunk(
     'user/createUserAsync',
-    async (data) => {
-        const response = await createUser(data);
-        return response
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await createUser(data);
+            return response
+        } catch (err) {
+            return rejectWithValue(err);
+        }
     }
 )
 export const loginUserAsync = createAsyncThunk(
     'user/loginUserAsync',
-    async (data) => {
-        const response = await loginUser(data)
-        return response;
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await loginUser(data)
+            return response;
+        } catch (err) {
+            return rejectWithValue(err);
+        }
     }
 )
 
 export const logoutUserAsync = createAsyncThunk(
     'user/logoutUserAsync',
-    async () => {
-        const response = await logoutUser()
-        return response;
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await logoutUser()
+            return response;
+        } catch (err) {
+            console.log(err)
+            return rejectWithValue(err)
+        }
     }
 )
 
 export const checkAuthAsync = createAsyncThunk(
     'user/checkAuthAsync',
-    async () => {
-        const response = await checkAuth()
-        return response;
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await checkAuth()
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
     }
 )
 
 export const updateUserAddressAsync = createAsyncThunk(
     'user/updateUserAddressAsync',
-    async ({ user_id, data }) => {
-        const response = await updateUserAddress({ user_id, data })
-        return response;
+    async ({ user_id, data }, { rejectWithValue }) => {
+        try {
+            const response = await updateUserAddress({ user_id, data })
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
     }
 )
 
 export const updateUserAsync = createAsyncThunk(
     'user/updateUserAsync',
-    async ({ user_id, data }) => {
-        const response = await updateUser({ user_id, data })
-        return response;
+    async ({ user_id, data }, { rejectWithValue }) => {
+        try {
+            const response = await updateUser({ user_id, data })
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
+    }
+)
+
+export const fetchUsersAsync = createAsyncThunk(
+    'user/fetchUsersAsync',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await fetchUsers()
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
     }
 )
 
@@ -60,11 +97,14 @@ export const userSlice = createSlice({
     name: 'user',
     initialState: initialState,
     reducers: {
-        resetUserApiError(state) {
-            state.apiError = null;
+        setUser(state, action) {
+            state.user = action.payload;
         },
-        resetUserApiMessage(state) {
-            state.apiMessage = null;
+        resetUser(state) {
+            state.user = null;
+        },
+        resetUserResponses(state) {
+            state.responses = [];
         }
     },
     extraReducers: (builder) => {
@@ -74,11 +114,12 @@ export const userSlice = createSlice({
             })
             .addCase(createUserAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
-                state.currUser = action.payload.user;
+                state.currUser = action.payload.data;
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(createUserAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.apiError = action.error.message
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(loginUserAsync.pending, (state, action) => {
                 state.state = 'pending';
@@ -86,10 +127,11 @@ export const userSlice = createSlice({
             .addCase(loginUserAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
                 state.currUser = action.payload.data;
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(loginUserAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.apiError = action.error.message
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(logoutUserAsync.pending, (state, action) => {
                 state.state = 'pending';
@@ -97,10 +139,11 @@ export const userSlice = createSlice({
             .addCase(logoutUserAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
                 state.currUser = action.payload.data;
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(logoutUserAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.apiError = action.error.message
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(checkAuthAsync.pending, (state, action) => {
                 state.state = 'pending';
@@ -111,33 +154,44 @@ export const userSlice = createSlice({
             })
             .addCase(checkAuthAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.apiError = action.error.message
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(updateUserAddressAsync.pending, (state, action) => {
                 state.state = 'pending';
             })
             .addCase(updateUserAddressAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
-                state.apiMessage = action.payload.apiSuccessMessage;
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(updateUserAddressAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.apiError = action.error.message
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(updateUserAsync.pending, (state, action) => {
                 state.state = 'pending';
             })
             .addCase(updateUserAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
-                state.apiMessage = action.payload.apiSuccessMessage;
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(updateUserAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.apiError = action.error.message
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
+            .addCase(fetchUsersAsync.pending, (state, action) => {
+                state.state = 'pending';
+            })
+            .addCase(fetchUsersAsync.fulfilled, (state, action) => {
+                state.state = 'fulfilled';
+                state.users = action.payload.data
+            })
+            .addCase(fetchUsersAsync.rejected, (state, action) => {
+                state.state = 'rejected';
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
     }
 })
 
-export const { resetUserApiError, resetUserApiMessage } = userSlice.actions;
+export const { setUser, resetUser, resetUserResponses } = userSlice.actions;
 
 export default userSlice.reducer

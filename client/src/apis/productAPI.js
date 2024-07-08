@@ -2,66 +2,66 @@ import axios from 'axios'
 import { DOMAIN } from '../app/constants';
 
 export async function fetchAllProducts() {
-    try {
-        const url = DOMAIN + '/api/product';
-        const response = await axios.get(url);
-        const data = response.data;
-        return data;
-    } catch (err) {
-        throw err;
-    }
+    return new Promise(async (resolve, reject) => {
+        try {
+            const url = DOMAIN + '/api/product';
+            const response = await axios.get(url);
+            resolve(response.data)
+        } catch (err) {
+            reject(err.response.data);
+        }
+    })
 }
 
 export async function fetchProducts({ filters, sort, pagination }) {
-    // filters = {category:['', '']}
-    let queryString = '';
-    // pagination
-    queryString += "page=" + pagination.page + "&" + "limit=" + pagination.limit + "&";
-    queryString += "sort=" + sort.sort_by + "&order=" + sort.order_by + "&";
+    return new Promise(async (resolve, reject) => {
+        try {
+            let queryString = '';
 
-    // filters 
-    // todo : create a single string with comma seperated values for a single filter field
-    for (let key in filters) {
-        for (let value of filters[key]) {
-            queryString += `${key}=${value}&`;
-        }
-    }
-    // const url = 'http://localhost:3000/api/product?' + queryString;
-    try {
-        const url = DOMAIN + '/api/product?' + queryString;
-        const response = await axios.get(url);
-        const data = response.data.data;
-        const totalProducts = response.data.totalProducts
-        const sendable = data.map((product, index) => (
-            {
-                id: product._id,
-                name: product.name,
-                brand: product.brand.name,
-                category: product.category.name,
-                mrp: product.sizes[0].price,
-                sp: Math.floor(product.sizes[0].price * (1 - (product.sizes[0].discountPercentage / 100))),
-                discountPercentage: product.sizes[0].discountPercentage,
-                images: product.images,
-                thumbnail: product.images[0]
+            // pagination
+            queryString += "page=" + pagination.page + "&" + "limit=" + pagination.limit + "&";
+            queryString += "sort=" + sort.sort_by + "&order=" + sort.order_by + "&";
+
+            // filters 
+            for (let key in filters) {
+                for (let value of filters[key]) {
+                    queryString += `${key}=${value}&`;
+                }
             }
-        ))
-        // console.log(sendable)
-        return { data: sendable, totalProducts: totalProducts };
-    } catch (err) {
-        throw err
-    }
-
+            const url = DOMAIN + '/api/product?' + queryString;
+            const response = await axios.get(url);
+            const data = response.data.data;
+            const totalProducts = response.data.totalProducts
+            const sendable = data.map((product, index) => (
+                {
+                    id: product._id,
+                    name: product.name,
+                    brand: product.brand.name,
+                    category: product.category.name,
+                    mrp: product.sizes[0].price,
+                    sp: Math.floor(product.sizes[0].price * (1 - (product.sizes[0].discountPercentage / 100))),
+                    discountPercentage: product.sizes[0].discountPercentage,
+                    images: product.images,
+                    thumbnail: product.images[0]
+                }
+            ))
+            resolve({ data: sendable, totalProducts: totalProducts });
+        } catch (err) {
+            reject(err.response.data)
+        }
+    })
 }
 
 export async function fetchProductById({ product_id, size }) {
-    try {
-        const url = DOMAIN + '/api/product/' + product_id + "/" + size;
-        const response = await axios.get(url);
-        const result = response.data;
-        return result
-    } catch (err) {
-        throw err;
-    }
+    return new Promise(async (resolve, reject) => {
+        try {
+            const url = DOMAIN + '/api/product/' + product_id + "/" + size;
+            const response = await axios.get(url);
+            resolve(response.data)
+        } catch (err) {
+            reject(err.response.data);
+        }
+    })
 }
 
 
@@ -96,13 +96,14 @@ export async function createProduct(data) {
         },
         data: newProduct
     };
-
-    try {
-        const response = await axios.request(config);
-        return { created: true, err: null };
-    } catch (err) {
-        throw err;
-    }
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await axios.request(config);
+            resolve(response.data)
+        } catch (err) {
+            reject(err.response.data);
+        }
+    })
 }
 
 export async function updateProduct({ id, data }) {
@@ -138,21 +139,23 @@ export async function updateProduct({ id, data }) {
         data: newProduct
     };
 
-    try {
-        const response = await axios.request(config);
-        return { created: true, err: null };
-    } catch (err) {
-        throw err;
-    }
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await axios.request(config);
+            resolve(response.data)
+        } catch (err) {
+            reject(err.response.data);
+        }
+    })
 }
 
 export function fetchBrands() {
     return new Promise(async (resolve, reject) => {
         try {
             const response = await axios.get(DOMAIN + "/api/brand")
-            resolve({ data: response.data })
-        } catch (error) {
-            reject({ err: error })
+            resolve(response.data)
+        } catch (err) {
+            reject(err.response.data)
         }
     })
 }
@@ -161,9 +164,9 @@ export function fetchCategories() {
     return new Promise(async (resolve, reject) => {
         try {
             const response = await axios.get(DOMAIN + "/api/category")
-            resolve({ data: response.data })
-        } catch (error) {
-            reject({ err: error })
+            resolve(response.data)
+        } catch (err) {
+            reject(err.response.data)
         }
     })
 }

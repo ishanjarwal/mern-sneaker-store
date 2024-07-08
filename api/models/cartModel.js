@@ -6,6 +6,7 @@ const itemSchema = new Schema({
     size: { type: Schema.Types.ObjectId, ref: 'Size' },
     qty: { type: Number, default: 1 },
 }, { timestamps: true })
+
 const cartSchema = new Schema({
     display_id: { type: String, required: true },
     user_id: {

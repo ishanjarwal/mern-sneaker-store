@@ -8,8 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import ImagePreview from '../../components/ImagePreview';
 import { fetchProductByIdAsync, updateProductAsync } from '../../slices/productSlice';
-import { Navigate, useParams } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { useParams } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import { fetchCategoriesAsync } from '../../slices/categorySlice'
 import { fetchBrandsAsync } from '../../slices/brandSlice'
@@ -24,10 +23,6 @@ const UpdateProduct = () => {
     }, []);
 
     const product = useSelector(state => state.product.currProduct);
-    const state = useSelector(state => state.product.state);
-    const apiError = useSelector(state => state.product.apiError);
-    const apiMessage = useSelector(state => state.product.apiMessage);
-
     const categories = useSelector(state => state.category.categories)
     const brands = useSelector(state => state.brand.brands)
 
@@ -73,32 +68,6 @@ const UpdateProduct = () => {
     ];
     const genders = ['men', 'women', 'kids', 'unisex'];
 
-    // find and set the updatable product
-
-
-    // show messages using toast
-    function invokeToast(type, msg) {
-        switch (type) {
-            case "error":
-                toast.error(msg);
-            case "success":
-                toast.success(msg)
-        }
-    }
-    useEffect(() => {
-        if (state === 'rejected') {
-            if (apiError) {
-                invokeToast("error", apiError)
-            } else {
-                invokeToast("error", "Something went wrong");
-            }
-        }
-        if (state === 'fulfilled' && apiMessage) {
-            invokeToast("success", apiMessage)
-        }
-    }, [state]);
-
-
     async function sendData(data) {
         dispatch(updateProductAsync({ id, data }));
     }
@@ -115,7 +84,6 @@ const UpdateProduct = () => {
         setValue("brand", product?.brand)
         setValue("description", product?.additional_details.description)
         setValue("shoe_materials", product?.additional_details.specifications.shoe_materials.join(', '))
-        // setValue("old_images", product?.images)
         setValue("images", product?.images)
         setValue("sole_materials", product?.additional_details.specifications.sole_materials.join(', '))
         setValue("color", product?.additional_details.specifications.color)
@@ -134,7 +102,6 @@ const UpdateProduct = () => {
 
     return (
         <div className='py-8 px-6'>
-            <ToastContainer />
             <h1 className='text-2xl font-bold uppercase mb-4'>Update Product</h1>
             <div>
                 <form encType="multipart/mixed" onSubmit={handleSubmit(data => { sendData(data) })}>

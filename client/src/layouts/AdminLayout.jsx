@@ -27,7 +27,7 @@ const AdminLayout = () => {
         },
         {
             name: "Manage Users",
-            link: "/"
+            link: "manage-users"
         },
         {
             name: "Manage Orders",

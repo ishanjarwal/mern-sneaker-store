@@ -37,7 +37,7 @@ export const fetchWishlist = async (req, res) => {
                 items: []
             })
             const result = await newWishlist.save()
-            return res.status(201).json({ status: "success", message: "wishlist created", data: result })
+            return res.status(201).json({ status: "success", data: result })
         } else {
             const sendable = userWishlist.items.map(item => {
                 const currSize = item.product_id.sizes[0];
@@ -55,7 +55,7 @@ export const fetchWishlist = async (req, res) => {
                     }
                 )
             })
-            return res.status(200).json({ status: "success", message: "wishlist fetched", data: sendable })
+            return res.status(200).json({ status: "success", data: sendable })
         }
     } catch (err) {
         return res.status(500).json({ status: "error", message: "something went wrong", err })

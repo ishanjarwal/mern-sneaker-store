@@ -10,8 +10,6 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import ImagePreview from '../../components/ImagePreview';
 import { createProductAsync } from '../../slices/productSlice';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { DOMAIN } from '../../app/constants';
 
 
@@ -22,9 +20,8 @@ const AddProducts = () => {
     // const navigate = useNavigate();
     const dispatch = useDispatch();
     const state = useSelector(state => state.product.state)
-    const apiError = useSelector(state => state.product.apiError);
-    const apiMessage = useSelector(state => state.product.apiMessage);
-
+    const categories = useSelector(state => state.category.categories)
+    const brands = useSelector(state => state.brand.brands)
     const { register, handleSubmit, formState: { errors }, control, watch, setValue, getValues } = useForm();
     const { fields: imageFields, append: imageAppend, remove: imageRemove } = useFieldArray({ name: "images", control, rules: { required: "Images are Required", maxLength: { value: 6, message: "Maximum 6 Images allowed" } } })
     const { fields: sizeFields, append: sizeAppend, remove: sizeRemove } = useFieldArray({
@@ -69,7 +66,6 @@ const AddProducts = () => {
     const [showImportModal, setShowImportModal] = useState(false);
     const [importedProduct, setImportedProduct] = useState(null);
     function fillInputsWithImportedProduct() {
-        console.log(importedProduct)
         setValue("name", importedProduct?.name)
         setValue("short_desc", importedProduct?.short_desc)
         setValue("category", importedProduct?.category)
@@ -91,66 +87,13 @@ const AddProducts = () => {
     }, [importedProduct]);
 
 
-    // show messages using toast
-    function invokeToast(type, msg) {
-        switch (type) {
-            case "error":
-                toast.error(msg);
-            case "success":
-                toast.success(msg)
-        }
-    }
-    useEffect(() => {
-        if (state === 'rejected') {
-            if (apiError) {
-                invokeToast("error", apiError)
-            } else {
-                invokeToast("error", "Something went wrong");
-            }
-        }
-        if (state === 'fulfilled' && apiMessage) {
-            invokeToast("success", apiMessage)
-        }
-    }, [state]);
-
-
-
-
     async function sendData(data) {
         dispatch(createProductAsync(data));
     }
 
-    const [brands, setBrands] = useState(null);
-    async function getBrands() {
-        try {
-            const response = await axios.get(DOMAIN + "/api/brand")
-            setBrands(response.data.data)
-        } catch (error) {
-            invokeToast("Failed to fetch brands");
-            console.log(error);
-        }
-    }
-
-    const [categories, setCategories] = useState(null);
-    async function getCategories() {
-        try {
-            const response = await axios.get(DOMAIN + "/api/category")
-            setCategories(response.data.data)
-        } catch (error) {
-            invokeToast("Failed to fetch Categories");
-            console.log(error);
-        }
-    }
-
-    useEffect(() => {
-        getBrands();
-        getCategories();
-    }, []);
-
 
     return (
         <div className='py-8 px-6'>
-            <ToastContainer />
             <ImportModal
                 showImportModal={showImportModal}
                 setShowImportModal={setShowImportModal}

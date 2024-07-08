@@ -36,7 +36,7 @@ export const fetchCart = async (req, res) => {
                 items: []
             })
             const result = await newCart.save()
-            res.status(201).json({ status: "success", message: "cart created successfully", data: result })
+            res.status(201).json({ status: "success", data: result })
         } else {
             const sendable = userCart.items.map(item => {
                 const currSize = item.product_id.sizes.find(el => el._id.toString() == item.size);
@@ -57,7 +57,7 @@ export const fetchCart = async (req, res) => {
                     }
                 )
             })
-            res.status(201).json({ status: "success", message: "cart fetched", data: sendable })
+            res.status(201).json({ status: "success", data: sendable })
         }
     } catch (err) {
         res.status(500).json({ status: "error", message: "something went wrong", err })
@@ -151,7 +151,7 @@ export const updateCart = async (req, res) => {
                         $set: { "items.$.qty": qty, "items.$.size": size },
                     }
                 )
-                return res.status(200).json({ apiSuccessMessage: "Cart updated" })
+                return res.status(200).json({ status: "success", message: "cart updated" })
             } else {
                 // agar duplicate mil gaya same size wala
                 const update = await Cart.findOneAndUpdate({

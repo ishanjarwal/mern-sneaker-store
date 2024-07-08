@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, Outlet } from "react-router-dom"
-import { checkAuthAsync, resetUserApiError } from '../slices/userSlice';
+import { checkAuthAsync } from '../slices/userSlice';
 
 const AuthLayout = () => {
 
@@ -10,9 +10,6 @@ const AuthLayout = () => {
     // const userState = useSelector(state => state.user.state)
     // const userApiError = useSelector(state => state.user.apiError)
 
-    useEffect(() => {
-        dispatch(resetUserApiError());
-    }, []);
 
     if (user) {
         return <Navigate to={"/"} />
