@@ -4,7 +4,7 @@ import Product from "../models/productModel.js";
 export const validateSizeDB = async (req, res, next, size) => {
     const { product_id = req.params.product_id } = req.body
     if (!size || !mongoose.Types.ObjectId.isValid(size)) {
-        return res.status(400).json({ status: "fail", message: "Invalid Size ID" })
+        return res.status(400).json({ status: "fail", message: "Invalid Size" })
     }
     const check = await Product.findOne({
         $and: [
@@ -13,7 +13,7 @@ export const validateSizeDB = async (req, res, next, size) => {
         ]
     });
     if (!check) {
-        return res.status(400).json({ status: "fail", message: "Invalid Product or Size ID" })
+        return res.status(400).json({ status: "fail", message: "Invalid Product or Size" })
     }
     next();
 }

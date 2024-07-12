@@ -30,7 +30,7 @@ const DisplayMessages = ({ children }) => {
     // wishlist and cart states should be idle always
     useEffect(() => {
         if (cartState == 'fulfilled' && user) {
-            dispatch(fetchCartAsync(user._id));
+            dispatch(fetchCartAsync());
         }
         if (wishlistState == 'fulfilled' && user) {
             dispatch(fetchWishlistAsync(user._id));

@@ -1,10 +1,12 @@
 import Cart from "../models/cartModel.js";
 import { v4 as uuidv4 } from 'uuid'
+import Product from "../models/productModel.js";
 
 
 export const fetchCart = async (req, res) => {
     try {
-        const { user_id } = req.params
+        const { user } = req;
+        const user_id = user._id;
         const userCart = await Cart.findOne({ user_id: user_id })
             .populate({
                 path: 'items',
@@ -42,6 +44,7 @@ export const fetchCart = async (req, res) => {
                 const currSize = item.product_id.sizes.find(el => el._id.toString() == item.size);
                 return (
                     {
+                        id: item._id,
                         qty: item.qty,
                         size: currSize,
                         product: {
@@ -53,7 +56,8 @@ export const fetchCart = async (req, res) => {
                             discountPercentage: currSize.discountPercentage,
                             sp: currSize.price * (1 - (currSize.discountPercentage / 100)),
                             stock: currSize.stock
-                        }
+                        },
+                        availableStock: (currSize.stock - item.qty)
                     }
                 )
             })
@@ -67,28 +71,56 @@ export const fetchCart = async (req, res) => {
 
 export const addToCart = async (req, res) => {
     try {
-        const { user_id } = req.params;
+        const { user } = req;
+        const user_id = user._id
         const { product_id, size, qty } = req.body;
 
         const checkCart = await Cart.findOne({ user_id: user_id });
         if (!checkCart) {
             return res.status(400).json({ status: "fail", message: "cart not found" })
         }
-        const checkDuplicateItem = await Cart.findOne({ user_id: user_id, items: { $elemMatch: { product_id: product_id, size: size } } })
-        if (checkDuplicateItem) {
-            const update = await Cart.findOneAndUpdate({
+
+        const requestedProduct = await Product.findOne({
+            _id: product_id,
+            "sizes._id": size
+        },
+            { "sizes.$": 1 }
+        )
+        const availableStock = requestedProduct.sizes[0].stock;
+
+        const checkDuplicateItem = await Cart.findOne(
+            {
                 user_id: user_id,
-                items: { $elemMatch: { product_id: product_id, size: size } }
-            },
-                {
-                    $inc: { "items.$.qty": qty },
+                items: {
+                    $elemMatch: { product_id: product_id, size: size }
                 }
+            }
+        )
+        if (checkDuplicateItem) {
+            const existingStock = checkDuplicateItem.items[0].qty;
+            if ((qty + existingStock) <= availableStock) {
+                const update = await Cart.findOneAndUpdate({
+                    user_id: user_id,
+                    items: { $elemMatch: { product_id: product_id, size: size } }
+                },
+                    {
+                        $inc: { "items.$.qty": qty },
+                    }
+                )
+                return res.status(201).json({ status: "success", message: "product added to cart" })
+            } else {
+                return res.status(400).json({ status: "fail", message: "requested quantity cannot be fulfilled" })
+            }
+        }
+        else {
+            const updatable = await Cart.findOneAndUpdate(
+                { user_id: user_id },
+                { $push: { items: { product_id, size, qty } } },
+                { new: false }
             )
             return res.status(201).json({ status: "success", message: "product added to cart" })
-        } else {
-            const updatable = await Cart.findOneAndUpdate({ user_id: user_id }, { $push: { items: { product_id, size, qty } } }, { new: false })
-            return res.status(201).json({ status: "success", message: "product added to cart" })
         }
+
     }
     catch (err) {
         return res.status(500).json({ status: "error", message: "something went wrong", err })
@@ -98,80 +130,140 @@ export const addToCart = async (req, res) => {
 
 export const deleteFromCart = async (req, res) => {
     try {
-        const { user_id, product_id, size } = req.params;
-        const checkCart = await Cart.findOne({ $and: [{ user_id: user_id }, { items: { $elemMatch: { product_id: product_id } } }, { items: { $elemMatch: { size: size } } }] });
+        const { item_id } = req.params;
+        const { user } = req;
+        const user_id = user._id;
+        const checkCart = await Cart.findOne({
+            user_id: user_id,
+            items: { $elemMatch: { _id: item_id } }
+        });
         if (!checkCart) {
             return res.status(400).json({ status: "fail", message: "no such item in cart" })
         }
-        const deletable = await Cart.findOneAndUpdate({ user_id: user_id }, { $pull: { items: { $and: [{ product_id: product_id }, { size: size }] } } }, { new: false })
+        const deletable = await Cart.findOneAndUpdate({ user_id: user_id }, { $pull: { items: { _id: item_id } } }, { new: false })
         return res.status(201).json({ status: "success", message: "product deleted from cart" })
     } catch (err) {
         return res.status(500).json({ status: "error", message: "something went wrong", err })
-
     }
-
 }
 
 export const updateCart = async (req, res) => {
     try {
-        const { user_id } = req.params;
-        const { product_id, size, qty, oldSize, oldQty } = req.body;
+        const { user } = req;
+        const user_id = user._id;
+        const { item_id } = req.params;
+        const { product_id, size, qty } = req.body;
 
-        const checkCart = await Cart.findOne({
-            user_id: user_id,
-            "items.product_id": product_id,
-            "items.size": oldSize
-        })
-        if (!checkCart) {  // no item exists
-            return res.status(400).json({ status: "fail", message: "no such item in cart" })
-        }
 
-        if (size === oldSize) { // only qty is different
-            const update = await Cart.findOneAndUpdate({
+        // check if the product is already in cart with same product_id, same size but different item_id
+        const checkCart = await Cart.findOne(
+            {
                 user_id: user_id,
-                items: { $elemMatch: { product_id: product_id, size: size } }
+                items: { $elemMatch: { product_id, size, _id: { $ne: item_id } } }
             },
-                {
-                    $set: { "items.$.qty": qty },
-                }
-            )
-            return res.status(201).json({ status: "success", message: "cart updated" })
-        } else {
-            const checkDuplicateItem = await Cart.findOne({
-                user_id: user_id,
-                items: { $elemMatch: { product_id: product_id, size: size } }
-            })
-            if (!checkDuplicateItem) {
-                const update = await Cart.findOneAndUpdate({
-                    user_id: user_id,
-                    items: { $elemMatch: { product_id: product_id, size: oldSize } }
-
-                },
+            { "items.$": 1 }
+        )
+        const requestedProduct = await Product.findOne({
+            _id: product_id,
+            "sizes._id": size
+        },
+            { "sizes.$": 1 }
+        )
+        const availableStock = requestedProduct.sizes[0].stock;
+        if (!checkCart) {  // same product doesn't exist in cart
+            if (qty <= availableStock) {
+                const update = await Cart.findOneAndUpdate(
                     {
-                        $set: { "items.$.qty": qty, "items.$.size": size },
+                        user_id: user_id,
+                        "items._id": item_id
+                    },
+                    {
+                        $set: { "items.$.qty": qty, "items.$.size": size }
                     }
                 )
-                return res.status(200).json({ status: "success", message: "cart updated" })
             } else {
-                // agar duplicate mil gaya same size wala
-                const update = await Cart.findOneAndUpdate({
-                    user_id: user_id,
-                    items: { $elemMatch: { product_id: product_id, size: size } }
-                },
+                const update = await Cart.findOneAndUpdate(
                     {
-                        $inc: { "items.$.qty": qty },
-                    })
-                const deletePrevious = await Cart.findOneAndUpdate({
-                    user_id: user_id,
-                    items: { $elemMatch: { product_id: product_id, size: oldSize } }
-                },
+                        user_id: user_id,
+                        "items._id": item_id
+                    },
                     {
-                        $pull: { items: { product_id: product_id, size: oldSize } },
-                    })
-                return res.status(201).json({ status: "success", message: "cart updated" })
+                        $set: { "items.$.qty": availableStock, "items.$.size": size }
+                    }
+                )
             }
+            return res.status(200).json({ status: "success", message: "cart updated" })
+        } else {
+            // if a product with same size and product_id but different item_id already exists
+            const existingStock = checkCart.items[0].qty;
+            if ((qty + existingStock) <= availableStock) {
+                const updated = await Cart.findOneAndUpdate(
+                    {
+                        user_id: user_id,
+                        items: { $elemMatch: { product_id, size, _id: { $ne: item_id } } }
+                    },
+                    {
+                        $set: { "items.$.size": size },
+                        $inc: { "items.$.qty": qty },
+                    }
+                )
+            } else {
+                const updated = await Cart.findOneAndUpdate(
+                    {
+                        user_id: user_id,
+                        items: { $elemMatch: { product_id, size, _id: { $ne: item_id } } }
+                    },
+                    {
+                        $set: { "items.$.size": size, "items.$.qty": availableStock },
+                    }
+                )
+            }
+            const pullItem = await Cart.findOneAndUpdate(
+                {
+                    user_id: user_id,
+                },
+                {
+                    $pull: { items: { _id: item_id } }
+                }
+            );
+            return res.status(200).json({ status: "success", message: "cart updated" })
         }
     } catch (err) {
         res.status(500).json({ status: "error", message: "something went wrong", err })
+    }
+}
+
+
+export const filterCart = async (req, res) => {
+    //  remove the out of stock items, this api will be hit at checkout page.
+    try {
+        const { user } = req;
+        const cart = await Cart.findOne({ user_id: user._id })
+            .populate({
+                path: 'items',
+                populate: {
+                    path: 'product_id',
+                    model: 'Product'
+                }
+            });
+        if (!cart) {
+            return res.status(400).json({ status: "fail", message: "cart not found" });
+        }
+        let lowStockItemsIds = [];
+        lowStockItemsIds = cart.items.filter(item => {
+            const size = item.product_id.sizes.find(size => size._id.toString() == item.size.toString())
+            return size.stock < 1;
+        }).map(item => item._id);
+        if (lowStockItemsIds.length > 0) {
+            const updated = await Cart.findOneAndUpdate(
+                { user_id: user._id },
+                { $pull: { items: { _id: { $in: lowStockItemsIds } } } },
+            );
+            return res.status(200).json({ status: "success", message: "removed out of stock items from cart" });
+        } else {
+            return res.status(200).json({ status: "success", message: "ready for checkout" });
+        }
+    } catch (err) {
+        return res.status(500).json({ status: "error", message: "something went wrong", err });
     }
 }

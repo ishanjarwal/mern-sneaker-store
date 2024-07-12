@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { addToCart, deleteFromCart, fetchCart, updateCart } from "../apis/cartAPI";
+import { addToCart, deleteFromCart, fetchCart, filterCart, updateCart } from "../apis/cartAPI";
 
 const initialState = {
     items: [],
@@ -10,9 +10,9 @@ const initialState = {
 
 export const fetchCartAsync = createAsyncThunk(
     'cart/fetchCartAsync',
-    async (uid, { rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
         try {
-            const response = await fetchCart(uid);
+            const response = await fetchCart();
             return response;
         } catch (err) {
             return rejectWithValue(err)
@@ -23,9 +23,9 @@ export const fetchCartAsync = createAsyncThunk(
 
 export const addToCartAsync = createAsyncThunk(
     'cart/addToCartAsync',
-    async ({ user_id, data }, { rejectWithValue }) => {
+    async (data, { rejectWithValue }) => {
         try {
-            const response = await addToCart({ user_id, data });
+            const response = await addToCart(data);
             return response;
         } catch (err) {
             return rejectWithValue(err)
@@ -35,9 +35,9 @@ export const addToCartAsync = createAsyncThunk(
 
 export const deleteFromCartAsync = createAsyncThunk(
     'cart/deleteFromCartAsync',
-    async ({ user_id, product_id, size }, { rejectWithValue }) => {
+    async (item_id, { rejectWithValue }) => {
         try {
-            const response = await deleteFromCart({ user_id, product_id, size });
+            const response = await deleteFromCart(item_id);
             return response;
         } catch (err) {
             return rejectWithValue(err)
@@ -47,9 +47,21 @@ export const deleteFromCartAsync = createAsyncThunk(
 
 export const updateCartAsync = createAsyncThunk(
     'cart/updateCartAsync',
-    async ({ user_id, data }, { rejectWithValue }) => {
+    async ({ item_id, data }, { rejectWithValue }) => {
         try {
-            const response = await updateCart({ user_id, data });
+            const response = await updateCart({ item_id, data });
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
+    }
+)
+
+export const filterCartAsync = createAsyncThunk(
+    'cart/filterCartAsync',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await filterCart();
             return response;
         } catch (err) {
             return rejectWithValue(err)
@@ -113,6 +125,17 @@ export const cartSlice = createSlice({
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(updateCartAsync.rejected, (state, action) => {
+                state.state = 'rejected';
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
+            .addCase(filterCartAsync.pending, (state, action) => {
+                state.state = 'pending';
+            })
+            .addCase(filterCartAsync.fulfilled, (state, action) => {
+                state.state = 'fulfilled'
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
+            .addCase(filterCartAsync.rejected, (state, action) => {
                 state.state = 'rejected';
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
             })

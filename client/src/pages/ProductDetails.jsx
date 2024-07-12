@@ -13,6 +13,7 @@ import { fetchProductByIdAsync } from '../slices/productSlice';
 import { useParams } from 'react-router-dom';
 import { addToCartAsync, showCart } from '../slices/cartSlice';
 import { addToWishlistAsync, deleteFromWishlistAsync } from '../slices/wishlistSlice';
+import QuantitySetter from '../components/QuantitySetter';
 
 
 register();
@@ -27,7 +28,10 @@ const ProductDetails = () => {
     const dispatch = useDispatch();
     const wishlistItems = useSelector(state => state.wishlist.items);
     const wishlistState = useSelector(state => state.wishlist.state);
+    const cartItems = useSelector(state => state.cart.items);
     const user = useSelector(state => state.user.currUser);
+
+    const [maxQty, setMaxQty] = useState(0);
 
     const [qty, setQty] = useState(1);
     const [size, setSize] = useState(null);
@@ -37,7 +41,7 @@ const ProductDetails = () => {
             size: size || product.currSize._id,
             qty: qty
         }
-        dispatch(addToCartAsync({ user_id: user._id, data: data }))
+        dispatch(addToCartAsync(data))
     }
 
     useEffect(() => {
@@ -46,6 +50,17 @@ const ProductDetails = () => {
         // document.documentElement.scrollTop = 0;
     }, [pid, size]);
 
+    useEffect(() => {
+        setQty(1);
+    }, [cartItems]);
+
+    useEffect(() => {
+        const foundItem = cartItems.find(item => {
+            return ((item.product._id == product._id) && (item.size._id == product.currSize._id))
+        })
+        const stock = foundItem?.availableStock !== null && foundItem?.availableStock !== undefined ? foundItem.availableStock : product?.currSize.stock
+        setMaxQty(stock);
+    }, [cartItems, product]);
 
     const variants = [
         {
@@ -90,9 +105,9 @@ const ProductDetails = () => {
                                         className='absolute md:top-4 top-16 bg-white lg:w-12 lg:h-12 w-10 h-10 rounded-full flex justify-center items-center lg:text-2xl text-xl hover:bg-muted-bg right-4 duration-150' style={{ "zIndex": 1 }}
                                         onClick={() => {
                                             if (wishlistItems.find(el => el._id == product._id)) {
-                                                dispatch(deleteFromWishlistAsync({ user_id: user._id, product_id: product._id }))
+                                                dispatch(deleteFromWishlistAsync(product._id))
                                             } else {
-                                                dispatch(addToWishlistAsync({ user_id: user._id, product_id: product._id }))
+                                                dispatch(addToWishlistAsync(product._id))
                                             }
                                         }}
                                         title={`${wishlistItems.find(el => el._id == product._id) ? "Remove from Wishlist" : "Add to Wishlist"}`}
@@ -228,54 +243,51 @@ const ProductDetails = () => {
 
                                 {/* action buttons */}
                                 <div className='grid grid-cols-4 gap-2 mt-8'>
-
                                     {/* qty */}
-                                    <div className='col-span-1 '>
-                                        <div className='border border-text text-center rounded-full flex justify-between items-center  p-1'>
-                                            {qty > 1 ? (
+                                    {(maxQty != 0 && product?.currSize.stock != 0) &&
+                                        <QuantitySetter qty={qty} setQty={setQty} max={maxQty} />
+                                    }
+                                    {cartItems.find(item => {
+                                        return ((item.product._id == product._id) && (item.size._id == product.currSize._id))
+                                    })?.availableStock == 0 &&
+                                        <div className='py-4 col-span-4'>
+                                            <p className='text-center text-lg font-bold'>
+                                                All Stock of this product is already in your&nbsp;
                                                 <button
-                                                    className='py-2 px-2 text-text hover:bg-gray-100 rounded-full'
                                                     onClick={() => {
-                                                        setQty(prev => prev - 1)
+                                                        dispatch(showCart())
                                                     }}
-                                                >
-                                                    <IoRemove />
+                                                    className='underline'>
+                                                    Cart
                                                 </button>
-                                            ) : <span className='p-2 text-gray-300 pointer-events-none' ><IoRemove /></span>}
-                                            <span>
-                                                {qty}
-                                            </span>
-                                            {qty < product.currSize.stock ? (
-                                                <button
-                                                    className='py-2 px-2 text-text hover:bg-gray-100 rounded-full'
-                                                    onClick={() => {
-                                                        setQty(prev => prev + 1)
-                                                    }}
-                                                >
-                                                    <IoAdd />
-                                                </button>
-                                            ) : <span className='p-2 text-gray-300 pointer-events-none' ><IoAdd /></span>}
+                                            </p>
                                         </div>
-                                    </div>
+                                    }
                                     <div className='col-span-4'>
                                         <button
-                                            className='w-full py-4 text-center text-white bg-black rounded-full'
+                                            className={`${maxQty > 0 ? "cursor-pointer bg-black" : "cursor-not-allowed bg-zinc-700"} w-full py-4 text-center text-white rounded-full`}
                                             onClick={(e) => {
                                                 e.preventDefault();
-                                                addToCart();
+                                                if (maxQty > 0) {
+                                                    addToCart();
+                                                }
                                             }}
+                                            disabled={maxQty <= 0}
                                         >
                                             ADD TO CART
                                         </button>
                                     </div>
                                     <div className='col-span-4'>
                                         <button
-                                            className='w-full border border-text py-4 text-center text-text bg-white rounded-full'
+                                            className={`${maxQty > 0 ? "cursor-pointer" : "cursor-not-allowed"} w-full py-4 text-center text-black rounded-full border-black border`}
                                             onClick={(e) => {
                                                 e.preventDefault();
-                                                addToCart();
-                                                dispatch(showCart());
+                                                if (maxQty > 0) {
+                                                    addToCart();
+                                                    dispatch(showCart())
+                                                }
                                             }}
+                                            disabled={maxQty <= 0}
                                         >
                                             BUY NOW
                                         </button>

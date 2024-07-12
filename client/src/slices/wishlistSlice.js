@@ -10,9 +10,9 @@ const initialState = {
 
 export const fetchWishlistAsync = createAsyncThunk(
     'wishlist/fetchWishlistAsync',
-    async (user_id, { rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
         try {
-            const response = await fetchWishlist(user_id);
+            const response = await fetchWishlist();
             return response;
         } catch (err) {
             return rejectWithValue(err)
@@ -22,9 +22,9 @@ export const fetchWishlistAsync = createAsyncThunk(
 
 export const addToWishlistAsync = createAsyncThunk(
     'wishlist/addToWishlistAsync',
-    async ({ user_id, product_id }, { rejectWithValue }) => {
+    async (product_id, { rejectWithValue }) => {
         try {
-            const response = await addToWishlist({ user_id, product_id });
+            const response = await addToWishlist(product_id);
             return response;
         } catch (err) {
             return rejectWithValue(err)
@@ -34,9 +34,9 @@ export const addToWishlistAsync = createAsyncThunk(
 
 export const deleteFromWishlistAsync = createAsyncThunk(
     'wishlist/deleteFromWishlistAsync',
-    async ({ user_id, product_id }, { rejectWithValue }) => {
+    async (product_id, { rejectWithValue }) => {
         try {
-            const response = await deleteFromWishlist({ user_id, product_id });
+            const response = await deleteFromWishlist(product_id);
             return response;
         } catch (err) {
             return rejectWithValue(err)

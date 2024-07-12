@@ -43,7 +43,7 @@ const App = () => {
 
   useEffect(() => {
     if (user) {
-      dispatch(fetchCartAsync(user._id));
+      dispatch(fetchCartAsync());
       dispatch(fetchWishlistAsync(user._id));
     }
   }, [user]);

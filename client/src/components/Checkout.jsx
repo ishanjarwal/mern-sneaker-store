@@ -44,12 +44,12 @@ const Checkout = () => {
     }
     useEffect(() => {
         if(user){
-            dispatch(fetchCartAsync(user._id));
+            dispatch(fetchCartAsync());
         }
     }, [dispatch, cartShown]);
     useEffect(() => {
         if (state == 'fulfilled' && user) {
-            dispatch(fetchCartAsync(user._id));
+            dispatch(fetchCartAsync());
         }
     }, [dispatch, state]);
 

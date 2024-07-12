@@ -4,6 +4,7 @@ import { isAuth } from '../middlewares/isAuth.js';
 import { isAdmin } from '../middlewares/isAdmin.js';
 import { validateUserDB } from '../middlewares/validateUserDB.js';
 import { validateAddress } from '../middlewares/validateAddress.js';
+import { filterCart } from '../controllers/cartController.js';
 
 
 const userRouter = express.Router();

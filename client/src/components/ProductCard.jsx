@@ -39,9 +39,9 @@ const ProductCard = ({ data }) => {
                     onClick={
                         () => {
                             if (wishlistItems.find(el => el._id == data.id)) {
-                                dispatch(deleteFromWishlistAsync({ user_id: user._id, product_id: data.id }))
+                                dispatch(deleteFromWishlistAsync(data.id))
                             } else {
-                                dispatch(addToWishlistAsync({ user_id: user._id, product_id: data.id }))
+                                dispatch(addToWishlistAsync(data.id))
                             }
                         }}
                 >

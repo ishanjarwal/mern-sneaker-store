@@ -5,7 +5,8 @@ import Wishlist from "../models/wishlistModel.js";
 
 export const fetchWishlist = async (req, res) => {
     try {
-        const { user_id } = req.params
+        const { user } = req;
+        const user_id = user._id;
         const userWishlist = await Wishlist.findOne({ user_id: user_id })
             .populate({
                 path: 'items',
@@ -65,7 +66,8 @@ export const fetchWishlist = async (req, res) => {
 
 export const addToWishlist = async (req, res) => {
     try {
-        const { user_id } = req.params;
+        const { user } = req;
+        const user_id = user._id;
         const { product_id } = req.body;
 
         const checkWishlist = await Wishlist.findOne({ user_id: user_id });
@@ -88,7 +90,9 @@ export const addToWishlist = async (req, res) => {
 
 export const deleteFromWishlist = async (req, res) => {
     try {
-        const { user_id, product_id } = req.params;
+        const { user } = req;
+        const user_id = user._id;
+        const { product_id } = req.params;
         const checkWishlist = await Wishlist.findOne({
             user_id: user_id,
             items: { $elemMatch: { product_id } }

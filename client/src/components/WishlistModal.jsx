@@ -108,7 +108,7 @@ const WishlistModal = () => {
                                                                 </button> */}
                                                                 <button
                                                                     onClick={() => {
-                                                                        dispatch(deleteFromWishlistAsync({ user_id: user._id, product_id: item._id }))
+                                                                        dispatch(deleteFromWishlistAsync(item._id))
                                                                     }}
                                                                     title='Remove from Wishlist'
                                                                     className="p-2 bg-white rounded-md text-lg text-red-400 hover:bg-muted-bg border border-gray-300 duration-100"

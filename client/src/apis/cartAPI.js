@@ -1,23 +1,11 @@
 import axios from 'axios'
 import { DOMAIN } from '../app/constants.js'
 
-export async function fetchCart(uid) {
+export async function fetchCart() {
     return new Promise(async (resolve, reject) => {
         try {
-            const url = DOMAIN + '/api/cart/' + uid
-            const response = await axios.get(url);
-            resolve(response.data)
-        } catch (err) {
-            reject(err.response.data);
-        }
-    })
-
-}
-
-export async function addToCart({ user_id, data }) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const response = await axios.post(DOMAIN + '/api/cart/' + user_id, data)
+            const url = DOMAIN + '/api/cart/'
+            const response = await axios.get(url, { withCredentials: true });
             resolve(response.data)
         } catch (err) {
             reject(err.response.data);
@@ -25,11 +13,11 @@ export async function addToCart({ user_id, data }) {
     })
 }
 
-
-export async function deleteFromCart({ user_id, product_id, size }) {
+export async function filterCart() {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.delete(DOMAIN + '/api/cart/' + user_id + "/" + product_id + "/" + size)
+            const url = DOMAIN + '/api/cart/filter-cart/'
+            const response = await axios.get(url, { withCredentials: true });
             resolve(response.data)
         } catch (err) {
             reject(err.response.data);
@@ -37,10 +25,33 @@ export async function deleteFromCart({ user_id, product_id, size }) {
     })
 }
 
-export async function updateCart({ user_id, data }) {
+export async function addToCart(data) {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.patch(DOMAIN + '/api/cart/' + user_id, data)
+            const response = await axios.post(DOMAIN + '/api/cart', data, { withCredentials: true })
+            resolve(response.data)
+        } catch (err) {
+            reject(err.response.data);
+        }
+    })
+}
+
+
+export async function deleteFromCart(item_id) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await axios.delete(DOMAIN + '/api/cart/' + item_id, { withCredentials: true })
+            resolve(response.data)
+        } catch (err) {
+            reject(err.response.data);
+        }
+    })
+}
+
+export async function updateCart({ item_id, data }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await axios.patch(DOMAIN + '/api/cart/' + item_id, data, { withCredentials: true })
             resolve(response.data)
         } catch (err) {
             reject(err.response.data);

@@ -7,9 +7,7 @@ const AuthLayout = () => {
 
     const dispatch = useDispatch();
     const user = useSelector(state => state.user.currUser);
-    // const userState = useSelector(state => state.user.state)
-    // const userApiError = useSelector(state => state.user.apiError)
-
+    // const state = useSelector(state => state.user.state)
 
     if (user) {
         return <Navigate to={"/"} />
