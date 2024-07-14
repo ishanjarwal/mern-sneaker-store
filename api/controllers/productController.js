@@ -93,7 +93,7 @@ export const fetchProductsList = async (req, res) => {
     try {
         const { category, brand, color, gender, size, sort, order, page, limit } = req.query;
         const pageNumber = parseInt(page) || 1;
-        const pageSize = parseInt(limit) || 15;
+        const pageSize = parseInt(limit) || 1;
         const orderBy = order || "asc";
         const skip = (pageNumber - 1) * pageSize;
         const categories = Array.isArray(category) ? category : category ? category.split(',') : [];
@@ -136,7 +136,7 @@ export const fetchProductsList = async (req, res) => {
             .limit(pageSize)
             .exec();
         const totalItems = await Product.countDocuments(query);
-        res.status(201).json({ status: "success", message: "product list fetched", totalProducts: totalItems, data: products })
+        res.status(201).json({ status: "success", message: "product list fetched", totalProducts: totalItems, data: products, ITEMS_PER_PAGE: pageSize })
     } catch (err) {
         console.log(err)
         res.status(400).json({ status: "error", message: "error occurred, product list not fetched" })

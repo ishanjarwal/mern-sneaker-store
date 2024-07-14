@@ -1,5 +1,5 @@
 import express from 'express'
-import { checkAdmin, checkAuth, createUser, fetchUser, fetchUsers, loginUser, logoutUser, resetPassword, sendResetPasswordToken, updateUser, updateUserAddress } from '../controllers/userController.js';
+import { checkAdmin, checkAuth, createUser, deleteUserAddress, fetchUser, fetchUsers, loginUser, logoutUser, resetPassword, sendResetPasswordToken, updateUser, updateUserAddress } from '../controllers/userController.js';
 import { isAuth } from '../middlewares/isAuth.js';
 import { isAdmin } from '../middlewares/isAdmin.js';
 import { validateUserDB } from '../middlewares/validateUserDB.js';
@@ -12,14 +12,15 @@ const userRouter = express.Router();
 userRouter
     .get("/check-auth", isAuth, checkAuth)
     .get('/logout', logoutUser)
+    .get('/password-token', isAuth, sendResetPasswordToken)
     .get('/:user_id', fetchUser)
     .get('/', fetchUsers)
-    .get('/password-token/:user_id', validateUserDB, sendResetPasswordToken)
-    .post('/reset-password/:user_id/:token', validateUserDB, resetPassword)
+    .post('/reset-password/:token', isAuth, resetPassword)
     .post('/', createUser)
     .post('/login', loginUser)
     .get("/check-admin", isAdmin, checkAdmin)
+    .patch('/address', isAuth, validateAddress, updateUserAddress)
     .patch('/:user_id', validateUserDB, updateUser)
-    .patch('/address/:user_id', validateUserDB, validateAddress, updateUserAddress)
+    .delete('/address/:id', isAuth, deleteUserAddress)
 
 export default userRouter

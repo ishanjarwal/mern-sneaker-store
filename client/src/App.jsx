@@ -30,6 +30,7 @@ import ManageUsers from './pages/admin/ManageUsers'
 import { fetchBrandsAsync } from './slices/brandSlice'
 import { fetchCategoriesAsync } from './slices/categorySlice'
 import { fetchProductsAsync } from './slices/productSlice'
+import ChangePassword from './pages/ChangePassword'
 
 const App = () => {
   const user = useSelector(state => state.user.currUser);
@@ -52,6 +53,7 @@ const App = () => {
   return (
     <DisplayMessages>
       <Routes>
+        <Route path='/reset-password/:token' element={<ChangePassword />}></Route>
         <Route path='/logout' element={<Logout />}></Route>
         <Route path='/' element={<AuthLayout />}>
           <Route path='/login' element={<Login />}></Route>

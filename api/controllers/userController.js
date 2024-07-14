@@ -140,38 +140,39 @@ export const updateUser = async (req, res) => {
     }
 }
 
+export const deleteUserAddress = async (req, res) => {
+    try {
+        const { user } = req;
+        const { id } = req.params;
+        const user_id = user._id;
+        const deletable = await User.findOneAndUpdate(
+            { _id: user_id },
+            { $pull: { addresses: { _id: id } } }
+        );
+        return res.status(201).json({ status: "success", message: "address deleted" });
+    } catch (err) {
+        return res.status(400).json({ status: "fail", message: "an error occurred, address not deleted", err });
+    }
+}
+
+
 export const updateUserAddress = async (req, res) => {
     try {
         const { type, address } = req.body;
-        const { _id: user_id } = req.user;
+        const { user } = req;
+        const user_id = user._id;
         switch (type) {
             case 'add': {
                 const updatable = await User.findOneAndUpdate({ _id: user_id }, { $push: { addresses: address } }, { new: true });
-                if (updatable) {
-                    return res.status(201).json({ status: "success", message: "address added" });
-                } else {
-                    return res.status(400).json({ status: "fail", message: "an error occurred, address not added" });
-                }
+                return res.status(201).json({ status: "success", message: "address added" });
                 break;
             }
             case 'update': {
                 const addressId = address._id;
                 delete address["_id"];
                 const updatable = await User.findOneAndUpdate({ _id: user_id, addresses: { $elemMatch: { _id: addressId } } }, { "addresses.$": address }, { new: true });
-                if (updatable) {
-                    return res.status(201).json({ status: "success", message: "address updated" });
-                } else {
-                    return res.status(400).json({ status: "fail", message: "an error occurred, address not updated" });
-                }
+                return res.status(201).json({ status: "success", message: "address updated" });
                 break;
-            }
-            case 'delete': {
-                const deletable = await User.findOneAndUpdate({ _id: user_id, addresses: { $elemMatch: { _id: address._id } } }, { $pull: { addresses: address } });
-                if (deletable) {
-                    return res.status(201).json({ status: "success", message: "address deleted" });
-                } else {
-                    return res.status(400).json({ status: "fail", message: "an error occurred, address not deleted" });
-                }
             }
             default:
                 return res.status(400).json({ status: "fail", message: "insufficient data provided" });
@@ -202,7 +203,7 @@ export const checkAdmin = (req, res) => {
 export const sendResetPasswordToken = async (req, res) => {
     // send mail with token link and add token to db
     try {
-        const user = req.user;
+        const { user } = req;
         const now = new Date();
         const emailToken = generateRandomString(16);
         const expiry = new Date(now.getTime() + (10 * 60000));
@@ -215,7 +216,7 @@ export const sendResetPasswordToken = async (req, res) => {
         editable.passwordResetToken.expiry = expiry;
         await editable.save();
         sendEmails("123@example.com", `<a href="${link}">RESET PASSWORD</a>`, "Rest Account Password");
-        return res.status(200).json({ status: "success", message: "reset password token sent" });
+        return res.status(200).json({ status: "success", message: "Reset link sent to registered email" });
 
     } catch (err) {
         return res.status(500).json({ status: "error", message: "something went wrong", err });
@@ -224,22 +225,22 @@ export const sendResetPasswordToken = async (req, res) => {
 export const resetPassword = async (req, res) => {
     // check token and reset password
     try {
-        const user = req.user;
-        const { newPassword } = req.body;
+        const { user } = req;
+        const { password } = req.body;
         const { token } = req.params;
-        if (!token || !newPassword) {
-            return res.status(400).json({ status: "fail", message: "insufficient data" });
+        if (!token || !password) {
+            return res.status(400).json({ status: "fail", message: "invalid token" });
         }
         const now = new Date();
         // const check = await User.findById(user._id);
         const check = await User.findOne({ _id: user._id, "passwordResetToken.token": token, "passwordResetToken.expiry": { $gt: now } })
         if (!check) {
-            return res.status(400).json({ status: "fail", message: "invalid token" });
+            return res.status(400).json({ status: "fail", message: "token expired" });
         }
-        const hashedPassword = bcrypt.hashSync(newPassword, bcrypt.genSaltSync(10));
+        const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
         check.password = hashedPassword;
         await check.save();
-        return res.status(200).json({ status: "success", message: "password updated" });
+        return res.status(200).json({ status: "success", message: "password updated successfully" });
     } catch (err) {
         return res.status(500).json({ status: "error", message: "something went wrong", err });
     }

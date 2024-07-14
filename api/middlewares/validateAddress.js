@@ -11,8 +11,8 @@ export const validateAddress = async (req, res, next) => {
         if (data[0].Status == 'Error') {
             return res.status(400).json({ status: "fail", message: "Invalid Pincode" });
         } else if (data[0].Status == 'Success') {
-            req.body.address.city = data[0].PostOffice.District
-            req.body.address.state = data[0].PostOffice.State
+            req.body.address.city = data[0].PostOffice[0].District
+            req.body.address.state = data[0].PostOffice[0].State
             next();
         } else {
             return res.status(400).json({ status: "fail", message: "Invalid Pincode" }) // mostly unreachable

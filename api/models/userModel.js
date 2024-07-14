@@ -1,8 +1,10 @@
 import { Schema, model } from 'mongoose';
 
 const addressSchema = new Schema({
-    name: { type: String, required: true },
+    first_name: { type: String, required: true },
+    last_name: { type: String, required: true },
     plot_no: { type: String, required: true },
+    email: { type: String, required: false },
     phone: { type: String, required: true },
     address_line_1: { type: String, required: true },
     address_line_2: { type: String },
@@ -11,7 +13,6 @@ const addressSchema = new Schema({
     city: { type: String, required: true },
     state: { type: String, required: true },
     country: { type: String, required: true },
-
 })
 
 const userSchema = new Schema({

@@ -895,7 +895,7 @@ export const product_images = [
     }
 ]
 
-export const ITEMS_PER_PAGE = 10;
+export const ITEMS_PER_PAGE = 9;
 export const MAX_CART_PRODUCT_QTY = 5;
 
 export const DOMAIN = "http://localhost:8080"

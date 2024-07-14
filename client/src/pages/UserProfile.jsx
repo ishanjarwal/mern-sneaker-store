@@ -8,25 +8,27 @@ import { LiaShippingFastSolid } from "react-icons/lia";
 import { LuPencil } from "react-icons/lu";
 import { Controller, useForm } from 'react-hook-form'
 import { Dialog, Transition } from '@headlessui/react'
-import { checkAuthAsync, updateUserAddressAsync, updateUserAsync } from '../slices/userSlice'
+import { checkAuthAsync, deleteUserAddressAsync, setCurrAddress, setPasswordResetTokenAsync, updateUserAddressAsync, updateUserAsync } from '../slices/userSlice'
 import axios from 'axios'
 import AddressFormModal from '../components/AddressFormModal'
 
 
 
 const UserProfile = () => {
+
+
     const dispatch = useDispatch();
     const user = useSelector(state => state.user.currUser);
     const { register, handleSubmit, formState: { errors }, control, watch, setValue, getValues } = useForm();
-    const [formModal, setFormModal] = useState(false);
-    const [formActionType, setFormActionType] = useState("add");
+
+    const [formActionType, setFormActionType] = useState(null);
     function sendData(data) {
         dispatch(updateUserAsync({ user_id: user._id, data }))
     }
 
     return (
         <div>
-            <AddressFormModal formModal={formModal} setFormModal={setFormModal} formActionType={formActionType} />
+            <AddressFormModal formActionType={formActionType} setFormActionType={setFormActionType} />
             <h1 className='text-3xl font-semibold mb-12'>Your Profile</h1>
             {user && (
                 <form onSubmit={handleSubmit(data => { sendData(data) })}>
@@ -117,22 +119,16 @@ const UserProfile = () => {
 
                         </span>
                         <div className="col-span-1 relative z-0 w-full mb-5 group">
-                            <Controller
-                                name="password"
-                                control={control}
-                                defaultValue={user.fullname} // Set initial value from state
-                                render={({ field }) => (
-                                    <input
-                                        {...field}
-                                        type="password"
-                                        className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 appearance-none  focus:outline-none focus:ring-0 border-gray-300 focus:border-black peer"
-                                        placeholder=" "
-                                        required=""
-                                    />
-                                )}
+
+                            <input
+                                type="password"
+                                disabled
+                                className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 appearance-none  focus:outline-none focus:ring-0 border-gray-300 focus:border-black peer"
+                                placeholder="********"
                             />
+
                             <label
-                                className="peer-focus:font-medium absolute text-sm text-muted-text duration-300 transform -translate-y-8 scale-75 top-3 z-10 origin-[0] peer-focus:start-0 start-2 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-black  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8 cursor-text pointer-events-none"
+                                className="absolute text-sm text-muted-text duration-300 transform -translate-y-8 scale-75 top-3 z-10 origin-[0] pointer-events-none"
                             >
                                 Password
                             </label>
@@ -141,7 +137,13 @@ const UserProfile = () => {
                             )}
                         </div>
                         <div className="col-span-1 relative z-0 w-full mb-5 flex justify-start">
-                            <button className='rounded-lg bg-black text-white px-4 py-2 text-sm'>
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    dispatch(setPasswordResetTokenAsync());
+                                }}
+                                className='rounded-lg bg-black text-white px-4 py-2 text-sm'
+                            >
                                 Change
                             </button>
                         </div>
@@ -158,7 +160,7 @@ const UserProfile = () => {
                                 {user.addresses.map((address, index) => (
                                     <div key={index} className="flex w-full items-start justify-start bg-white px-4 py-2 rounded-md mb-4">
                                         <div className='flex-1'>
-                                            <h2 className='text-lg font-semibold'>{address.name}</h2>
+                                            <h2 className='text-lg font-semibold'>{address.first_name}{" "}{address.last_name}</h2>
                                             <h3 className='text-sm font-semibold'>{'+91 '}{address.phone}</h3>
                                             <div>
                                                 <span>{address.plot_no}</span>
@@ -179,7 +181,7 @@ const UserProfile = () => {
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     setFormActionType("update");
-                                                    setFormModal(true);
+                                                    dispatch(setCurrAddress(address));
                                                 }}
                                                 type="button"
                                                 title='Edit Address'
@@ -190,6 +192,10 @@ const UserProfile = () => {
                                             <button
                                                 type="button"
                                                 title='Remove Address'
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    dispatch(deleteUserAddressAsync(address._id))
+                                                }}
                                                 className="p-2 bg-white rounded-md text-lg text-red-400 hover:bg-muted-bg border border-gray-300 duration-100"
                                             >
                                                 <IoTrashBinOutline />
@@ -202,8 +208,8 @@ const UserProfile = () => {
                                         className='rounded-lg bg-black text-white px-4 py-2 text-sm'
                                         onClick={(e) => {
                                             e.preventDefault();
+                                            dispatch(setCurrAddress(null))
                                             setFormActionType("add");
-                                            setFormModal(true);
                                         }}
                                     >
                                         Add New

@@ -32,6 +32,7 @@ export async function fetchProducts({ filters, sort, pagination }) {
             const response = await axios.get(url);
             const data = response.data.data;
             const totalProducts = response.data.totalProducts
+            const ITEMS_PER_PAGE = response.data.ITEMS_PER_PAGE || 1;
             const sendable = data.map((product, index) => (
                 {
                     id: product._id,
@@ -45,7 +46,7 @@ export async function fetchProducts({ filters, sort, pagination }) {
                     thumbnail: product.images[0]
                 }
             ))
-            resolve({ data: sendable, totalProducts: totalProducts });
+            resolve({ data: sendable, totalProducts: totalProducts, ITEMS_PER_PAGE: ITEMS_PER_PAGE });
         } catch (err) {
             reject(err.response.data)
         }

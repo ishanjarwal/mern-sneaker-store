@@ -6,7 +6,8 @@ const initialState = {
     currProduct: null,
     totalItems: 0,
     state: 'idle',
-    responses: []
+    responses: [],
+    ITEMS_PER_PAGE: 0
 }
 
 // only for admin
@@ -102,6 +103,7 @@ export const productSlice = createSlice({
                 state.state = 'fulfilled';
                 state.totalItems = action.payload.totalProducts;
                 state.products = action.payload.data;
+                state.ITEMS_PER_PAGE = action.payload.ITEMS_PER_PAGE;
             })
             .addCase(fetchProductsAsync.rejected, (state, action) => {
                 state.state = 'rejected';

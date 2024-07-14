@@ -1,12 +1,14 @@
 import { MdChevronRight, MdChevronLeft } from "react-icons/md";
-import { ITEMS_PER_PAGE } from "../app/constants";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 export default function Pagination({ paginationOptions, setPaginationOptions, totalItems }) {
 
+    const ITEMS_PER_PAGE = useSelector(state => state.product.ITEMS_PER_PAGE);
     const [visiblePaginationArray, setVisiblePaginationArray] = useState([]);
     function handlePaginationArray() {
         const paginationArr = Array.from({ length: Math.ceil(totalItems / ITEMS_PER_PAGE) }, (_, index) => index + 1);
+        console.log(paginationArr);
         if (paginationOptions.page >= 5) {
             if (paginationArr.length - (paginationOptions.page - 1) >= 5) {
                 setVisiblePaginationArray(paginationArr.splice(paginationOptions.page - 1, 5))
@@ -20,7 +22,7 @@ export default function Pagination({ paginationOptions, setPaginationOptions, to
 
     useEffect(() => {
         handlePaginationArray();
-    }, [paginationOptions]);
+    }, [paginationOptions, totalItems]);
 
     const handlePagination = (page) => {
         setPaginationOptions(prev => ({ ...prev, page: page }))

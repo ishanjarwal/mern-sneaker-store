@@ -1,12 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { checkAuth, createUser, fetchUsers, loginUser, logoutUser, updateUser, updateUserAddress } from "../apis/userAPI";
+import { checkAuth, createUser, deleteUserAddress, fetchUsers, loginUser, logoutUser, resetPassword, setPasswordResetToken, updateUser, updateUserAddress } from "../apis/userAPI";
 
 const initialState = {
     currUser: null,
     users: null,
     user: null,
     state: 'idle',
-    responses: []
+    currAddress: null,
+    responses: [],
 }
 
 export const createUserAsync = createAsyncThunk(
@@ -57,11 +58,23 @@ export const checkAuthAsync = createAsyncThunk(
     }
 )
 
+export const deleteUserAddressAsync = createAsyncThunk(
+    'user/deleteUserAddressAsync',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await deleteUserAddress(id)
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
+    }
+)
+
 export const updateUserAddressAsync = createAsyncThunk(
     'user/updateUserAddressAsync',
-    async ({ user_id, data }, { rejectWithValue }) => {
+    async (data, { rejectWithValue }) => {
         try {
-            const response = await updateUserAddress({ user_id, data })
+            const response = await updateUserAddress(data)
             return response;
         } catch (err) {
             return rejectWithValue(err)
@@ -93,6 +106,28 @@ export const fetchUsersAsync = createAsyncThunk(
     }
 )
 
+export const setPasswordResetTokenAsync = createAsyncThunk(
+    'user/setPasswordResetTokenAsync',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await setPasswordResetToken();
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
+    }
+)
+export const resetPasswordAsync = createAsyncThunk(
+    'user/resetPasswordAsync',
+    async ({ password, token }, { rejectWithValue }) => {
+        try {
+            const response = await resetPassword({ password, token });
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
+    }
+)
 export const userSlice = createSlice({
     name: 'user',
     initialState: initialState,
@@ -105,6 +140,9 @@ export const userSlice = createSlice({
         },
         resetUserResponses(state) {
             state.responses = [];
+        },
+        setCurrAddress(state, action) {
+            state.currAddress = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -156,6 +194,17 @@ export const userSlice = createSlice({
                 state.state = 'rejected';
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
+            .addCase(deleteUserAddressAsync.pending, (state, action) => {
+                state.state = 'pending';
+            })
+            .addCase(deleteUserAddressAsync.fulfilled, (state, action) => {
+                state.state = 'fulfilled';
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
+            .addCase(deleteUserAddressAsync.rejected, (state, action) => {
+                state.state = 'rejected';
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
             .addCase(updateUserAddressAsync.pending, (state, action) => {
                 state.state = 'pending';
             })
@@ -189,9 +238,31 @@ export const userSlice = createSlice({
                 state.state = 'rejected';
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
+            .addCase(setPasswordResetTokenAsync.pending, (state, action) => {
+                state.state = 'pending';
+            })
+            .addCase(setPasswordResetTokenAsync.fulfilled, (state, action) => {
+                state.state = 'fulfilled';
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
+            .addCase(setPasswordResetTokenAsync.rejected, (state, action) => {
+                state.state = 'rejected';
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
+            .addCase(resetPasswordAsync.pending, (state, action) => {
+                state.state = 'pending';
+            })
+            .addCase(resetPasswordAsync.fulfilled, (state, action) => {
+                state.state = 'fulfilled';
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
+            .addCase(resetPasswordAsync.rejected, (state, action) => {
+                state.state = 'rejected';
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
     }
 })
 
-export const { setUser, resetUser, resetUserResponses } = userSlice.actions;
+export const { setUser, resetUser, resetUserResponses, setCurrAddress } = userSlice.actions;
 
 export default userSlice.reducer

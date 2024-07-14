@@ -45,11 +45,21 @@ export async function checkAuth() {
     })
 }
 
-
-export async function updateUserAddress({ user_id, data }) {
+export async function deleteUserAddress(id) {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.patch(DOMAIN + `/api/user/address/${user_id}`, data, { withCredentials: true });
+            const response = await axios.delete(DOMAIN + `/api/user/address/${id}`, { withCredentials: true });
+            resolve(response.data)
+        } catch (err) {
+            reject(err.response.data);
+        }
+    })
+}
+
+export async function updateUserAddress(data) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await axios.patch(DOMAIN + `/api/user/address`, data, { withCredentials: true });
             resolve(response.data)
         } catch (err) {
             reject(err.response.data);
@@ -73,6 +83,28 @@ export async function fetchUsers() {
         try {
             const response = await axios.get(DOMAIN + `/api/user`, { withCredentials: true });
             resolve(response.data)
+        } catch (err) {
+            reject(err.response.data);
+        }
+    })
+}
+
+export async function setPasswordResetToken() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await axios.get(DOMAIN + `/api/user/password-token`, { withCredentials: true });
+            resolve(response.data);
+        } catch (err) {
+            reject(err.response.data);
+        }
+    })
+}
+
+export async function resetPassword({ password, token }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await axios.post(DOMAIN + `/api/user/reset-password/${token}`, { password }, { withCredentials: true });
+            resolve(response.data);
         } catch (err) {
             reject(err.response.data);
         }

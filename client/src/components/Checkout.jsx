@@ -8,6 +8,8 @@ import { fetchCartAsync, updateCartAsync } from '../slices/cartSlice';
 import CartItemsList from './CartItemsList';
 import CartFooter from './CartFooter';
 import AddressFormModal from './AddressFormModal';
+import { deleteUserAddressAsync, setCurrAddress } from '../slices/userSlice';
+import { Navigate } from 'react-router-dom'
 
 const Checkout = () => {
 
@@ -15,35 +17,14 @@ const Checkout = () => {
     const cartItems = useSelector(state => state.cart.items);
     const cartShown = useSelector(state => state.cart.shown);
     const state = useSelector(state => state.cart.state)
-    const addresses = [
-        {
-            id: 1,
-            fullname: "Ishan Jarwal",
-            flat: '12-A',
-            street: "rainbow Heights road",
-            city: "Jaipur",
-            state: "Rajasthan",
-            postal: "302017",
-            phone: 1124423232
-        },
-        {
-            id: 2,
-            fullname: "Ishan Jarwal",
-            flat: '12-A',
-            street: "rainbow Heights road",
-            city: "Jaipur",
-            state: "Rajasthan",
-            postal: "302017",
-            phone: 1124423232
-        }
-    ]
+    const [formActionType, setFormActionType] = useState(null);
     const user = useSelector(state => state.user.currUser);
 
     function updateCart(data) {
         dispatch(updateCartAsync({ user_id: user._id, data: data }));
     }
     useEffect(() => {
-        if(user){
+        if (user) {
             dispatch(fetchCartAsync());
         }
     }, [dispatch, cartShown]);
@@ -52,8 +33,6 @@ const Checkout = () => {
             dispatch(fetchCartAsync());
         }
     }, [dispatch, state]);
-
-    const [formModal, setFormModal] = useState(false);
 
     return (
         <div className='py-12'>
@@ -65,12 +44,12 @@ const Checkout = () => {
                         <div>
                             <RadioGroup>
                                 <div className="flex flex-wrap">
-                                    {addresses.map((address) => (
+                                    {user.addresses.map((address) => (
                                         <RadioGroup.Option
-                                            key={address.id}
-                                            value={address.id}
+                                            key={address._id}
+                                            value={address._id}
                                             className={({ active, checked }) =>
-                                                `${checked ? 'bg-white ring-2 ring-offset-1 ring-gray-300' : 'bg-white text-texts'}
+                                                `${checked ? 'bg-white ring-2 ring-offset-1 ring-blue-500' : 'bg-white text-texts'}
                                                 relative flex cursor-pointer rounded-lg px-6 py-4 me-2 mb-4 w-full`
                                             }
                                         >
@@ -101,15 +80,18 @@ const Checkout = () => {
                                                         </div>
                                                         <div className='flex justify-end space-x-2'>
                                                             <button
-                                                                type="button"
-                                                                title='Edit Address'
+                                                                onClick={() => {
+                                                                    dispatch(setCurrAddress(address))
+                                                                    setFormActionType("update");
+                                                                }}
                                                                 className="p-2 bg-white rounded-md text-lg text-muted-text hover:bg-muted-bg border border-gray-300 duration-100"
                                                             >
                                                                 <LuPencil />
                                                             </button>
                                                             <button
-                                                                type="button"
-                                                                title='Remove Address'
+                                                                onClick={() => {
+                                                                    dispatch(deleteUserAddressAsync(address._id))
+                                                                }}
                                                                 className="p-2 bg-white rounded-md text-lg text-red-400 hover:bg-muted-bg border border-gray-300 duration-100"
                                                             >
                                                                 <IoTrashOutline />
@@ -127,7 +109,10 @@ const Checkout = () => {
                     <div className='max-w-xl'>
                         {/* new addresses */}
                         <button
-                            onClick={() => { setFormModal(true) }}
+                            onClick={() => {
+                                dispatch(setCurrAddress(null))
+                                setFormActionType("add")
+                            }}
                             className='text-white bg-black py-2 rounded-lg px-8 flex justify-center items-center space-x-1 duration-150 hover:scale-105' >
                             <span>Add Address</span>
                             <span className='text-lg'><IoAddOutline /></span>
@@ -171,7 +156,7 @@ const Checkout = () => {
 
 
             {/* form modal */}
-            <AddressFormModal formModal={formModal} setFormModal={setFormModal} formActionType={"add"} />
+            <AddressFormModal formActionType={formActionType} setFormActionType={setFormActionType} />
             {/* <Transition.Root show={formModal} as={Fragment}>
                 <Dialog as="div" className="relative z-20" onClose={setFormModal}>
                     <Transition.Child
