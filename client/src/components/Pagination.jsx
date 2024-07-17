@@ -8,7 +8,6 @@ export default function Pagination({ paginationOptions, setPaginationOptions, to
     const [visiblePaginationArray, setVisiblePaginationArray] = useState([]);
     function handlePaginationArray() {
         const paginationArr = Array.from({ length: Math.ceil(totalItems / ITEMS_PER_PAGE) }, (_, index) => index + 1);
-        console.log(paginationArr);
         if (paginationOptions.page >= 5) {
             if (paginationArr.length - (paginationOptions.page - 1) >= 5) {
                 setVisiblePaginationArray(paginationArr.splice(paginationOptions.page - 1, 5))

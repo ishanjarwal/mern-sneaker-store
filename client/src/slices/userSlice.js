@@ -8,6 +8,8 @@ const initialState = {
     state: 'idle',
     currAddress: null,
     responses: [],
+    userValidationErrors: null,
+    addressValidationErrors: null
 }
 
 export const createUserAsync = createAsyncThunk(
@@ -40,7 +42,6 @@ export const logoutUserAsync = createAsyncThunk(
             const response = await logoutUser()
             return response;
         } catch (err) {
-            console.log(err)
             return rejectWithValue(err)
         }
     }
@@ -141,6 +142,12 @@ export const userSlice = createSlice({
         resetUserResponses(state) {
             state.responses = [];
         },
+        resetUserValidationErrors(state) {
+            state.userValidationErrors = null;
+        },
+        resetAddressValidationErrors(state) {
+            state.addressValidationErrors = null;
+        },
         setCurrAddress(state, action) {
             state.currAddress = action.payload;
         }
@@ -214,7 +221,12 @@ export const userSlice = createSlice({
             })
             .addCase(updateUserAddressAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.responses.push({ status: action.payload.status, message: action.payload.message })
+                if (action.payload.validationErrors) {
+                    state.addressValidationErrors = action.payload.validationErrors;
+                } else {
+                    state.responses.push({ status: action.payload.status, message: action.payload.message })
+                    state.addressValidationErrors = null;
+                }
             })
             .addCase(updateUserAsync.pending, (state, action) => {
                 state.state = 'pending';
@@ -263,6 +275,6 @@ export const userSlice = createSlice({
     }
 })
 
-export const { setUser, resetUser, resetUserResponses, setCurrAddress } = userSlice.actions;
+export const { setUser, resetUser, resetUserResponses, setCurrAddress, resetAddressValidationErrors, resetUserValidationErrors } = userSlice.actions;
 
 export default userSlice.reducer

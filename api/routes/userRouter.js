@@ -3,8 +3,9 @@ import { checkAdmin, checkAuth, createUser, deleteUserAddress, fetchUser, fetchU
 import { isAuth } from '../middlewares/isAuth.js';
 import { isAdmin } from '../middlewares/isAdmin.js';
 import { validateUserDB } from '../middlewares/validateUserDB.js';
-import { validateAddress } from '../middlewares/validateAddress.js';
 import { filterCart } from '../controllers/cartController.js';
+import { validateAddress } from '../validators/addressValidator.js';
+import { handleValidationErrors } from '../middlewares/handleValidationErrors.js';
 
 
 const userRouter = express.Router();
@@ -19,7 +20,13 @@ userRouter
     .post('/', createUser)
     .post('/login', loginUser)
     .get("/check-admin", isAdmin, checkAdmin)
-    .patch('/address', isAuth, validateAddress, updateUserAddress)
+    .patch(
+        '/address',
+        isAuth,
+        validateAddress,
+        handleValidationErrors,
+        updateUserAddress
+    )
     .patch('/:user_id', validateUserDB, updateUser)
     .delete('/address/:id', isAuth, deleteUserAddress)
 

@@ -163,14 +163,14 @@ export const updateUserAddress = async (req, res) => {
         const user_id = user._id;
         switch (type) {
             case 'add': {
-                const updatable = await User.findOneAndUpdate({ _id: user_id }, { $push: { addresses: address } }, { new: true });
+                const updatable = await User.findOneAndUpdate({ _id: user_id }, { $push: { addresses: { ...address, country: address.country.name, state: address.state.name, city: address.city.name } } }, { new: true });
                 return res.status(201).json({ status: "success", message: "address added" });
                 break;
             }
             case 'update': {
                 const addressId = address._id;
                 delete address["_id"];
-                const updatable = await User.findOneAndUpdate({ _id: user_id, addresses: { $elemMatch: { _id: addressId } } }, { "addresses.$": address }, { new: true });
+                const updatable = await User.findOneAndUpdate({ _id: user_id, addresses: { $elemMatch: { _id: addressId } } }, { "addresses.$": { ...address, country: address.country.name, state: address.state.name, city: address.city.name } }, { new: true });
                 return res.status(201).json({ status: "success", message: "address updated" });
                 break;
             }
