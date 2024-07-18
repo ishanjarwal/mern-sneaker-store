@@ -4,6 +4,10 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import generateRandomString from '../utils/randomString.js'
 import { sendEmails } from "../utils/sendEmails.js";
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const fetchUser = async (req, res) => {
     try {
@@ -207,7 +211,8 @@ export const sendResetPasswordToken = async (req, res) => {
         const now = new Date();
         const emailToken = generateRandomString(16);
         const expiry = new Date(now.getTime() + (10 * 60000));
-        const link = `http://localhost:5173/reset-password/${emailToken}`;
+        const link = path.join(__dirname, "reset-password", emailToken);
+        // const link = `http://localhost:5173/reset-password/${emailToken}`;
         const editable = await User.findById(user._id);
         if (!editable) {
             return res.status(400).json({ status: "fail", message: "no user found" });
