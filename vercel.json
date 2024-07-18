@@ -13,7 +13,7 @@
         },
         {
             "src": "/(.*)",
-            "dest": "/api/dist/index.html"
+            "dest": "/api/index.js"
         }
     ]
 }
