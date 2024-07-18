@@ -30,16 +30,16 @@ app.use(express.static(path.join(__dirname, 'dist'), {
         }
     }
 }));
+// this line we add to make react router work in case of other routes doesnt match
+app.get(/^(?!\/api\/).*/, (req, res) =>
+    res.sendFile(path.resolve(__dirname, 'dist', 'index.html'))
+);
 app.use(express.json()) // for reading body data
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(__dirname + '/uploads'));
 
-// this line we add to make react router work in case of other routes doesnt match
-app.get(/^(?!\/api\/).*/, (req, res) =>
-    res.sendFile(path.resolve('dist', 'index.html'))
-);
 
 
 // endpoints
