@@ -12,23 +12,23 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage: storage,
-    // limits: {
-    //     fileSize: 1024 * 1024 * 5
-    // },
-    // fileFilter: function (req, file, cb) {
-    //     if (file.mimetype !== 'image/jpeg') {
-    //         cb(new Error("Only JPEG Supported"), false);
-    //     } else {
-    //         cb(null, true)
-    //     }
-    // }
+    limits: {
+        fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid file type, only JPEG and PNG are allowed!'), false);
+        }
+    }
 }).array("images")
 
 
 const handleUploads = (req, res, next) => {
     upload(req, res, (err) => {
         if (err) {
-            return res.status(200).json({ error: 'Internal server error', message: err.message });
+            return res.status(500).json({ error: 'Internal server error', message: err.message });
         }
         next();
     });

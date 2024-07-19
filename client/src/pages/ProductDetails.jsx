@@ -56,7 +56,7 @@ const ProductDetails = () => {
 
     useEffect(() => {
         const foundItem = cartItems.find(item => {
-            return ((item.product._id == product._id) && (item.size._id == product.currSize._id))
+            return ((item.product._id == product?._id) && (item.size._id == product?.currSize._id))
         })
         const stock = foundItem?.availableStock !== null && foundItem?.availableStock !== undefined ? foundItem.availableStock : product?.currSize.stock
         setMaxQty(stock);

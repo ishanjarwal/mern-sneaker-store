@@ -7,7 +7,8 @@ const initialState = {
     totalItems: 0,
     state: 'idle',
     responses: [],
-    ITEMS_PER_PAGE: 0
+    ITEMS_PER_PAGE: 0,
+    validationErrors: null
 }
 
 // only for admin
@@ -81,6 +82,9 @@ export const productSlice = createSlice({
         },
         resetProductResponses(state) {
             state.responses = [];
+        },
+        resetValidationErrors(state) {
+            state.validationErrors = null;
         }
     },
     extraReducers: (builder) => {
@@ -126,10 +130,16 @@ export const productSlice = createSlice({
             .addCase(createProductAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
+                state.validationErrors = null;
             })
             .addCase(createProductAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.responses.push({ status: action.payload.status, message: action.payload.message })
+                if (action.payload?.validationErrors) {
+                    state.validationErrors = action.payload.validationErrors;
+                } else {
+                    state.responses.push({ status: action.payload.status, message: action.payload.message })
+                    state.validationErrors = null;
+                }
             })
             .addCase(updateProductAsync.pending, (state, action) => {
                 state.state = 'pending';
@@ -146,4 +156,4 @@ export const productSlice = createSlice({
 })
 
 export default productSlice.reducer
-export const { resetCurrProduct, resetProductResponses } = productSlice.actions;
+export const { resetCurrProduct, resetProductResponses, resetValidationErrors } = productSlice.actions;

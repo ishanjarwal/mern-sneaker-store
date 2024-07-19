@@ -11,6 +11,7 @@ import ImagePreview from '../../components/ImagePreview';
 import { createProductAsync } from '../../slices/productSlice';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { DOMAIN } from '../../app/constants';
+import isValidJSON from '../../utils/isValidJSON.js';
 
 
 const AddProducts = () => {
@@ -20,19 +21,34 @@ const AddProducts = () => {
     // const navigate = useNavigate();
     const dispatch = useDispatch();
     const state = useSelector(state => state.product.state)
+    const validationErrors = useSelector(state => state.product.validationErrors);
     const categories = useSelector(state => state.category.categories)
     const brands = useSelector(state => state.brand.brands)
-    const { register, handleSubmit, formState: { errors }, control, watch, setValue, getValues } = useForm();
-    const { fields: imageFields, append: imageAppend, remove: imageRemove } = useFieldArray({ name: "images", control, rules: { required: "Images are Required", maxLength: { value: 6, message: "Maximum 6 Images allowed" } } })
-    const { fields: sizeFields, append: sizeAppend, remove: sizeRemove } = useFieldArray({
-        name: "sizes", control, rules: {
-            required: "Size is Required", minLength: { value: 1, message: "Minimum one size required" }
+    const { register, handleSubmit, formState: { errors }, control, watch, setValue, getValues } = useForm({
+        defaultValues: {
+            name: "",
+            short_desc: "",
+            description: "",
+            sizes: [], // Empty array
+            category: {}, // Empty object
+            brand: {}, // Empty object
+            dimensions: {}, // Empty object
+            shoe_materials: "",
+            sole_materials: "",
+            occasion: "",
+            gender: "",
+            tags: [], // Empty array
+            color: {}, // Empty object
+            weight: {}, // Empty object
+            meta_info: {} // Empty object
         }
+    });
+    const { fields: imageFields, append: imageAppend, remove: imageRemove } = useFieldArray({ name: "images", control })
+    const { fields: sizeFields, append: sizeAppend, remove: sizeRemove } = useFieldArray({
+        name: "sizes", control
     })
     const { fields: tagsFields, append: tagsAppend, remove: tagsRemove } = useFieldArray({
-        name: "tags", control, rules: {
-            required: "Tags are Required", minLength: { value: 5, message: "Atleast 5 tags" }
-        }
+        name: "tags", control
     })
     const { fields: customFields, append: customAppend, remove: customRemove } = useFieldArray({ name: "custom", control })
 
@@ -83,7 +99,9 @@ const AddProducts = () => {
         setValue("occasion", importedProduct?.additional_details.specifications.occasion)
     }
     useEffect(() => {
-        fillInputsWithImportedProduct();
+        if (importedProduct) {
+            fillInputsWithImportedProduct();
+        }
     }, [importedProduct]);
 
 
@@ -117,26 +135,25 @@ const AddProducts = () => {
                         {/* name */}
                         <div className="col-span-2 relative z-0 w-full mb-5 group">
                             <input
-                                {...register("name", { required: "Name is Required" })}
+                                {...register("name")}
                                 type="text"
                                 className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 appearance-none  focus:outline-none focus:ring-0 border-gray-300 focus:border-black peer"
                                 placeholder=" "
-                                required=""
                             />
                             <label
                                 className="peer-focus:font-medium absolute text-sm text-muted-text duration-300 transform -translate-y-8 scale-75 top-3 z-10 origin-[0] peer-focus:start-0 start-2 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-black  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8 cursor-text pointer-events-none"
                             >
                                 Name/Title of the Product
                             </label>
-                            {errors?.name && (
-                                <span className='text-red-400 text-xs'>{errors.name.message}</span>
+                            {validationErrors?.['name'] && (
+                                <span className='text-red-400 text-xs'>{validationErrors['name']}</span>
                             )}
                         </div>
 
                         {/* short Description */}
                         <div className="col-span-2 relative z-0 w-full mb-5 group">
                             <textarea
-                                {...register("short_desc", { required: "Short Description is Required", maxLength: { value: 300, message: "Maximum 300 Characters" } })}
+                                {...register("short_desc")}
                                 type="text"
                                 className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 appearance-none  focus:outline-none focus:ring-0 resize-y border-gray-300 focus:border-black peer"
                                 style={{ minHeight: '45px', maxHeight: '100px' }}
@@ -147,8 +164,8 @@ const AddProducts = () => {
                             >
                                 Short Description
                             </label>
-                            {errors?.short_desc && (
-                                <span className='text-red-400 text-xs'>{errors.short_desc.message}</span>
+                            {validationErrors?.['short_desc'] && (
+                                <span className='text-red-400 text-xs'>{validationErrors['short_desc']}</span>
                             )}
                         </div>
 
@@ -158,7 +175,6 @@ const AddProducts = () => {
                             <Controller
                                 name="category"
                                 control={control}
-                                rules={{ required: "Please select one" }}
                                 defaultValue={importedProduct ? importedProduct.category : undefined}
                                 render={({ field: { onChange, value } }) => (
                                     <Listbox value={value} onChange={onChange}>
@@ -168,8 +184,8 @@ const AddProducts = () => {
                                             >
                                                 Select Category
                                             </label>
-                                            {errors?.category && (
-                                                <span className='text-red-400 text-xs'>{errors.category.message}</span>
+                                            {validationErrors?.['category'] && (
+                                                <span className='text-red-400 text-xs'>{validationErrors['category']}</span>
                                             )}
                                             <Listbox.Button className="relative w-full cursor-pointer bg-gray-100 py-2 pl-3 pr-10 text-left sm:text-sm border-b-2 border-gray-300">
                                                 {!value && <span>&nbsp;</span>}
@@ -225,7 +241,6 @@ const AddProducts = () => {
                         <div className='col-span-1'>
                             <Controller
                                 name="brand"
-                                rules={{ required: "Please select one" }}
                                 control={control}
                                 render={({ field: { onChange, value } }) => (
                                     <Listbox value={value} onChange={onChange}>
@@ -235,8 +250,8 @@ const AddProducts = () => {
                                             >
                                                 Select Brand
                                             </label>
-                                            {errors?.brand && (
-                                                <span className='text-red-400 text-xs'>{errors.brand.message}</span>
+                                            {validationErrors?.['brand'] && (
+                                                <span className='text-red-400 text-xs'>{validationErrors['brand']}</span>
                                             )}
                                             <Listbox.Button className="relative w-full cursor-pointer bg-gray-100 py-2 pl-3 pr-10 text-left sm:text-sm border-b-2 border-gray-300">
                                                 {!value && <span>&nbsp;</span>}
@@ -296,8 +311,8 @@ const AddProducts = () => {
                             >
                                 Add Images
                             </span>
-                            {errors?.images && (
-                                <span className='text-red-400 text-xs'>{errors.images.root.message}</span>
+                            {validationErrors?.['images'] && (
+                                <span className='text-red-400 text-xs'>{validationErrors['images']}</span>
                             )}
 
                             <div
@@ -337,8 +352,8 @@ const AddProducts = () => {
                         <div className='col-span-2 mt-4'>
                             <label className='block text-sm text-muted-text'>Fill in the Available Sizes and their Stock</label>
                             <span className='block text-xs text-muted-text'>(First Option you choose will be the default)</span>
-                            {errors?.sizes?.root && (
-                                <span className='text-red-400 text-xs'>{errors.sizes.root.message}</span>
+                            {validationErrors?.['sizes'] && !isValidJSON(validationErrors['sizes']) && (
+                                <span className='text-red-400 text-xs'>{validationErrors['sizes']}</span>
                             )}
                             {sizeFields.length > 0 && (
                                 <ul className='mt-8'>
@@ -347,7 +362,7 @@ const AddProducts = () => {
                                             <div className='flex w-full space-x-4'>
                                                 <div className="relative z-0 w-full group">
                                                     <input
-                                                        {...register(`sizes.${idx}.label`, { required: "Required" })}
+                                                        {...register(`sizes.${idx}.label`)}
                                                         type="text"
                                                         className="block py-2.5 px-2 w-full text-sm text-text bg-white border border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black rounded-md peer"
                                                         placeholder=" "
@@ -357,13 +372,13 @@ const AddProducts = () => {
                                                     >
                                                         Size Label
                                                     </label>
-                                                    {errors?.sizes && errors?.sizes[idx]?.label && (
-                                                        <span className='text-red-400 text-xs'>{errors.sizes[idx].label.message}</span>
+                                                    {validationErrors?.['sizes'] && isValidJSON(validationErrors['sizes']) && (
+                                                        <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['sizes'])[idx]?.label}</span>
                                                     )}
                                                 </div>
                                                 <div className="relative z-0 w-full group">
                                                     <input
-                                                        {...register(`sizes.${idx}.stock`, { required: "Required" })}
+                                                        {...register(`sizes.${idx}.stock`)}
                                                         type="number"
                                                         className="block py-2.5 px-2 w-full text-sm text-text bg-white border border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black rounded-md peer"
                                                         placeholder=" "
@@ -373,13 +388,13 @@ const AddProducts = () => {
                                                     >
                                                         Stock
                                                     </label>
-                                                    {errors?.sizes && errors?.sizes[idx]?.stock && (
-                                                        <span className='text-red-400 text-xs'>{errors.sizes[idx].stock.message}</span>
+                                                    {validationErrors?.['sizes'] && isValidJSON(validationErrors['sizes']) && (
+                                                        <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['sizes'])[idx]?.stock}</span>
                                                     )}
                                                 </div>
                                                 <div className="relative z-0 w-full group">
                                                     <input
-                                                        {...register(`sizes.${idx}.price`, { required: "Required" })}
+                                                        {...register(`sizes.${idx}.price`)}
                                                         type="number"
                                                         className="block py-2.5 px-2 w-full text-sm text-text bg-white border border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black rounded-md peer"
                                                         placeholder=" "
@@ -389,13 +404,13 @@ const AddProducts = () => {
                                                     >
                                                         Price
                                                     </label>
-                                                    {errors?.sizes && errors?.sizes[idx]?.price && (
-                                                        <span className='text-red-400 text-xs'>{errors.sizes[idx].price.message}</span>
+                                                    {validationErrors?.['sizes'] && isValidJSON(validationErrors['sizes']) && (
+                                                        <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['sizes'])[idx]?.price}</span>
                                                     )}
                                                 </div>
                                                 <div className="relative z-0 w-full group">
                                                     <input
-                                                        {...register(`sizes.${idx}.discountPercentage`, { required: "Required" })}
+                                                        {...register(`sizes.${idx}.discountPercentage`)}
                                                         type="number"
                                                         className="block py-2.5 px-2 w-full text-sm text-text bg-white border border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black rounded-md peer"
                                                         placeholder=" "
@@ -405,8 +420,8 @@ const AddProducts = () => {
                                                     >
                                                         Discount(%)
                                                     </label>
-                                                    {errors?.sizes && errors?.sizes[idx]?.discountPercentage && (
-                                                        <span className='text-red-400 text-xs'>{errors.sizes[idx].discountPercentage.message}</span>
+                                                    {validationErrors?.['sizes'] && isValidJSON(validationErrors['sizes']) && (
+                                                        <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['sizes'])[idx]?.discountPercentage}</span>
                                                     )}
                                                 </div>
                                                 <button
@@ -423,7 +438,7 @@ const AddProducts = () => {
                             <button
                                 type="button"
                                 className='flex items-center justify-center space-x-2 mt-4 py-4 px-4 w-full text-center rounded-lg text-white border-text border bg-black text-sm hover:brightness-90'
-                                onClick={() => sizeAppend({ label: "S", price: 0, stock: 1, discountPercentage: 0 })}
+                                onClick={() => sizeAppend({ label: "7", price: 0, stock: 1, discountPercentage: 0 })}
                             >
                                 <span>
                                     {sizeFields.length > 0 ? "Add More" : "Add Sizes"}
@@ -438,7 +453,7 @@ const AddProducts = () => {
                         {/* description */}
                         <div className="col-span-2 relative z-0 w-full mt-8 group">
                             <textarea
-                                {...register("description", { required: "Description is Required", minLength: { value: 300, message: "Atleast 300 Characters" }, maxLength: { value: 1000, message: "Atmost 1000 Characters" } })}
+                                {...register("description")}
                                 type="text"
                                 className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black resize-y peer"
                                 style={{ minHeight: '75px', maxHeight: '150px' }}
@@ -449,8 +464,8 @@ const AddProducts = () => {
                             >
                                 Detailed Description
                             </label>
-                            {errors?.description && (
-                                <span className='text-red-400 text-xs'>{errors.description.message}</span>
+                            {validationErrors?.['description'] && (
+                                <span className='text-red-400 text-xs'>{validationErrors['description']}</span>
                             )}
                         </div>
 
@@ -459,7 +474,6 @@ const AddProducts = () => {
                             <Controller
                                 name="gender"
                                 control={control}
-                                rules={{ required: "Required" }}
                                 render={({ field: { onChange, value } }) => (
                                     <Listbox value={value} onChange={onChange}>
                                         <div className="relative mt-1">
@@ -468,8 +482,8 @@ const AddProducts = () => {
                                             >
                                                 Select Gender
                                             </label>
-                                            {errors?.gender && (
-                                                <span className='text-red-400 text-xs'>{errors.gender.message}</span>
+                                            {validationErrors?.['gender'] && (
+                                                <span className='text-red-400 text-xs'>{validationErrors['gender']}</span>
                                             )}
                                             <Listbox.Button className="relative w-full cursor-pointer bg-gray-100 py-2 pl-3 pr-10 text-left sm:text-sm border-b-2 border-gray-300">
                                                 {!value && <span>&nbsp;</span>}
@@ -524,7 +538,7 @@ const AddProducts = () => {
                         {/* shoe materials */}
                         <div className="col-span-1 relative z-0 w-full mt-8 group">
                             <input
-                                {...register("shoe_materials", { required: "Required" })}
+                                {...register("shoe_materials")}
                                 type="text"
                                 id="shoe_materials"
                                 className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black peer"
@@ -536,15 +550,15 @@ const AddProducts = () => {
                             >
                                 Shoe Materials (comma seperated)
                             </label>
-                            {errors?.shoe_materials && (
-                                <span className='text-red-400 text-xs'>{errors.shoe_materials.message}</span>
+                            {validationErrors?.['shoe_materials'] && (
+                                <span className='text-red-400 text-xs'>{validationErrors['shoe_materials']}</span>
                             )}
                         </div>
 
                         {/* sole materials */}
                         <div className="col-span-1 relative z-0 w-full mt-8 group">
                             <input
-                                {...register("sole_materials", { required: "Required" })}
+                                {...register("sole_materials")}
                                 type="text"
                                 id="sole_materials"
                                 className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black peer"
@@ -556,18 +570,21 @@ const AddProducts = () => {
                             >
                                 Sole Materials (comma seperated)
                             </label>
-                            {errors?.sole_materials && (
-                                <span className='text-red-400 text-xs'>{errors.sole_materials.message}</span>
+                            {validationErrors?.['sole_materials'] && (
+                                <span className='text-red-400 text-xs'>{validationErrors['sole_materials']}</span>
                             )}
                         </div>
 
                         {/* colors */}
                         <div className='col-span-2 mt-8'>
                             <label className='text-sm text-muted-text'>Color</label>
+                            {validationErrors?.['color'] && !isValidJSON(validationErrors['color']) && (
+                                <span className='text-red-400 text-xs'>{validationErrors['color']}</span>
+                            )}
                             <div className='col-span-2 flex justify-between items-start space-x-4 mt-6'>
                                 <div className="relative z-0 w-full mb-5 group">
                                     <input
-                                        {...register("color.name", { required: "Required" })}
+                                        {...register("color.name")}
                                         type="text"
                                         className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black peer"
                                         placeholder=" "
@@ -578,13 +595,13 @@ const AddProducts = () => {
 
                                         Color Name
                                     </label>
-                                    {errors?.color?.name && (
-                                        <span className='text-red-400 text-xs'>{errors.color.name.message}</span>
+                                    {validationErrors?.['color'] && isValidJSON(validationErrors['color']) && (
+                                        <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['color'])?.['name']}</span>
                                     )}
                                 </div>
                                 <div className="col-span-2 relative z-0 w-full mb-5 group">
                                     <input
-                                        {...register("color.hex", { required: "Required" })}
+                                        {...register("color.hex")}
                                         defaultValue={getValues("color.hex")}
                                         type="color"
                                         className="block px-1 cursor-pointer w-full peer h-10"
@@ -597,8 +614,8 @@ const AddProducts = () => {
 
                                         Color Value
                                     </label>
-                                    {errors?.color?.hex && (
-                                        <span className='text-red-400 text-xs'>{errors.color.hex.message}</span>
+                                    {validationErrors?.['color'] && isValidJSON(validationErrors['color']) && (
+                                        <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['color'])?.['hex']}</span>
                                     )}
                                 </div>
                             </div>
@@ -608,10 +625,13 @@ const AddProducts = () => {
                         {/* dimensions */}
                         <div className='mt-8 col-span-2'>
                             <label className='text-muted-text text-sm mb-6 block'>Package Dimensions</label>
+                            {validationErrors?.['dimensions'] && !isValidJSON(validationErrors['dimensions']) && (
+                                <span className='text-red-400 text-xs'>{validationErrors['dimensions']}</span>
+                            )}
                             <div className='flex justify-start items-start space-x-4 w-full'>
                                 <div className="relative inline group w-full">
                                     <select
-                                        {...register("dimensions.unit", { required: "Required" })}
+                                        {...register("dimensions.unit")}
                                         className="py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-black peer"
                                     >
                                         <option value='inch'>inch</option>
@@ -624,13 +644,13 @@ const AddProducts = () => {
                                     >
                                         Unit
                                     </label>
-                                    {errors?.dimensions?.unit && (
-                                        <span className='text-red-400 text-xs'>{errors.dimensions.unit.message}</span>
+                                    {validationErrors?.['dimensions'] && isValidJSON(validationErrors['dimensions']) && (
+                                        <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['dimensions'])?.['unit']}</span>
                                     )}
                                 </div>
                                 <div className="relative inline z-0 group w-full">
                                     <input
-                                        {...register("dimensions.height", { required: "Required" })}
+                                        {...register("dimensions.height")}
                                         type="number"
                                         className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black peer"
                                         placeholder=" "
@@ -641,13 +661,13 @@ const AddProducts = () => {
                                     >
                                         Height
                                     </label>
-                                    {errors?.dimensions?.height && (
-                                        <span className='text-red-400 text-xs'>{errors.dimensions.height.message}</span>
+                                    {validationErrors?.['dimensions'] && isValidJSON(validationErrors['dimensions']) && (
+                                        <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['dimensions'])?.['height']}</span>
                                     )}
                                 </div>
                                 <div className="relative inline-block w-full z-0 group">
                                     <input
-                                        {...register("dimensions.width", { required: "Required" })}
+                                        {...register("dimensions.width")}
                                         type="number"
                                         className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black peer"
                                         placeholder=" "
@@ -658,13 +678,13 @@ const AddProducts = () => {
                                     >
                                         Width
                                     </label>
-                                    {errors?.dimensions?.width && (
-                                        <span className='text-red-400 text-xs'>{errors.dimensions.width.message}</span>
+                                    {validationErrors?.['dimensions'] && isValidJSON(validationErrors['dimensions']) && (
+                                        <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['dimensions'])?.['width']}</span>
                                     )}
                                 </div>
                                 <div className="relative inline-block w-full z-0 group">
                                     <input
-                                        {...register("dimensions.length", { required: "Required" })}
+                                        {...register("dimensions.length")}
                                         type="number"
                                         className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black peer"
                                         placeholder=" "
@@ -675,8 +695,8 @@ const AddProducts = () => {
                                     >
                                         Length
                                     </label>
-                                    {errors?.dimensions?.length && (
-                                        <span className='text-red-400 text-xs'>{errors.dimensions.length.message}</span>
+                                    {validationErrors?.['dimensions'] && isValidJSON(validationErrors['dimensions']) && (
+                                        <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['dimensions'])?.['length']}</span>
                                     )}
                                 </div>
 
@@ -687,10 +707,13 @@ const AddProducts = () => {
                         {/* weight */}
                         <div className='mt-8 col-span-2'>
                             <label className='text-muted-text text-sm mb-6 block'>Package Weight</label>
+                            {validationErrors?.['weight'] && !isValidJSON(validationErrors['weight']) && (
+                                <span className='text-red-400 text-xs'>{validationErrors['weight']}</span>
+                            )}
                             <div className='flex justify-start items-start space-x-4 w-full'>
                                 <div className="relative inline group w-full">
                                     <select
-                                        {...register("weight.unit", { required: "Required" })}
+                                        {...register("weight.unit")}
                                         className="py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-black peer"
                                     >
                                         <option value='kg'>KiloGrams</option>
@@ -701,13 +724,13 @@ const AddProducts = () => {
                                     >
                                         Unit
                                     </label>
-                                    {errors?.weight?.unit && (
-                                        <span className='text-red-400 text-xs'>{errors.weight.unit.message}</span>
+                                    {validationErrors?.['weight'] && isValidJSON(validationErrors['weight']) && (
+                                        <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['weight'])?.['unit']}</span>
                                     )}
                                 </div>
                                 <div className="relative inline z-0 group w-full">
                                     <input
-                                        {...register("weight.value", { required: "Required" })}
+                                        {...register("weight.value")}
                                         type="number"
                                         className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black peer"
                                         placeholder=" "
@@ -717,8 +740,8 @@ const AddProducts = () => {
                                     >
                                         Weight
                                     </label>
-                                    {errors?.weight?.value && (
-                                        <span className='text-red-400 text-xs'>{errors.weight.value.message}</span>
+                                    {validationErrors?.['weight'] && isValidJSON(validationErrors['weight']) && (
+                                        <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['weight'])?.['value']}</span>
                                     )}
                                 </div>
 
@@ -730,7 +753,6 @@ const AddProducts = () => {
                             <Controller
                                 name="occasion"
                                 control={control}
-                                rules={{ required: "Required" }}
                                 render={({ field: { onChange, value } }) => (
                                     <Listbox value={value} onChange={onChange}>
                                         <div className="relative mt-1">
@@ -784,8 +806,8 @@ const AddProducts = () => {
                                                 </Listbox.Options>
                                             </Transition>
                                         </div>
-                                        {errors?.occasion && (
-                                            <span className='text-red-400 text-xs'>{errors.occasion.message}</span>
+                                        {validationErrors?.['occasion'] && (
+                                            <span className='text-red-400 text-xs'>{validationErrors['occasion']}</span>
                                         )}
                                     </Listbox>
                                 )}
@@ -798,6 +820,9 @@ const AddProducts = () => {
                             <label className="block text-sm text-muted-text mb-1">
                                 Tags (Make the Product Discoverable)
                             </label>
+                            {validationErrors?.['tags'] && (
+                                <span className='text-red-400 text-xs'>{validationErrors['tags']}</span>
+                            )}
                             <div className='flex justify-between items-center bg-gray-100 border-b-2 border-gray-300 p-2'>
                                 <input
                                     value={tag}
@@ -818,9 +843,6 @@ const AddProducts = () => {
                                         className='px-4 py-2 text-sm rounded-md bg-black text-white'>Add</button>
                                 )}
                             </div>
-                            {errors?.tags?.root && (
-                                <span className='text-red-400 text-xs'>{errors.tags.root.message}</span>
-                            )}
                             {tagsFields.length > 0 && (
                                 <div className='shadow-sm ring-1 ring-inset ring-gray-300 flex flex-wrap rounded-md bg-white p-2 mt-2'>
                                     {watch("tags").map((el, index) => (
@@ -902,9 +924,12 @@ const AddProducts = () => {
                             <label className="block text-sm text-muted-text mb-6">
                                 Add SEO Details (See preview)
                             </label>
+                            {validationErrors?.['meta_info'] && !isValidJSON(validationErrors['meta_info']) && (
+                                <span className='text-red-400 text-xs'>{validationErrors['meta_info']}</span>
+                            )}
                             <div className="col-span-2 relative z-0 w-full mb-6 group">
                                 <input
-                                    {...register("meta_info.title", { required: "Required" })}
+                                    {...register("meta_info.title")}
                                     type="text"
                                     className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black peer"
                                     placeholder=" "
@@ -914,13 +939,13 @@ const AddProducts = () => {
                                 >
                                     Meta Title of the Product
                                 </label>
-                                {errors?.meta_info?.title && (
-                                    <span className='text-red-400 text-xs'>{errors.meta_info.title.message}</span>
+                                {validationErrors?.['meta_info'] && isValidJSON(validationErrors['meta_info']) && (
+                                    <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['meta_info'])?.['title']}</span>
                                 )}
                             </div>
                             <div className="col-span-2 relative z-0 w-full mb-6 group">
                                 <textarea
-                                    {...register("meta_info.description", { required: "Required" })}
+                                    {...register("meta_info.description")}
                                     type="text"
                                     className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-black resize-y peer"
                                     style={{ minHeight: '45px', maxHeight: '100px' }}
@@ -931,8 +956,8 @@ const AddProducts = () => {
                                 >
                                     Meta Description
                                 </label>
-                                {errors?.meta_info?.description && (
-                                    <span className='text-red-400 text-xs'>{errors.meta_info.description.message}</span>
+                                {validationErrors?.['meta_info'] && isValidJSON(validationErrors['meta_info']) && (
+                                    <span className='text-red-400 text-xs'>{JSON.parse(validationErrors['meta_info'])?.['description']}</span>
                                 )}
                             </div>
 

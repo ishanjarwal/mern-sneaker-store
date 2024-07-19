@@ -102,6 +102,13 @@ export async function createProduct(data) {
             const response = await axios.request(config);
             resolve(response.data)
         } catch (err) {
+            if (err.response.data?.validationErrors) {
+                const validationErrors = {};
+                err.response.data.validationErrors.forEach(item => {
+                    validationErrors[item.path] = item.msg;
+                })
+                reject({ validationErrors })
+            }
             reject(err.response.data);
         }
     })
