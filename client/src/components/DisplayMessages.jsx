@@ -8,6 +8,7 @@ import { fetchProductsAsync, resetProductResponses } from '../slices/productSlic
 import { fetchCategoriesAsync, resetCategoryResponses } from '../slices/categorySlice';
 import { fetchBrandsAsync, resetBrandResponses } from '../slices/brandSlice';
 import { resetUserResponses } from '../slices/userSlice';
+import { fetchOrdersAsync, resetOrderResponses } from '../slices/orderSlice';
 
 const DisplayMessages = ({ children }) => {
 
@@ -26,6 +27,8 @@ const DisplayMessages = ({ children }) => {
     const brandResponses = useSelector(state => state.brand.responses);
     const userState = useSelector(state => state.user.state);
     const userResponses = useSelector(state => state.user.responses);
+    const orderState = useSelector(state => state.order.state);
+    const orderResponses = useSelector(state => state.order.responses);
 
     // wishlist and cart states should be idle always
     useEffect(() => {
@@ -44,7 +47,10 @@ const DisplayMessages = ({ children }) => {
         if (brandState == 'fulfilled') {
             dispatch(fetchBrandsAsync());
         }
-    }, [dispatch, cartState, wishlistState, productState, categoryState, brandState, userState, user]);
+        if (orderState == 'fulfilled') {
+            dispatch(fetchOrdersAsync());
+        }
+    }, [dispatch, cartState, wishlistState, productState, categoryState, brandState, userState, orderState, user]);
 
     // handle cart errors
     useEffect(() => {
@@ -118,6 +124,19 @@ const DisplayMessages = ({ children }) => {
             dispatch(resetUserResponses());
         }
     }, [userResponses]);
+
+    // handle order errors
+    useEffect(() => {
+        orderResponses.forEach(element => {
+            if (element.message) {
+                toastEmmitter(element.status, element.message, "main-layout-toast-container");
+            }
+        });
+        if (orderResponses.length > 0) {
+            dispatch(resetOrderResponses());
+        }
+    }, [orderResponses]);
+
     return (
         <>
             <ToastContainer

@@ -19,11 +19,12 @@ const UserProfile = () => {
 
     const dispatch = useDispatch();
     const user = useSelector(state => state.user.currUser);
+    const validationErrors = useSelector(state => state.user.userValidationErrors);
     const { register, handleSubmit, formState: { errors }, control, watch, setValue, getValues } = useForm();
 
     const [formActionType, setFormActionType] = useState(null);
     function sendData(data) {
-        dispatch(updateUserAsync({ user_id: user._id, data }))
+        dispatch(updateUserAsync(data));
     }
 
     return (
@@ -35,64 +36,38 @@ const UserProfile = () => {
                     <div className='max-w-xl grid grid-cols-2 gap-4'>
                         <div className="col-span-1 relative z-0 w-full mb-5 group">
                             <Controller
-                                name="fname"
+                                name="fullname"
                                 control={control}
-                                defaultValue={user.fullname.split(" ")[0]} // Set initial value from state
+                                defaultValue={user?.fullname} // Set initial value from state
                                 render={({ field }) => (
                                     <input
                                         {...field}
                                         type="text"
                                         className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 appearance-none  focus:outline-none focus:ring-0 border-gray-300 focus:border-black peer"
                                         placeholder=" "
-                                        required=""
                                     />
                                 )}
                             />
                             <label
                                 className="peer-focus:font-medium absolute text-sm text-muted-text duration-300 transform -translate-y-8 scale-75 top-3 z-10 origin-[0] peer-focus:start-0 start-2 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-black  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8 cursor-text pointer-events-none"
                             >
-                                First Name
+                                Full Name
                             </label>
-                            {errors?.fname && (
-                                <span className='text-red-400 text-xs'>{errors.fname.message}</span>
-                            )}
-                        </div>
-                        <div className="col-span-1 relative z-0 w-full mb-5 group">
-                            <Controller
-                                name="lname"
-                                control={control}
-                                defaultValue={user.fullname.split(" ")[1]} // Set initial value from state
-                                render={({ field }) => (
-                                    <input
-                                        {...field}
-                                        type="text"
-                                        className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 appearance-none  focus:outline-none focus:ring-0 border-gray-300 focus:border-black peer"
-                                        placeholder=" "
-                                        required=""
-                                    />
-                                )}
-                            />
-                            <label
-                                className="peer-focus:font-medium absolute text-sm text-muted-text duration-300 transform -translate-y-8 scale-75 top-3 z-10 origin-[0] peer-focus:start-0 start-2 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-black  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-8 cursor-text pointer-events-none"
-                            >
-                                Last Name
-                            </label>
-                            {errors?.lname && (
-                                <span className='text-red-400 text-xs'>{errors.lname.message}</span>
+                            {validationErrors && validationErrors.find(item => item.path === 'fullname') && (
+                                <span className='text-red-400 text-xs'>{validationErrors.find(item => item.path === 'fullname')?.msg}</span>
                             )}
                         </div>
                         <div className="col-span-2 relative z-0 w-full mb-2 group">
                             <Controller
                                 name="email"
                                 control={control}
-                                defaultValue={user.email} // Set initial value from state
+                                defaultValue={user?.email} // Set initial value from state
                                 render={({ field }) => (
                                     <input
                                         {...field}
                                         type="email"
                                         className="block py-2.5 px-2 w-full text-sm text-text bg-gray-100 border-0 border-b-2 appearance-none  focus:outline-none focus:ring-0 border-gray-300 focus:border-black peer"
                                         placeholder=" "
-                                        required=""
                                     />
                                 )}
                             />
@@ -101,8 +76,8 @@ const UserProfile = () => {
                             >
                                 Email
                             </label>
-                            {errors?.email && (
-                                <span className='text-red-400 text-xs'>{errors.email.message}</span>
+                            {validationErrors && validationErrors.find(item => item.path === 'email') && (
+                                <span className='text-red-400 text-xs'>{validationErrors.find(item => item.path === 'email')?.msg}</span>
                             )}
                         </div>
                         <div className="col-span-2 relative z-0 w-full mb-5 flex justify-end">

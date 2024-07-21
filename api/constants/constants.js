@@ -16,3 +16,5 @@ export const genders = [
         label: "Kids"
     },
 ]
+
+export const available_payment_methods = ['credit_card', 'debit_card', 'paypal', 'cod', 'upi'];

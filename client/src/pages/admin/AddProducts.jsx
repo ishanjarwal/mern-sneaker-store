@@ -105,6 +105,16 @@ const AddProducts = () => {
     }, [importedProduct]);
 
 
+    function keepImages() {
+        watch("images").forEach((file, idx) => {
+            console.log(file)
+            if ((file.type !== 'image/jpeg' && file.type != 'image/png') || file.size > 5 * 1024 * 1024) {
+                imageRemove(idx);
+            }
+        })
+    }
+
+
     async function sendData(data) {
         dispatch(createProductAsync(data));
     }
@@ -307,12 +317,16 @@ const AddProducts = () => {
                         {/* images */}
                         <div className='col-span-2 mt-4'>
                             <span
-                                className="block text-muted-text text-sm"
+                                className="text-muted-text text-sm"
                             >
                                 Add Images
                             </span>
+                            &nbsp;
+                            <span className='text-xs '>
+                                (Only JPG/PNG under 5MB)
+                            </span>
                             {validationErrors?.['images'] && (
-                                <span className='text-red-400 text-xs'>{validationErrors['images']}</span>
+                                <span className='block text-red-400 text-xs'>{validationErrors['images']}</span>
                             )}
 
                             <div
@@ -339,10 +353,14 @@ const AddProducts = () => {
                                     </span>
                                     <span className='text-muted-text text-xs mt-1'>Add</span>
                                     <input
-                                        onChange={(e) => { imageAppend([...e.target.files]) }}
+                                        onChange={(e) => {
+                                            imageAppend([...e.target.files])
+                                            keepImages()
+                                        }}
                                         type="file"
                                         className='hidden invisible opacity-0 appearance-none'
                                         multiple={true}
+                                        accept="image/png, image/jpeg"
                                     />
                                 </label>
                             </div>

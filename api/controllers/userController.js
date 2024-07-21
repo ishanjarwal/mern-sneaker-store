@@ -132,13 +132,16 @@ export const logoutUser = async (req, res) => {
 export const updateUser = async (req, res) => {
     try {
         const { _id: user_id } = req.user;
-        const { fname, lname, email } = req.body
+        const { fullname, email } = req.body
+        if (fullname == req.user.fullname && email == req.user.email) {
+            return res.status(201).json({ status: 'fail', message: "No changes made" });
+        }
         const updateOptions = {
-            fullname: fname + " " + lname,
+            fullname: fullname,
             email: email
         }
         const updatable = await User.findOneAndUpdate({ _id: user_id }, updateOptions, { new: false })
-        return res.status(201).json({ status: "success", message: "user updated" });
+        return res.status(201).json({ status: "success", message: "details updated" });
     } catch (err) {
         return res.status(500).json({ status: "error", message: "error occurred, user not updated", err });
     }

@@ -35,7 +35,7 @@ const AccountLayout = () => {
                     <div className='flex justify-start items-center space-x-4 px-4 py-6 '>
                         <span className='overflow-hidden flex justify-center items-center w-16  h-16 rounded-full bg-gray-400'>
                             <img
-                                src="https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=600"
+                                src={`https://ui-avatars.com/api/?name=${user.fullname}&background=random`}
                                 alt=""
                                 className='object-cover object-center w-full h-full'
                             />

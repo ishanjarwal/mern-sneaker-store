@@ -15,6 +15,12 @@ export const handleValidationErrors = (req, res, next) => {
             msg: "Image is required"
         })
     }
+    if (req.files && req.files.length > 6) {
+        validationErrors.push({
+            path: "images",
+            msg: "At most 6 Images"
+        })
+    }
     if (!errors.isEmpty()) {
         validationErrors.push(...errors.array());
         if (req.files) {

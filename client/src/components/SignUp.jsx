@@ -8,6 +8,7 @@ const SignUp = () => {
 
     const dispatch = useDispatch();
     const user = useSelector(state => state.user.currUser);
+    const validationErrors = useSelector(state => state.user.userValidationErrors);
 
     const [data, setData] = useState({
         fullname: "",
@@ -42,6 +43,9 @@ const SignUp = () => {
                 >
                     Full Name
                 </label>
+                {validationErrors && validationErrors.find(item => item.path === 'fullname') && (
+                    <span className='text-red-400 text-xs'>{validationErrors.find(item => item.path === 'fullname')?.msg}</span>
+                )}
             </div>
             <div className=" relative z-0 w-full mb-8 mt-8 group">
                 <input
@@ -57,6 +61,9 @@ const SignUp = () => {
                 >
                     Email
                 </label>
+                {validationErrors && validationErrors.find(item => item.path === 'email') && (
+                    <span className='text-red-400 text-xs'>{validationErrors.find(item => item.path === 'email')?.msg}</span>
+                )}
             </div>
             <div className=" relative z-0 w-full mb-5 group">
                 <input
@@ -72,6 +79,9 @@ const SignUp = () => {
                 >
                     Password
                 </label>
+                {validationErrors && validationErrors.find(item => item.path === 'password') && (
+                    <span className='text-red-400 text-xs'>{validationErrors.find(item => item.path === 'password')?.msg}</span>
+                )}
             </div>
             <button
                 onClick={(e) => {

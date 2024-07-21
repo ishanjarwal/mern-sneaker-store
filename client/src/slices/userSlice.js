@@ -85,9 +85,9 @@ export const updateUserAddressAsync = createAsyncThunk(
 
 export const updateUserAsync = createAsyncThunk(
     'user/updateUserAsync',
-    async ({ user_id, data }, { rejectWithValue }) => {
+    async (data, { rejectWithValue }) => {
         try {
-            const response = await updateUser({ user_id, data })
+            const response = await updateUser(data)
             return response;
         } catch (err) {
             return rejectWithValue(err)
@@ -161,10 +161,16 @@ export const userSlice = createSlice({
                 state.state = 'fulfilled';
                 state.currUser = action.payload.data;
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
+                state.userValidationErrors = null;
             })
             .addCase(createUserAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.responses.push({ status: action.payload.status, message: action.payload.message })
+                if (action.payload?.validationErrors) {
+                    state.userValidationErrors = action.payload.validationErrors;
+                } else {
+                    state.responses.push({ status: action.payload.status, message: action.payload.message })
+                    state.userValidationErrors = null;
+                }
             })
             .addCase(loginUserAsync.pending, (state, action) => {
                 state.state = 'pending';
@@ -234,10 +240,16 @@ export const userSlice = createSlice({
             .addCase(updateUserAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
+                state.userValidationErrors = null;
             })
             .addCase(updateUserAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.responses.push({ status: action.payload.status, message: action.payload.message })
+                if (action.payload?.validationErrors) {
+                    state.userValidationErrors = action.payload.validationErrors;
+                } else {
+                    state.responses.push({ status: action.payload.status, message: action.payload.message })
+                    state.userValidationErrors = null;
+                }
             })
             .addCase(fetchUsersAsync.pending, (state, action) => {
                 state.state = 'pending';

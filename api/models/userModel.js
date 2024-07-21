@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-const addressSchema = new Schema({
+export const addressSchema = new Schema({
     first_name: { type: String, required: true },
     last_name: { type: String, required: true },
     plot_no: { type: String, required: true },

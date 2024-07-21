@@ -1,88 +1,105 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { IoClose } from 'react-icons/io5'
 import { RiLoopLeftLine } from "react-icons/ri";
+import { useDispatch, useSelector } from 'react-redux';
+import { DOMAIN } from '../app/constants';
+import { fetchOrdersAsync } from '../slices/orderSlice';
+import { Link } from 'react-router-dom'
+
 const UserOrders = () => {
+
+    const dispatch = useDispatch();
+    const orders = useSelector(state => state.order.orders);
+    const orderState = useSelector(state => state.order.state);
+    useEffect(() => {
+        dispatch(fetchOrdersAsync());
+    }, []);
     return (
         <div>
             <h1 className='text-3xl font-semibold mb-12'>Your Orders</h1>
-            <div>
-                <div className='rounded-lg shadow-md p-4 bg-white'>
-                    <h2>
-                        <span className='font-semibold'>Order ID :</span>
-                        {' '}
-                        <span>2384751839123</span>
-                    </h2>
-                    <div className='flex justify-start items-center space-x-2 mb-2'>
-                        {/* order details */}
-                        <p className='text-xs'>Order Placed</p>
-                        <button className='text-xs text-blue-500'>Cancel</button>
-                    </div>
-                    <span className='border-b border-gray-300 block'></span>
-                    <div>
-                        {/* items */}
-                        <div className='grid grid-cols-8 py-4 gap-y-4 gap-x-6'>
-                            <div className='lg:col-span-3 col-span-8 flex justify-start items-start space-x-2'>
-                                <div className='h-24 w-24 bg-gray-100'>
-                                    <img
-                                        src="https://images.vegnonveg.com/resized/700X573/10681/athletics-los-angeles-clay-brown-65e1d8c002c70.jpg"
-                                        alt=""
-                                        className='h-full w-full object-center object-cover'
-                                    />
-                                </div>
-                                <div>
-                                    <h3 className='text-xs'>ADIDAS ORIGINALS</h3>
-                                    <h2 className='text-md'>ATHLETICS LOS ANGELES 'CLAY'</h2>
-                                    <p>
-                                        <span className='text-lg font-semibold'>
-                                            ₹2,599
-                                        </span>
-                                    </p>
-
-                                </div>
+            <div className='flex flex-col space-y-4'>
+                {orders?.length > 0 && orders.map(order => (
+                    <div className='rounded-2xl shadow-lg p-8 bg-white'>
+                        <div>
+                            <h2>
+                                <span className='font-semibold'>Order ID :</span>
+                                {' '}
+                                <span>#{order._id}</span>
+                            </h2>
+                            <div className='mb-2'>
+                                {/* order details */}
+                                <p className='text-xs'>Order {order.status}</p>
+                                <p className='text-xs'>Created on :  {order.placed_at}</p>
                             </div>
-                            <div className='lg:col-span-4 col-span-8'>
-                                <div className='flex justify-between items-center mx-8'>
-                                    <span className='w-4 h-4 relative rounded-full bg-green-400'>
-                                        <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text'>Ordered</span>
-                                    </span>
-                                    <span className='h-1 flex-1  bg-gray-300'></span>
-                                    <span className='w-4 h-4 relative rounded-full bg-gray-300'>
-                                        <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text'>Dispatched</span>
-                                    </span>
-                                    <span className='h-1 flex-1  bg-gray-300'></span>
-                                    <span className='w-4 h-4 relative rounded-full bg-gray-300'>
-                                        <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text'>Shipped</span>
-                                    </span>
-                                    <span className='h-1 flex-1  bg-gray-300'></span>
-                                    <span className='w-4 h-4 relative rounded-full bg-gray-300'>
-                                        <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text whitespace-nowrap'>Out for Delivery</span>
-                                    </span>
-                                    <span className='h-1 flex-1  bg-gray-300'></span>
-                                    <span className='w-4 h-4 relative rounded-full bg-gray-300'>
-                                        <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text'>Delivered</span>
-                                    </span>
+                            <span className='border-b border-gray-300 block'></span>
+                        </div>
+                        <div className='mt-6 mb-8'>
+                            <div className='flex justify-between items-center mx-8'>
+                                <span className='w-4 h-4 relative rounded-full bg-green-400'>
+                                    <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text'>Ordered</span>
+                                </span>
+                                <span className='h-1 flex-1  bg-gray-300'></span>
+                                <span className='w-4 h-4 relative rounded-full bg-gray-300'>
+                                    <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text'>Dispatched</span>
+                                </span>
+                                <span className='h-1 flex-1  bg-gray-300'></span>
+                                <span className='w-4 h-4 relative rounded-full bg-gray-300'>
+                                    <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text'>Shipped</span>
+                                </span>
+                                <span className='h-1 flex-1  bg-gray-300'></span>
+                                <span className='w-4 h-4 relative rounded-full bg-gray-300'>
+                                    <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text whitespace-nowrap'>Out for Delivery</span>
+                                </span>
+                                <span className='h-1 flex-1  bg-gray-300'></span>
+                                <span className='w-4 h-4 relative rounded-full bg-gray-300'>
+                                    <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text'>Delivered</span>
+                                </span>
 
-                                </div>
-                            </div>
-                            <div className='lg:col-span-1 col-span-8'>
-                                {/* <button className='text-xs text-white bg-blue-500 py-1 px-2 rounded-md flex items-center justify-center space-x-1'>
-                                    <span>
-                                        <IoClose />
-                                    </span>
-                                    <span>Cancel</span>
-                                </button> */}
-                                <button className='text-xs text-white bg-blue-500 py-1 px-2 rounded-md flex items-center justify-center space-x-1'>
-                                    <span>
-                                        <RiLoopLeftLine />
-                                    </span>
-                                    <span>Return</span>
-                                </button>
                             </div>
                         </div>
-                        <span className='border-b border-gray-300 block'></span>
+                        <div>
+                            <h2 className='font-semibold'>Items in this Order</h2>
+                            {/* items */}
+                            {order.items.map(item => (
+                                <>
+                                    <div className='py-4 gap-y-4'>
+                                        <div className='lg:col-span-3 col-span-8 flex justify-start items-start space-x-2'>
+                                            <Link to={`/product/${item.id}`} className='h-24 w-24 bg-gray-100'>
+                                                <img
+                                                    src={`${DOMAIN}/uploads/product_images/${item.thumbnail}`}
+                                                    alt=""
+                                                    className='h-full w-full object-center object-cover'
+                                                />
+                                            </Link>
+                                            <div>
+                                                <Link to={`/product/${item.id}`}>
+                                                    <h2 className='text-md'>{item.name}</h2>
+                                                </Link>
+                                                <p>
+                                                    <span className='text-lg font-semibold'>
+                                                        ₹ {item.total_price}
+                                                    </span>
+                                                </p>
+                                                <p>
+                                                    <span className='text-sm'>
+                                                        Quantity : <b>{item.quantity}</b>
+                                                    </span>
+                                                </p>
+                                                <p>
+                                                    <span className='text-sm'>
+                                                        Price per article : <b>₹ {item.price}</b>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span className='border-b border-gray-300 block'></span>
+                                </>
+                            ))}
 
+                        </div>
                     </div>
-                </div>
+                ))}
             </div>
         </div>
     )

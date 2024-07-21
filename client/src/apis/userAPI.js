@@ -67,10 +67,10 @@ export async function updateUserAddress(data) {
     })
 }
 
-export async function updateUser({ user_id, data }) {
+export async function updateUser(data) {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.patch(DOMAIN + `/api/user/${user_id}`, data, { withCredentials: true });
+            const response = await axios.patch(DOMAIN + `/api/user`, data, { withCredentials: true });
             resolve(response.data)
         } catch (err) {
             reject(err.response.data);

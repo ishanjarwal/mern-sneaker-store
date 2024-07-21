@@ -133,13 +133,16 @@ const Navbar = ({ setMobileNav }) => {
                         }
 
                         {/* profile menu */}
-                        <div className=''>
+                        <div className='px-2'>
                             {user
                                 ?
                                 <Menu as="div" className="relative block text-left">
                                     <div>
                                         <Menu.Button className="flex w-full whitespace-nowrap justify-center  text-2xl font-medium text-text">
-                                            <IoPersonOutline />
+                                            <img
+                                                src={`https://ui-avatars.com/api/?name=${user.fullname}&background=random`}
+                                                className='w-8 h-8 object-cover object-center rounded-full'
+                                            />
                                         </Menu.Button>
                                     </div>
                                     <Transition

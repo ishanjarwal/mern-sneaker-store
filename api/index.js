@@ -13,6 +13,7 @@ import cartRouter from './routes/cartRouter.js';
 import userRouter from './routes/userRouter.js';
 import cookieParser from 'cookie-parser';
 import wishlistRouter from './routes/wishlistRouter.js';
+import orderRouter from './routes/orderRouter.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -51,6 +52,7 @@ app.use('/api/category', categoryRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/wishlist', wishlistRouter)
 app.use('/api/user', userRouter)
+app.use('/api/order', orderRouter)
 
 
 app.listen(8080, (err) => {
