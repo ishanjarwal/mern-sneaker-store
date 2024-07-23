@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Link, Navigate, Outlet } from "react-router-dom"
+import { Link, Outlet, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { showCart } from "../slices/cartSlice"
 import { showWishlist } from "../slices/wishlistSlice"
@@ -12,6 +12,7 @@ import { checkAuthAsync } from '../slices/userSlice'
 const AccountLayout = () => {
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const userState = useSelector(state => state.user.state);
     const user = useSelector(state => state.user.currUser)
     useEffect(() => {
@@ -23,11 +24,6 @@ const AccountLayout = () => {
         }
     }, [userState]);
 
-
-    if (!user) {
-        return <Navigate to={"/login"} />
-    }
-
     return (
         <div>
             <section className='grid grid-cols-4 md:py-12'>
@@ -35,7 +31,7 @@ const AccountLayout = () => {
                     <div className='flex justify-start items-center space-x-4 px-4 py-6 '>
                         <span className='overflow-hidden flex justify-center items-center w-16  h-16 rounded-full bg-gray-400'>
                             <img
-                                src={`https://ui-avatars.com/api/?name=${user.fullname}&background=random`}
+                                src={`https://ui-avatars.com/api/?name=${user?.fullname}&background=random`}
                                 alt=""
                                 className='object-cover object-center w-full h-full'
                             />

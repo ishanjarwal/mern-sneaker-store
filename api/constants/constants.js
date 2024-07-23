@@ -17,4 +17,4 @@ export const genders = [
     },
 ]
 
-export const available_payment_methods = ['credit_card', 'debit_card', 'paypal', 'cod', 'upi'];
+export const available_payment_methods = ['cod', 'other'];

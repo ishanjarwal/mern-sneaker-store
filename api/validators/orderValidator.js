@@ -15,8 +15,7 @@ const validateOrder = [
             return true;
         }),
     check('address')
-        .notEmpty().withMessage("Please provide an Address").bail()
-        .isString().withMessage("Invalid Address").bail()
+        .notEmpty().withMessage("Please select an Address").bail()
         .custom(async (value, { req }) => {
             try {
                 if (!mongoose.Types.ObjectId.isValid(value.toString())) {

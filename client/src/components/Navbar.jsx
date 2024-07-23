@@ -34,8 +34,8 @@ const Navbar = ({ setMobileNav }) => {
     return (
         <header className='bg-muted-bg'>
             <div className='mx-auto max-w-7xl'>
-                <div className='flex justify-between items-center py-4 xl:px-0 px-4'>
-                    <div className='lg:hidden flex items-center flex-1 '>
+                <div className='flex justify-between items-center py-4 xl:px-0 px-4 space-x-2'>
+                    <div className='lg:hidden flex items-center md:flex-1 '>
                         <button
                             onClick={() => { setMobileNav(true) }}
                             className='text-text md:text-4xl text-2xl'>
@@ -67,7 +67,7 @@ const Navbar = ({ setMobileNav }) => {
                                 )
                         ))}
                     </nav>
-                    <div className='flex-1 flex justify-center items-center'>
+                    <div className='flex-1 flex md:justify-center items-center'>
                         <a href="/" className='md:text-3xl text-xl font-bold uppercase'>
                             sneakers
                         </a>

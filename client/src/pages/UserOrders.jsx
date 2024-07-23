@@ -22,13 +22,15 @@ const UserOrders = () => {
                     <div className='rounded-2xl shadow-lg p-8 bg-white'>
                         <div>
                             <h2>
-                                <span className='font-semibold'>Order ID :</span>
-                                {' '}
-                                <span>#{order._id}</span>
+                                <p className='font-bold'>Order {order.status}</p>
                             </h2>
                             <div className='mb-2'>
                                 {/* order details */}
-                                <p className='text-xs'>Order {order.status}</p>
+                                <p className='text-sm'>
+                                    <span className='font-semibold'>Order ID :</span>
+                                    {' '}
+                                    <span>#{order._id}</span>
+                                </p>
                                 <p className='text-xs'>Created on :  {order.placed_at}</p>
                             </div>
                             <span className='border-b border-gray-300 block'></span>

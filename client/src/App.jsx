@@ -31,6 +31,8 @@ import { fetchBrandsAsync } from './slices/brandSlice'
 import { fetchCategoriesAsync } from './slices/categorySlice'
 import { fetchProductsAsync } from './slices/productSlice'
 import ChangePassword from './pages/ChangePassword'
+import OrderSuccess from './pages/OrderSuccess'
+import OrderFailed from './pages/OrderFailed'
 
 const App = () => {
   const user = useSelector(state => state.user.currUser);
@@ -53,6 +55,8 @@ const App = () => {
   return (
     <DisplayMessages>
       <Routes>
+        <Route path='/order-success' element={<OrderSuccess />}></Route>
+        <Route path='/order-failed' element={<OrderFailed />}></Route>
         <Route path='/reset-password/:token' element={<ChangePassword />}></Route>
         <Route path='/logout' element={<Logout />}></Route>
         <Route path='/' element={<AuthLayout />}>

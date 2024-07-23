@@ -133,7 +133,7 @@ export const cartSlice = createSlice({
             })
             .addCase(filterCartAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled'
-                state.responses.push({ status: action.payload.status, message: action.payload.message })
+                // state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(filterCartAsync.rejected, (state, action) => {
                 state.state = 'rejected';
