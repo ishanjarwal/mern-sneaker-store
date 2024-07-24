@@ -14,6 +14,7 @@ import userRouter from './routes/userRouter.js';
 import cookieParser from 'cookie-parser';
 import wishlistRouter from './routes/wishlistRouter.js';
 import orderRouter from './routes/orderRouter.js';
+import Razorpay from 'razorpay';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -21,6 +22,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 connect()
     .then(val => { console.log("DB Connection Successful") })
     .catch(err => { console.log(err) })
+
+export const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_SECRET_KEY,
+});
 
 
 // Middleware
