@@ -1,8 +1,15 @@
-import { razorpay } from '../index.js';
+import dotenv from 'dotenv';
+dotenv.config();
 import Order from '../models/orderModel.js';
 import Product from '../models/productModel.js'
 import User from '../models/userModel.js';
+import Razorpay from 'razorpay'
 import crypto from 'crypto'
+
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_SECRET_KEY,
+});
 
 export const fetchOrders = async (req, res) => {
     try {
