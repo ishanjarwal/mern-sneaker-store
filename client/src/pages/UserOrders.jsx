@@ -3,8 +3,10 @@ import { IoClose } from 'react-icons/io5'
 import { RiLoopLeftLine } from "react-icons/ri";
 import { useDispatch, useSelector } from 'react-redux';
 import { DOMAIN } from '../app/constants';
-import { fetchOrdersAsync } from '../slices/orderSlice';
+import { fetchOrdersAsync, resetCurrRazorpayOrder, verifyPaymentAsync } from '../slices/orderSlice';
 import { Link } from 'react-router-dom'
+import axios from 'axios';
+import { handleRazorpay } from '../utils/razorpayModalOpener';
 
 const UserOrders = () => {
 
@@ -14,17 +16,20 @@ const UserOrders = () => {
     useEffect(() => {
         dispatch(fetchOrdersAsync());
     }, []);
+
+
+
     return (
         <div>
             <h1 className='text-3xl font-semibold mb-12'>Your Orders</h1>
             <div className='flex flex-col space-y-4'>
-                {orders?.length > 0 && orders.map(order => (
-                    <div className='rounded-2xl shadow-lg p-8 bg-white'>
+                {orders?.length > 0 && orders.map((order, idx) => (
+                    <div key={idx} className='rounded-2xl shadow-lg p-8 bg-white'>
                         <div>
                             <h2>
                                 <p className='font-bold'>Order {order.status}</p>
                             </h2>
-                            <div className='mb-2'>
+                            <div className='mb-2 flex flex-col space-y-2'>
                                 {/* order details */}
                                 <p className='text-sm'>
                                     <span className='font-semibold'>Order ID :</span>
@@ -32,6 +37,21 @@ const UserOrders = () => {
                                     <span>#{order._id}</span>
                                 </p>
                                 <p className='text-xs'>Created on :  {order.placed_at}</p>
+                                {order.payment_status == 'due' && order.status == 'pending' && (
+                                    <button
+                                        onClick={() => {
+                                            handleRazorpay(order, dispatch);
+                                        }}
+                                        className='w-min whitespace-nowrap py-2 px-3 bg-blue-500 text-white'>
+                                        Complete Payment
+                                    </button>
+                                )}
+                                <Link
+                                    to={`/account/order/${order._id}`}
+                                    className='w-min whitespace-nowrap py-2 px-3 bg-yellow-400 text-black'
+                                >
+                                    View Order
+                                </Link>
                             </div>
                             <span className='border-b border-gray-300 block'></span>
                         </div>

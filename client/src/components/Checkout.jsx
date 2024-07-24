@@ -53,6 +53,7 @@ const Checkout = () => {
         if (orderSuccess === "fail") {
             navigate('/order-failed')
         }
+        dispatch(resetOrderSuccess());
     }, [orderSuccess]);
 
     useEffect(() => {

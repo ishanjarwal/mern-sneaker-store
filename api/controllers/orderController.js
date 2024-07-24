@@ -21,18 +21,67 @@ export const fetchOrders = async (req, res) => {
     }
 }
 
+// only for admin
+export const fetchAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.find().populate('customer_id').sort({ placed_at: -1 })
+        return res.status(200).json(orders)
+    } catch (err) {
+        return res.status(500).json(err);
+    }
+}
+
+
+export const fetchOrder = async (req, res) => {
+    try {
+        const { user } = req;
+        const { id } = req.params;
+        const order = await Order.findOne({ customer_id: user._id, _id: id })
+        if (!order) {
+            return res.status(400).json({ status: 'fail', message: "order not found" });
+        }
+        return res.status(200).json({ status: "success", data: order })
+    } catch (err) {
+        return res.status(500).json({ status: 'error', message: "Something went wrong", err });
+    }
+}
+
+
 // only admin
 export const updateStatus = async (req, res) => {
     try {
-        const { user } = req;
         const { status, id } = req.body;
         const updatable = await Order.findOneAndUpdate(
-            { _id: id, customer_id: user._id },
-            { status: status }
+            { _id: id },
+            { status: status },
+            {
+                new: true,
+                runValidators: true, // Run schema validators
+                context: 'query' // Required for validators to work properly on update
+            }
         )
-        return res.status(200).json({ status: "success", message: "order status updated" })
+        return res.status(200).json(updatable?.status)
     } catch (err) {
-        return res.status(500).json({ status: 'error', message: "Something went wrong", err });
+        return res.status(500).json(err);
+    }
+}
+
+// only admin
+export const updatePaymentStatus = async (req, res) => {
+    try {
+        const { status, id } = req.body;
+        const updatable = await Order.findOneAndUpdate(
+            { _id: id },
+            { payment_status: status },
+            {
+                new: true,
+                runValidators: true, // Run schema validators
+                context: 'query' // Required for validators to work properly on update
+            }
+        )
+        return res.status(200).json(updatable?.payment_status)
+    } catch (err) {
+        return res.status(500).json(err);
     }
 }
 
@@ -85,7 +134,14 @@ export const createOrder = async (req, res) => {
         if (payment_method === 'cod') {
             newOrder.status = 'placed';
             const createdOrder = await newOrder.save();
-            return res.status(200).json({ status: "success", message: "order successfull" })
+            await Promise.all(items.map(async item => {
+                await Product.findOneAndUpdate(
+                    { _id: item.id, sizes: { $elemMatch: { _id: item.size } } },
+                    {
+                        $inc: { "sizes.$.stock": -1 * (item.quantity) }
+                    });
+            }));
+            return res.status(200).json({ status: "success", message: "order successfull", cod: true })
         } else {
             const order = await razorpay.orders.create({
                 amount: total_amount * 100, // amount in the smallest currency unit
@@ -131,11 +187,13 @@ export const verifyPayment = async (req, res) => {
         return res.status(404).json({ status: "fail", message: 'Order not found' });
     }
 
-
-    await Promise.all(order.items.map(async item => {
-        await Product.findByIdAndUpdate(item.id, {
-            $inc: { stock: -item.quantity }
-        });
+    const foundOrder = await Order.findOne({ razorpay_order_id });
+    await Promise.all(foundOrder.items.map(async item => {
+        await Product.findOneAndUpdate(
+            { _id: item.id, "sizes._id": item.size_id },
+            {
+                $inc: { "sizes.$.stock": -1 * (item.quantity) }
+            });
     }));
 
     return res.status(200).json({ status: "success", message: 'Payment verified' });

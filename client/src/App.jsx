@@ -33,6 +33,8 @@ import { fetchProductsAsync } from './slices/productSlice'
 import ChangePassword from './pages/ChangePassword'
 import OrderSuccess from './pages/OrderSuccess'
 import OrderFailed from './pages/OrderFailed'
+import UserOrder from './pages/UserOrder'
+import ManageOrders from './pages/admin/ManageOrders'
 
 const App = () => {
   const user = useSelector(state => state.user.currUser);
@@ -70,6 +72,7 @@ const App = () => {
           <Route path='/account' element={<AccountLayout />}>
             <Route index element={<UserProfile />}></Route>
             <Route path='myorders' element={<UserOrders />}></Route>
+            <Route path='order/:id' element={<UserOrder />}></Route>
           </Route>
         </Route>
         <Route path='/admin' element={<AdminLayout />}>
@@ -80,6 +83,7 @@ const App = () => {
           <Route path='manage-variants' element={<ManageVariants />}></Route>
           <Route path='manage-users' element={<ManageUsers />}></Route>
           <Route path='update-product/:id' element={<UpdateProduct />}></Route>
+          <Route path='manage-orders' element={<ManageOrders />}></Route>
         </Route>
         <Route path='/error' element={<ErrorPage />}></Route>
       </Routes>

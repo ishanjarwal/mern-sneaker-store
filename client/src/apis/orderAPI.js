@@ -44,3 +44,14 @@ export function fetchOrders() {
         }
     })
 }
+
+export function fetchOrder(id) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await axios.get(`${DOMAIN}/api/order/${id}`, { withCredentials: true })
+            resolve(response.data);
+        } catch (err) {
+            reject(err?.response.data);
+        }
+    })
+}

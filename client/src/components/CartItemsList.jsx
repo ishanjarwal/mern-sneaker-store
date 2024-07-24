@@ -23,7 +23,7 @@ const CartItemsList = () => {
         <ul>
             {/* list item */}
             {cartItems && cartItems.map((item, index) => (
-                <li className={`${item.product.stock < 1 ? "border border-red-600 bg-red-50" : ""}  rounded-lg py-4 px-4 mb-4`}>
+                <li key={index} className={`${item.product.stock < 1 ? "border border-red-600 bg-red-50" : ""}  rounded-lg py-4 px-4 mb-4`}>
                     <div className="flex">
                         <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-muted-bg">
                             <img

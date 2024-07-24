@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { createOrder, fetchOrders, verifyPayment } from '../apis/orderAPI'
+import { createOrder, fetchOrder, fetchOrders, verifyPayment } from '../apis/orderAPI'
 
 const initialState = {
     state: 'idle',
@@ -47,6 +47,18 @@ export const fetchOrdersAsync = createAsyncThunk(
     }
 )
 
+export const fetchOrderAsync = createAsyncThunk(
+    'order/fetchOrderAsync',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await fetchOrder(id);
+            return response;
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+
 const orderSlice = createSlice({
     name: "order",
     initialState,
@@ -77,16 +89,29 @@ const orderSlice = createSlice({
                 state.state = 'rejected';
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
+            .addCase(fetchOrderAsync.pending, (state, action) => {
+                state.state = 'pending';
+            })
+            .addCase(fetchOrderAsync.fulfilled, (state, action) => {
+                state.state = 'idle';
+                state.currOrder = action.payload.data;
+            })
+            .addCase(fetchOrderAsync.rejected, (state, action) => {
+                state.state = 'rejected';
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
             .addCase(createOrderAsync.pending, (state, action) => {
                 state.state = 'pending';
             })
             .addCase(createOrderAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
-                // state.orderSuccess = true;
                 state.validationErrors = null;
                 if (action.payload?.data) {
                     state.currRazorpayOrder = action.payload.data;
+                }
+                if (action.payload?.cod) {
+                    state.orderSuccess = "success";
                 }
             })
             .addCase(createOrderAsync.rejected, (state, action) => {

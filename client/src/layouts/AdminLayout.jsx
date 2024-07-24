@@ -31,7 +31,7 @@ const AdminLayout = () => {
         },
         {
             name: "Manage Orders",
-            link: "/"
+            link: "manage-orders"
         },
         // {
         //     name: "Manage Collections",
