@@ -62,7 +62,7 @@ const DesktopFilters = ({ filterOptions, setFilterOptions }) => {
                     <div className='mt-4' key={index}>
                         <h2 className='text-lg text font-semibold mb-2 capitalize'>{filter}</h2>
                         <ul>
-                            {filters[filter].map((option, index) => (
+                            {filters[filter]?.map((option, index) => (
                                 <li className='mb-2 flex justify-start' key={index}>
                                     <label className='flex justify-start space-x-2 items-center cursor-pointer'>
                                         <div className='relative w-5 h-5'>
