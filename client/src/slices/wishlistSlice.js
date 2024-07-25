@@ -34,9 +34,9 @@ export const addToWishlistAsync = createAsyncThunk(
 
 export const deleteFromWishlistAsync = createAsyncThunk(
     'wishlist/deleteFromWishlistAsync',
-    async (product_id, { rejectWithValue }) => {
+    async (item_id, { rejectWithValue }) => {
         try {
-            const response = await deleteFromWishlist(product_id);
+            const response = await deleteFromWishlist(item_id);
             return response;
         } catch (err) {
             return rejectWithValue(err)
@@ -78,10 +78,17 @@ export const wishlistSlice = createSlice({
             .addCase(addToWishlistAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled'
                 state.responses.push({ status: action.payload.status, message: action.payload.message });
+
             })
             .addCase(addToWishlistAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.responses.push({ status: action.payload.status, message: action.payload.message });
+                if (action.payload?.validationErrors) {
+                    for (let error of action.payload.validationErrors) {
+                        state.responses.push({ status: 'error', message: error.msg })
+                    }
+                } else {
+                    state.responses.push({ status: action.payload.status, message: action.payload.message })
+                }
             })
             .addCase(deleteFromWishlistAsync.pending, (state, action) => {
                 state.state = 'pending';
@@ -92,7 +99,13 @@ export const wishlistSlice = createSlice({
             })
             .addCase(deleteFromWishlistAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.responses.push({ status: action.payload.status, message: action.payload.message });
+                if (action.payload?.validationErrors) {
+                    for (let error of action.payload.validationErrors) {
+                        state.responses.push({ status: 'error', message: error.msg })
+                    }
+                } else {
+                    state.responses.push({ status: action.payload.status, message: action.payload.message })
+                }
             })
     }
 })

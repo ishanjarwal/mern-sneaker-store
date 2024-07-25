@@ -1,6 +1,7 @@
 import Cart from "../models/cartModel.js";
 import { v4 as uuidv4 } from 'uuid'
 import Product from "../models/productModel.js";
+import Wishlist from "../models/wishlistModel.js";
 
 
 export const fetchCart = async (req, res) => {
@@ -82,7 +83,7 @@ export const addToCart = async (req, res) => {
 
         const requestedProduct = await Product.findOne({
             _id: product_id,
-            "sizes._id": size
+            sizes: { $elemMatch: { _id: size } }
         },
             { "sizes.$": 1 }
         )
@@ -94,10 +95,12 @@ export const addToCart = async (req, res) => {
                 items: {
                     $elemMatch: { product_id: product_id, size: size }
                 }
-            }
+            },
+            { "items.$": 1 }
         )
         if (checkDuplicateItem) {
             const existingStock = checkDuplicateItem.items[0].qty;
+            // console.log(existingStock + qty, availableStock)
             if ((qty + existingStock) <= availableStock) {
                 const update = await Cart.findOneAndUpdate({
                     user_id: user_id,
@@ -107,7 +110,7 @@ export const addToCart = async (req, res) => {
                         $inc: { "items.$.qty": qty },
                     }
                 )
-                return res.status(201).json({ status: "success", message: "product added to cart" })
+                return res.status(201).json({ status: "success", message: "product updated in cart" })
             } else {
                 return res.status(400).json({ status: "fail", message: "requested quantity cannot be fulfilled" })
             }
@@ -265,5 +268,25 @@ export const filterCart = async (req, res) => {
         }
     } catch (err) {
         return res.status(500).json({ status: "error", message: "something went wrong", err });
+    }
+}
+
+export const moveToWishlist = async (req, res) => {
+    try {
+        const { item_id } = req.params;
+        const { user } = req;
+        const user_id = user._id;
+        const checkCart = await Cart.findOne({
+            user_id: user_id,
+            items: { $elemMatch: { _id: item_id } }
+        }, { "items.$": 1 });
+        if (!checkCart) {
+            return res.status(400).json({ status: "fail", message: "no such item in cart" })
+        }
+        const deletable = await Cart.findOneAndUpdate({ user_id: user_id }, { $pull: { items: { _id: item_id } } }, { new: false })
+        const addable = await Wishlist.findOneAndUpdate({ user_id: user_id }, { $push: { items: { product_id: checkCart.items[0].product_id } } }, { new: false })
+        return res.status(201).json({ status: "success", message: "product moved to wishlist" })
+    } catch (err) {
+        return res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 }

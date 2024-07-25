@@ -1,25 +1,25 @@
 import express from 'express'
 import { createProduct, deleteProduct, fetchColors, fetchGenders, fetchProductById, fetchProductsList, fetchSizes, updateProduct } from '../controllers/productController.js';
 import { upload } from '../utils/handleUploads.js';
-import { validateProductDB } from '../middlewares/validateProductDB.js'
 import validateProduct from '../validators/productValidator.js';
 import { handleValidationErrors } from '../middlewares/handleValidationErrors.js';
-import { isAuth } from "../middlewares/isAuth.js"
+import isAuth from "../middlewares/isAuth.js"
 import multer from 'multer'
+import isAdmin from '../middlewares/isAdmin.js';
 
 
 
 const productRouter = express.Router();
 
 productRouter
-    .get('/', fetchProductsList)
-    .get('/:product_id/:size', validateProductDB, fetchProductById)
-    .post('/', isAuth, upload, validateProduct, handleValidationErrors, createProduct)
-    .patch('/:id', upload, updateProduct)
-    .delete('/:id', deleteProduct)
-    .get('/colors', fetchColors)
-    .get('/sizes', fetchSizes)
-    .get('/genders', fetchGenders)
+    .get('/', fetchProductsList) // admin only
+    .get('/:product_id/:size', fetchProductById)
+    .post('/', isAuth, isAdmin, upload, validateProduct, handleValidationErrors, createProduct) // admin only
+    .patch('/:id', isAuth, isAdmin, upload, updateProduct) // admin only
+    .delete('/:id', isAuth, isAdmin, deleteProduct) // admin only
+    .get('/colors', isAuth, isAdmin, fetchColors) // admin only
+    .get('/sizes', isAuth, isAdmin, fetchSizes) // admin only
+    .get('/genders', isAuth, isAdmin, fetchGenders) // admin only
 
 // Custom error handler for Multer errors
 productRouter.use((err, req, res, next) => {

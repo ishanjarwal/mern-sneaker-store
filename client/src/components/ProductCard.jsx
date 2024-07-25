@@ -38,14 +38,14 @@ const ProductCard = ({ data }) => {
                     className='absolute top-4 lg:-right-12 bg-white lg:w-10 w-8 lg:h-10 h-8 rounded-full flex justify-center items-center lg:text-xl text-lg hover:bg-muted-bg lg:group-hover:right-4 right-4 duration-150 z-10'
                     onClick={
                         () => {
-                            if (wishlistItems.find(el => el._id == data.id)) {
-                                dispatch(deleteFromWishlistAsync(data.id))
+                            if (wishlistItems.find(el => el.product_id == data.id)) {
+                                dispatch(deleteFromWishlistAsync(wishlistItems.find(el => el.product_id == data.id)._id))
                             } else {
                                 dispatch(addToWishlistAsync(data.id))
                             }
                         }}
                 >
-                    {wishlistItems.find(el => el._id == data.id) ?
+                    {wishlistItems.find(el => el.product_id == data.id) ?
                         <IoHeartSharp className='text-red-500' />
                         :
                         <IoHeartOutline />}

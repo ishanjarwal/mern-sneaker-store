@@ -1,11 +1,11 @@
-import React, { Fragment } from 'react'
-import { deleteFromCartAsync, updateCartAsync } from '../slices/cartSlice';
+import React, { Fragment, useEffect, useState } from 'react'
+import { deleteFromCartAsync, moveToWishlistAsync, updateCartAsync } from '../slices/cartSlice';
 import { useDispatch, useSelector } from 'react-redux'
 import { Listbox, Transition } from '@headlessui/react';
 import { TbHeartUp } from 'react-icons/tb';
 import { IoTrashOutline } from 'react-icons/io5';
-import { addToWishlistAsync } from '../slices/wishlistSlice';
 import { DOMAIN } from '../app/constants';
+import { fetchWishlistAsync } from '../slices/wishlistSlice.js'
 
 
 
@@ -15,10 +15,14 @@ const CartItemsList = () => {
     const cartItems = useSelector(state => state.cart.items);
     const user = useSelector(state => state.user.currUser);
 
-
     function updateCart({ item_id, data }) {
         dispatch(updateCartAsync({ item_id, data }));
     }
+
+    useEffect(() => {
+        dispatch(fetchWishlistAsync())
+    }, [cartItems]);
+
     return (
         <ul>
             {/* list item */}
@@ -54,8 +58,6 @@ const CartItemsList = () => {
                                                 onChange={(value) => {
                                                     const modifiedData = {
                                                         product_id: item.product._id,
-                                                        oldSize: item.size._id,
-                                                        oldQty: item.qty,
                                                         size: value,
                                                         qty: item.qty
                                                     }
@@ -104,8 +106,6 @@ const CartItemsList = () => {
                                             <Listbox value={item.qty} onChange={(value) => {
                                                 const modifiedData = {
                                                     product_id: item.product._id,
-                                                    oldSize: item.size._id,
-                                                    oldQty: item.qty,
                                                     size: item.size._id,
                                                     qty: value
                                                 }
@@ -155,8 +155,7 @@ const CartItemsList = () => {
                                                 title='Move to Wishlist'
                                                 className="p-2 bg-white rounded-md text-lg text-text hover:bg-muted-bg border border-gray-300 duration-100"
                                                 onClick={() => {
-                                                    dispatch(deleteFromCartAsync({ user_id: user._id, product_id: item.product._id, size: item.size._id }))
-                                                    dispatch(addToWishlistAsync({ user_id: user._id, product_id: item.product._id }))
+                                                    dispatch(moveToWishlistAsync(item.id))
                                                 }}
                                             >
                                                 <TbHeartUp />

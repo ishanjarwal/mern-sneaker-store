@@ -1,7 +1,7 @@
 import express from 'express'
 import { checkAdmin, checkAuth, createUser, deleteUserAddress, fetchUser, fetchUsers, loginUser, logoutUser, resetPassword, sendResetPasswordToken, updateUser, updateUserAddress } from '../controllers/userController.js';
-import { isAuth } from '../middlewares/isAuth.js';
-import { isAdmin } from '../middlewares/isAdmin.js';
+import isAuth from '../middlewares/isAuth.js';
+import isAdmin from '../middlewares/isAdmin.js';
 import { validateAddress } from '../validators/addressValidator.js';
 import { handleValidationErrors } from '../middlewares/handleValidationErrors.js';
 import { validateUser, validatePassword } from '../validators/userValidator.js'
@@ -13,11 +13,11 @@ userRouter
     .get('/logout', logoutUser)
     .get('/password-token', isAuth, sendResetPasswordToken)
     .get('/:user_id', fetchUser)
-    .get('/', fetchUsers)
+    .get('/', isAuth, isAdmin, fetchUsers) // admin only
     .post('/reset-password/:token', isAuth, resetPassword)
     .post('/', validateUser, validatePassword, handleValidationErrors, createUser)
     .post('/login', loginUser)
-    .get("/check-admin", isAdmin, checkAdmin)
+    .get("/check-admin", isAuth, isAdmin, checkAdmin)
     .patch(
         '/address',
         isAuth,

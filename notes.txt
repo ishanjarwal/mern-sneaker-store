@@ -2,7 +2,11 @@ NEXT
 * complete user profile apis including addresses (crud)
 
 TODOs
-# create an api endpoint to clear the out of stock items from the cart. so that when checkout is hit, this api is called.
+# apply isAdmin middleware to admin only actions
+# create all validations with express-validators instead of middlewares
+# on frontend, redirect to pages if condition is not fulfilled.
+# cloudinary uploads
+# ✅ create an api endpoint to clear the out of stock items from the cart. so that when checkout is hit, this api is called.
 # in the order schema, don't use reference ids, add the actual data (bcoz that might be deleted)
 # ✅ try giving display id to size schema so that _id is unique (solved without it)
 # qty validation is needed in update and others (out of stock)
@@ -41,4 +45,4 @@ middlewares
 # I am unable to handle specific errors in multer as by default the cb returns res.send whereas I wanted res.json. also if I try to upload a large file of different mimetype, the request keeps on pending and eventually fails.
 # multipart/mixed is depricated
 # in mongodb query,  nested queries like : "items.qty" and "items.pid" will not ensure "AND" on the specific object of items but on the document it will. (use $elemMatch)
-
+# to stop the validation chain for further fields evaluation, use .bail({level:'request'}), default is level:"chain" which evaluates every field

@@ -58,3 +58,14 @@ export async function updateCart({ item_id, data }) {
         }
     })
 }
+
+export async function moveToWishlist(item_id) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await axios.get(DOMAIN + '/api/cart/move-to-wishlist/' + item_id, { withCredentials: true })
+            resolve(response.data)
+        } catch (err) {
+            reject(err.response.data);
+        }
+    })
+}

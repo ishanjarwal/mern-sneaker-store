@@ -92,11 +92,13 @@ const ProductDetails = () => {
                             <div className='md:sticky top-0'>
                                 {/* image slideshow */}
                                 {product && <ImageSlideshowModal key={product._id} productImages={product.images} />}
+
+
                                 {/* wishlist button */}
                                 {wishlistState == 'pending' ? (
                                     <span
                                         className='absolute md:top-4 top-16 bg-white lg:w-12 lg:h-12 w-10 h-10 rounded-full flex justify-center items-center lg:text-2xl text-xl hover:bg-muted-bg right-4 duration-150' style={{ "zIndex": 1 }}
-                                        title={`${wishlistItems.find(el => el._id == product._id) ? "Remove from Wishlist" : "Add to Wishlist"}`}
+                                        title={`${wishlistItems.find(el => el.product_id == product._id) ? "Remove from Wishlist" : "Add to Wishlist"}`}
                                     >
                                         <IoHeartOutline />
                                     </span>
@@ -104,15 +106,15 @@ const ProductDetails = () => {
                                     <button
                                         className='absolute md:top-4 top-16 bg-white lg:w-12 lg:h-12 w-10 h-10 rounded-full flex justify-center items-center lg:text-2xl text-xl hover:bg-muted-bg right-4 duration-150' style={{ "zIndex": 1 }}
                                         onClick={() => {
-                                            if (wishlistItems.find(el => el._id == product._id)) {
-                                                dispatch(deleteFromWishlistAsync(product._id))
+                                            if (wishlistItems.find(el => el.product_id == product._id)) {
+                                                dispatch(deleteFromWishlistAsync(wishlistItems.find(el => el.product_id == product._id)._id))
                                             } else {
                                                 dispatch(addToWishlistAsync(product._id))
                                             }
                                         }}
-                                        title={`${wishlistItems.find(el => el._id == product._id) ? "Remove from Wishlist" : "Add to Wishlist"}`}
+                                        title={`${wishlistItems.find(el => el.product_id == product._id) ? "Remove from Wishlist" : "Add to Wishlist"}`}
                                     >
-                                        {wishlistItems.find(el => el._id == product._id) ?
+                                        {wishlistItems.find(el => el.product_id == product._id) ?
                                             <IoHeartSharp className='text-red-500' />
                                             :
                                             <IoHeartOutline />}

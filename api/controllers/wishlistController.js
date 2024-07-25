@@ -44,11 +44,11 @@ export const fetchWishlist = async (req, res) => {
                 const currSize = item.product_id.sizes[0];
                 return (
                     {
-                        _id: item.product_id._id,
+                        _id: item._id,
+                        product_id: item.product_id._id,
                         name: item.product_id.name,
                         brand: item.product_id.brand.name,
                         thumbnail: item.product_id.images[0],
-                        sizes: item.product_id.sizes,
                         mrp: currSize.price,
                         discountPercentage: currSize.discountPercentage,
                         sp: currSize.price * (1 - (currSize.discountPercentage / 100)),
@@ -92,15 +92,8 @@ export const deleteFromWishlist = async (req, res) => {
     try {
         const { user } = req;
         const user_id = user._id;
-        const { product_id } = req.params;
-        const checkWishlist = await Wishlist.findOne({
-            user_id: user_id,
-            items: { $elemMatch: { product_id } }
-        });
-        if (!checkWishlist) {
-            return res.status(400).json({ status: "fail", message: "product not in your wishlist" })
-        }
-        const deletable = await Wishlist.findOneAndUpdate({ user_id: user_id }, { $pull: { items: { product_id } } }, { new: false })
+        const { item_id } = req.params;
+        const deletable = await Wishlist.findOneAndUpdate({ user_id: user_id }, { $pull: { items: { _id: item_id } } }, { new: false })
         res.status(201).json({ status: "success", message: "item removed from wishlist" })
     } catch (err) {
         res.status(500).json({ status: "error", message: "something went wrong", err })

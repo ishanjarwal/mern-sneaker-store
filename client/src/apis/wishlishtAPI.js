@@ -12,10 +12,10 @@ export async function fetchWishlist() {
     })
 }
 
-export async function deleteFromWishlist(product_id) {
+export async function deleteFromWishlist(item_id) {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.delete(DOMAIN + '/api/wishlist/' + product_id, { withCredentials: true });
+            const response = await axios.delete(DOMAIN + '/api/wishlist/' + item_id, { withCredentials: true });
             resolve(response.data)
         } catch (err) {
             reject(err.response.data);

@@ -1,11 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { addToCart, deleteFromCart, fetchCart, filterCart, updateCart } from "../apis/cartAPI";
+import { addToCart, deleteFromCart, fetchCart, filterCart, moveToWishlist, updateCart } from "../apis/cartAPI";
 
 const initialState = {
     items: [],
     state: 'idle',
     shown: false,
-    responses: []
+    responses: [],
+    validationErrors: null
 }
 
 export const fetchCartAsync = createAsyncThunk(
@@ -69,6 +70,18 @@ export const filterCartAsync = createAsyncThunk(
     }
 )
 
+export const moveToWishlistAsync = createAsyncThunk(
+    'cart/moveToWishlistAsync',
+    async (item_id, { rejectWithValue }) => {
+        try {
+            const response = await moveToWishlist(item_id);
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
+    }
+)
+
 export const cartSlice = createSlice({
     name: "cart",
     initialState: initialState,
@@ -81,6 +94,9 @@ export const cartSlice = createSlice({
         },
         resetCartResponses(state) {
             state.responses = [];
+        },
+        resetCartValidationErrors(state) {
+            state.validationErrors = null;
         }
     },
     extraReducers: (builder) => {
@@ -104,7 +120,13 @@ export const cartSlice = createSlice({
             })
             .addCase(addToCartAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.responses.push({ status: action.payload.status, message: action.payload.message })
+                if (action.payload?.validationErrors) {
+                    for (let error of action.payload.validationErrors) {
+                        state.responses.push({ status: 'error', message: error.msg })
+                    }
+                } else {
+                    state.responses.push({ status: action.payload.status, message: action.payload.message })
+                }
             })
             .addCase(deleteFromCartAsync.pending, (state, action) => {
                 state.state = 'pending';
@@ -126,7 +148,13 @@ export const cartSlice = createSlice({
             })
             .addCase(updateCartAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.responses.push({ status: action.payload.status, message: action.payload.message })
+                if (action.payload?.validationErrors) {
+                    for (let error of action.payload.validationErrors) {
+                        state.responses.push({ status: 'error', message: error.msg })
+                    }
+                } else {
+                    state.responses.push({ status: action.payload.status, message: action.payload.message })
+                }
             })
             .addCase(filterCartAsync.pending, (state, action) => {
                 state.state = 'pending';
@@ -138,6 +166,23 @@ export const cartSlice = createSlice({
             .addCase(filterCartAsync.rejected, (state, action) => {
                 state.state = 'rejected';
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
+            .addCase(moveToWishlistAsync.pending, (state, action) => {
+                state.state = 'pending';
+            })
+            .addCase(moveToWishlistAsync.fulfilled, (state, action) => {
+                state.state = 'fulfilled'
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
+            .addCase(moveToWishlistAsync.rejected, (state, action) => {
+                state.state = 'rejected';
+                if (action.payload?.validationErrors) {
+                    for (let error of action.payload.validationErrors) {
+                        state.responses.push({ status: 'error', message: error.msg })
+                    }
+                } else {
+                    state.responses.push({ status: action.payload.status, message: action.payload.message })
+                }
             })
     }
 })
