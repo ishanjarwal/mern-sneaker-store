@@ -257,7 +257,7 @@ const ProductDetails = () => {
                                     {(maxQty != 0 && product?.currSize.stock != 0) &&
                                         <QuantitySetter qty={qty} setQty={setQty} max={maxQty} />
                                     }
-                                    {cartItems.length && artItems.find(item => {
+                                    {cartItems.length && cartItems.find(item => {
                                         return ((item.product._id == product._id) && (item.size._id == product.currSize._id))
                                     })?.availableStock == 0 &&
                                         <div className='py-4 col-span-4'>
