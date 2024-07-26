@@ -14,6 +14,7 @@ import userRouter from './routes/userRouter.js';
 import cookieParser from 'cookie-parser';
 import wishlistRouter from './routes/wishlistRouter.js';
 import orderRouter from './routes/orderRouter.js';
+import nocache from 'nocache';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -23,6 +24,7 @@ connect()
     .catch(err => { console.log(err) })
 
 // Middleware
+app.use(nocache())
 app.use(express.json());
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
 app.use(cookieParser());
