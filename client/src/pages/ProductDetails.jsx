@@ -58,7 +58,7 @@ const ProductDetails = () => {
     }, [cartItems]);
 
     useEffect(() => {
-        if (cartItems.length) {
+        if (cartItems.length > 0) {
             const foundItem = cartItems.find(item => {
                 return ((item.product._id == product?._id) && (item.size._id == product?.currSize._id))
             })
@@ -115,14 +115,14 @@ const ProductDetails = () => {
                                     <button
                                         className='absolute md:top-4 top-16 bg-white lg:w-12 lg:h-12 w-10 h-10 rounded-full flex justify-center items-center lg:text-2xl text-xl hover:bg-muted-bg right-4 duration-150' style={{ "zIndex": 1 }}
                                         onClick={() => {
-                                            if (wishlistItems?.length && wishlistItems?.find(el => el.product_id == product._id)) {
+                                            if (wishlistItems?.length > 0 && wishlistItems?.find(el => el.product_id == product._id)) {
                                                 dispatch(deleteFromWishlistAsync(wishlistItems.find(el => el.product_id == product._id)._id))
                                             } else {
                                                 dispatch(addToWishlistAsync(product._id))
                                             }
                                         }}
                                     >
-                                        {wishlistItems?.length && wishlistItems?.find(el => el.product_id == product._id) ?
+                                        {wishlistItems?.length > 0 && wishlistItems?.find(el => el.product_id == product._id) ?
                                             <IoHeartSharp className='text-red-500' />
                                             :
                                             <IoHeartOutline />}
@@ -257,7 +257,7 @@ const ProductDetails = () => {
                                     {(maxQty != 0 && product?.currSize.stock != 0) &&
                                         <QuantitySetter qty={qty} setQty={setQty} max={maxQty} />
                                     }
-                                    {cartItems.length && cartItems.find(item => {
+                                    {cartItems.length > 0 && cartItems.find(item => {
                                         return ((item.product._id == product._id) && (item.size._id == product.currSize._id))
                                     })?.availableStock == 0 &&
                                         <div className='py-4 col-span-4'>
