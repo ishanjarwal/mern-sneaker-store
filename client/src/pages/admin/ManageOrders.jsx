@@ -82,7 +82,7 @@ const ManageOrders = () => {
                                                 <div className='lg:col-span-3 col-span-8 flex justify-start items-start space-x-2'>
                                                     <Link to={`/product/${item.id}`} className='h-24 w-24 bg-gray-100'>
                                                         <img
-                                                            src={`${DOMAIN}/uploads/product_images/${item.thumbnail}`}
+                                                            src={item.thumbnail}
                                                             alt=""
                                                             className='h-full w-full min-w-24 object-center object-cover'
                                                         />
