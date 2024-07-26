@@ -4,7 +4,7 @@ import { DOMAIN } from "../app/constants";
 export async function createUser(data) {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await axios.post(DOMAIN + '/api/user/', data);
+            const response = await axios.post(DOMAIN + '/api/user/', data, { withCredentials: true });
             resolve(response.data) // has message and user
         } catch (err) {
             reject(err.response.data);

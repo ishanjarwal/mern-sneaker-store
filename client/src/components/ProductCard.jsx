@@ -45,7 +45,7 @@ const ProductCard = ({ data }) => {
                             }
                         }}
                 >
-                    {wishlistItems.find(el => el.product_id == data.id) ?
+                    {wishlistItems && wishlistItems.find(el => el.product_id == data.id) ?
                         <IoHeartSharp className='text-red-500' />
                         :
                         <IoHeartOutline />}
@@ -67,7 +67,7 @@ const ProductCard = ({ data }) => {
                             <div className='w-full'>
                                 <img
                                     className='w-full object-cover object-center'
-                                    src={`${DOMAIN}/uploads/product_images/${data.thumbnail}`}
+                                    src={data.thumbnail}
                                     alt=""
                                 />
                             </div>
@@ -78,7 +78,7 @@ const ProductCard = ({ data }) => {
                                         <div className='w-full'>
                                             <img
                                                 className='w-full object-cover object-center'
-                                                src={`${DOMAIN}/uploads/product_images/${el}`}
+                                                src={el}
                                                 alt={data.name}
                                             />
                                         </div>

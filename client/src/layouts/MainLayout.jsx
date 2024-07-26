@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom'
 import MobileNavbar from '../components/MobileNavbar'
 import CartPanel from '../components/CartPanel'
 import WishlistModal from '../components/WishlistModal'
+import Footer from '../components/Footer'
 
 const MainLayout = () => {
 
@@ -27,6 +28,7 @@ const MainLayout = () => {
             <div className='max-w-7xl mx-auto w-full'>
                 <Outlet />
             </div>
+            <Footer />
         </main>
     )
 }

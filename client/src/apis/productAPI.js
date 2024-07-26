@@ -4,8 +4,8 @@ import { DOMAIN } from '../app/constants';
 export async function fetchAllProducts() {
     return new Promise(async (resolve, reject) => {
         try {
-            const url = DOMAIN + '/api/product';
-            const response = await axios.get(url);
+            const url = DOMAIN + '/api/product/admin';
+            const response = await axios.get(url, { withCredentials: true });
             resolve(response.data)
         } catch (err) {
             reject(err.response.data);
@@ -172,6 +172,18 @@ export function fetchCategories() {
     return new Promise(async (resolve, reject) => {
         try {
             const response = await axios.get(DOMAIN + "/api/category")
+            resolve(response.data)
+        } catch (err) {
+            reject(err.response.data)
+        }
+    })
+}
+
+
+export function toggleDraft(product_id) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await axios.patch(DOMAIN + "/api/product/toggle-draft/" + product_id, {}, { withCredentials: true })
             resolve(response.data)
         } catch (err) {
             reject(err.response.data)

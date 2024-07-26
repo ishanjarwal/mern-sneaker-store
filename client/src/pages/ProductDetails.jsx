@@ -10,7 +10,7 @@ import { MdMoneyOffCsred } from "react-icons/md";
 import ImageSlideshowModal from '../components/ImageSlideshowModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductByIdAsync } from '../slices/productSlice';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { addToCartAsync, showCart } from '../slices/cartSlice';
 import { addToWishlistAsync, deleteFromWishlistAsync } from '../slices/wishlistSlice';
 import QuantitySetter from '../components/QuantitySetter';
@@ -24,11 +24,14 @@ const ProductDetails = () => {
 
 
     const { id: pid } = useParams();
+    const navigate = useNavigate();
     const product = useSelector(state => state.product.currProduct);
     const dispatch = useDispatch();
     const wishlistItems = useSelector(state => state.wishlist.items);
     const wishlistState = useSelector(state => state.wishlist.state);
     const cartItems = useSelector(state => state.cart.items);
+    const cartState = useSelector(state => state.cart.state);
+    const state = useSelector(state => state.product.state);
     const user = useSelector(state => state.user.currUser);
 
     const [maxQty, setMaxQty] = useState(0);
@@ -77,6 +80,11 @@ const ProductDetails = () => {
         },
     ]
 
+    useEffect(() => {
+        if (state === 'rejected') {
+            navigate('/error');
+        }
+    }, [state]);
 
     return (
         <div>

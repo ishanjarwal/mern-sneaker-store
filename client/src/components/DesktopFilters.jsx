@@ -19,28 +19,7 @@ const DesktopFilters = ({ filterOptions, setFilterOptions }) => {
 
     }, []);
 
-    // const filters = [
-    //     {
-    //         name: "Brand",
-    //         options: ["Nike", "Adidas", "Jordan", "Puma", "Reebok", "New Balance", "Under Armour", "Converse", "Vans"]
-    //     },
-    //     {
-    //         name: "Color",
-    //         options: ["Black", "White", "Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Gray", "Brown", "Multicolor"]
-    //     },
-    //     {
-    //         name: "Size",
-    //         options: ["5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"]
-    //     },
-    //     {
-    //         name: "Gender",
-    //         options: ["Men", "Women", "Kids", "Unisex"]
-    //     },
-    //     {
-    //         name: "Style",
-    //         options: ["Running", "Basketball", "Casual", "Skateboarding", "Athletic", "Fashion", "Training", "Walking"]
-    //     }
-    // ];
+
 
     function handleFilters(key, option) {
         if (filterOptions[key] && filterOptions[key].includes(option)) {

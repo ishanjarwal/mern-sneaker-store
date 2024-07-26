@@ -1,7 +1,7 @@
 import express from 'express'
-import { createProduct, deleteProduct, fetchColors, fetchGenders, fetchProductById, fetchProductsList, fetchSizes, updateProduct } from '../controllers/productController.js';
+import { createProduct, deleteProduct, fetchAllProductsAdmin, fetchColors, fetchGenders, fetchProductById, fetchProductsList, fetchSizes, toggleDraft, updateProduct } from '../controllers/productController.js';
 import { upload } from '../utils/handleUploads.js';
-import validateProduct from '../validators/productValidator.js';
+import { validateProduct, validateProductById } from '../validators/productValidator.js';
 import { handleValidationErrors } from '../middlewares/handleValidationErrors.js';
 import isAuth from "../middlewares/isAuth.js"
 import multer from 'multer'
@@ -12,10 +12,12 @@ import isAdmin from '../middlewares/isAdmin.js';
 const productRouter = express.Router();
 
 productRouter
+    .get('/admin', isAuth, isAdmin, fetchAllProductsAdmin) // admin only
     .get('/', fetchProductsList) // admin only
-    .get('/:product_id/:size', fetchProductById)
+    .get('/:product_id/:size', validateProductById, handleValidationErrors, fetchProductById)
     .post('/', isAuth, isAdmin, upload, validateProduct, handleValidationErrors, createProduct) // admin only
     .patch('/:id', isAuth, isAdmin, upload, updateProduct) // admin only
+    .patch('/toggle-draft/:product_id', isAuth, isAdmin, validateProductById, handleValidationErrors, toggleDraft) // admin only
     .delete('/:id', isAuth, isAdmin, deleteProduct) // admin only
     .get('/colors', isAuth, isAdmin, fetchColors) // admin only
     .get('/sizes', isAuth, isAdmin, fetchSizes) // admin only

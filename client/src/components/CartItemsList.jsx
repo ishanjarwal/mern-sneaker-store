@@ -19,10 +19,6 @@ const CartItemsList = () => {
         dispatch(updateCartAsync({ item_id, data }));
     }
 
-    useEffect(() => {
-        dispatch(fetchWishlistAsync())
-    }, [cartItems]);
-
     return (
         <ul>
             {/* list item */}
@@ -31,7 +27,7 @@ const CartItemsList = () => {
                     <div className="flex">
                         <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-muted-bg">
                             <img
-                                src={`${DOMAIN}/uploads/product_images/${item.product.thumbnail}`}
+                                src={item.product.thumbnail}
                                 className="h-full w-full object-contain object-center"
                             />
                         </div>

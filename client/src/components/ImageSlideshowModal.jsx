@@ -25,11 +25,11 @@ const ImageSlideshowModal = ({ productImages }) => {
                             key={index}
                             className="f-carousel__slide cursor-zoom-in"
                             data-fancybox="gallery"
-                            data-src={`${DOMAIN}/uploads/product_images/${el}`}
-                            data-thumb-src={`${DOMAIN}/uploads/product_images/${el}`}
+                            data-src={el}
+                            data-thumb-src={el}
                         >
                             <img
-                                src={`${DOMAIN}/uploads/product_images/${el}`}
+                                src={el}
                                 width="400"
                                 height="300"
                             />

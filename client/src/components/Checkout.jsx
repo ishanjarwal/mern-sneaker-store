@@ -8,12 +8,13 @@ import { fetchCartAsync, updateCartAsync } from '../slices/cartSlice';
 import CartItemsList from './CartItemsList';
 import CartFooter from './CartFooter';
 import AddressFormModal from './AddressFormModal';
-import { deleteUserAddressAsync, setCurrAddress } from '../slices/userSlice';
+import { deleteUserAddressAsync, setCurrAddress, updateUserAddressAsync } from '../slices/userSlice';
 import { Navigate, useNavigate } from 'react-router-dom'
 import AddressForm from './AddressForm';
 import { createOrderAsync, resetCurrRazorpayOrder, resetOrderSuccess, verifyPaymentAsync } from '../slices/orderSlice.js'
 import axios from 'axios';
 import { DOMAIN } from '../app/constants.js';
+import { updateUserAddress } from '../apis/userAPI.js';
 
 const Checkout = () => {
 
@@ -123,6 +124,11 @@ const Checkout = () => {
     }
 
 
+    function createAddress(data) {
+        const sendable = { address: data, type: 'add' }
+        dispatch(updateUserAddressAsync(sendable))
+    }
+
 
     return (
         <div className='lg:py-12'>
@@ -139,74 +145,69 @@ const Checkout = () => {
                                 setData(prev => ({ ...prev, address: v }))
                             }}>
                                 <div className="flex flex-wrap">
-                                    {user?.addresses.length > 0
-                                        ?
-                                        user?.addresses.map((address) => (
-                                            <RadioGroup.Option
-                                                key={address._id}
-                                                value={address}
-                                                className={({ active, checked }) =>
-                                                    `${checked ? 'bg-white ring-2 ring-offset-4 ring-black' : 'bg-white text-texts'}
+                                    {user?.addresses.map((address) => (
+                                        <RadioGroup.Option
+                                            key={address._id}
+                                            value={address}
+                                            className={({ active, checked }) =>
+                                                `${checked ? 'bg-white ring-2 ring-offset-4 ring-black' : 'bg-white text-texts'}
                                                 relative flex cursor-pointer rounded-lg px-6 py-4 me-2 mb-4 w-full`
-                                                }
-                                            >
-                                                {({ active, checked }) => (
-                                                    <>
-                                                        <div className="flex w-full items-start justify-start">
-                                                            <div className='flex-1'>
-                                                                <div>
-                                                                    {checked &&
-                                                                        (<span className='block pt-2 pe-2 font-bold'>
-                                                                            Deliver to
-                                                                        </span>)
-                                                                    }
-                                                                </div>
-                                                                <h2 className='text-lg font-semibold'>{address.first_name}{' '}{address.last_name}</h2>
-                                                                <h3 className='text-sm font-bold'>{'+91 '}{address.phone}</h3>
-                                                                <div>
-                                                                    <span>{address.plot_no}</span>
-                                                                    {' '}
-                                                                    <span>{address.address_line_1}</span>
-                                                                </div>
-                                                                <div>
-                                                                    <span>{address.address_line_2}</span>
-                                                                </div>
-                                                                <div>
-                                                                    <span>{address.country}</span>
-                                                                    {', '}
-                                                                    <span>{address.state}</span>
-                                                                    {', '}
-                                                                    <span>{address.city}</span>
-                                                                </div>
-                                                                <div>{address.pincode}</div>
+                                            }
+                                        >
+                                            {({ active, checked }) => (
+                                                <>
+                                                    <div className="flex w-full items-start justify-start">
+                                                        <div className='flex-1'>
+                                                            <div>
+                                                                {checked &&
+                                                                    (<span className='block pt-2 pe-2 font-bold'>
+                                                                        Deliver to
+                                                                    </span>)
+                                                                }
                                                             </div>
-                                                            <div className='flex justify-end space-x-2'>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        dispatch(setCurrAddress(address))
-                                                                        setFormActionType("update");
-                                                                    }}
-                                                                    className="p-2 bg-white rounded-md text-lg text-muted-text hover:bg-muted-bg border border-gray-300 duration-100"
-                                                                >
-                                                                    <LuPencil />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        dispatch(deleteUserAddressAsync(address._id))
-                                                                    }}
-                                                                    className="p-2 bg-white rounded-md text-lg text-red-400 hover:bg-muted-bg border border-gray-300 duration-100"
-                                                                >
-                                                                    <IoTrashOutline />
-                                                                </button>
+                                                            <h2 className='text-lg font-semibold'>{address.first_name}{' '}{address.last_name}</h2>
+                                                            <h3 className='text-sm font-bold'>{'+91 '}{address.phone}</h3>
+                                                            <div>
+                                                                <span>{address.plot_no}</span>
+                                                                {' '}
+                                                                <span>{address.address_line_1}</span>
                                                             </div>
+                                                            <div>
+                                                                <span>{address.address_line_2}</span>
+                                                            </div>
+                                                            <div>
+                                                                <span>{address.country}</span>
+                                                                {', '}
+                                                                <span>{address.state}</span>
+                                                                {', '}
+                                                                <span>{address.city}</span>
+                                                            </div>
+                                                            <div>{address.pincode}</div>
                                                         </div>
-                                                    </>
-                                                )}
-                                            </RadioGroup.Option>
-                                        ))
-                                        :
-                                        <AddressForm />
-                                    }
+                                                        <div className='flex justify-end space-x-2'>
+                                                            <button
+                                                                onClick={() => {
+                                                                    dispatch(setCurrAddress(address))
+                                                                    setFormActionType("update");
+                                                                }}
+                                                                className="p-2 bg-white rounded-md text-lg text-muted-text hover:bg-muted-bg border border-gray-300 duration-100"
+                                                            >
+                                                                <LuPencil />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    dispatch(deleteUserAddressAsync(address._id))
+                                                                }}
+                                                                className="p-2 bg-white rounded-md text-lg text-red-400 hover:bg-muted-bg border border-gray-300 duration-100"
+                                                            >
+                                                                <IoTrashOutline />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </RadioGroup.Option>
+                                    ))}
                                 </div>
                             </RadioGroup>
                         </div>

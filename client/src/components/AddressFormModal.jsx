@@ -9,10 +9,18 @@ import { updateUserAddressAsync } from "../slices/userSlice";
 const AddressFormModal = ({ formActionType, setFormActionType }) => {
 
     const dispatch = useDispatch();
+    const state = useSelector(state => state.user.state)
     function sendData(data) {
         const sendable = { address: data, type: formActionType }
         dispatch(updateUserAddressAsync(sendable))
     }
+
+    useEffect(() => {
+        if (state === 'fulfilled') {
+            setFormActionType(null);
+        }
+    }, [state]);
+
     return (
         <Transition.Root show={["add", "update"].includes(formActionType) ? true : false} as={Fragment}>
             <Dialog className="relative z-10" onClose={() => { setFormActionType(null) }}>

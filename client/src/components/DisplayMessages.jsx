@@ -7,7 +7,7 @@ import { fetchCartAsync, resetCartResponses } from '../slices/cartSlice';
 import { fetchProductsAsync, resetProductResponses } from '../slices/productSlice';
 import { fetchCategoriesAsync, resetCategoryResponses } from '../slices/categorySlice';
 import { fetchBrandsAsync, resetBrandResponses } from '../slices/brandSlice';
-import { resetUserResponses } from '../slices/userSlice';
+import { checkAuthAsync, resetUserResponses } from '../slices/userSlice';
 import { fetchOrdersAsync, resetOrderResponses } from '../slices/orderSlice';
 
 const DisplayMessages = ({ children }) => {
@@ -36,7 +36,7 @@ const DisplayMessages = ({ children }) => {
             dispatch(fetchCartAsync());
         }
         if (wishlistState == 'fulfilled' && user) {
-            dispatch(fetchWishlistAsync(user._id));
+            dispatch(fetchWishlistAsync());
         }
         if (productState == 'fulfilled' && user) {
             // dispatch(fetchProductsAsync());
@@ -49,6 +49,9 @@ const DisplayMessages = ({ children }) => {
         }
         if (orderState == 'fulfilled') {
             dispatch(fetchOrdersAsync());
+        }
+        if (userState === 'fulfilled') {
+            dispatch(checkAuthAsync());
         }
     }, [dispatch, cartState, wishlistState, productState, categoryState, brandState, userState, orderState, user]);
 

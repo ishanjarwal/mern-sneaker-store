@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { createProduct, fetchProducts, fetchBrands, fetchCategories, fetchProductById, updateProduct, fetchAllProducts } from "../apis/productAPI";
+import { createProduct, fetchProducts, fetchBrands, fetchCategories, fetchProductById, updateProduct, fetchAllProducts, toggleDraft } from "../apis/productAPI";
 
 const initialState = {
     products: [],
@@ -17,6 +17,18 @@ export const fetchAllProductsAsync = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await fetchAllProducts();
+            return response;
+        } catch (err) {
+            return rejectWithValue(err)
+        }
+    }
+)
+
+export const toggleDraftAsync = createAsyncThunk(
+    'products/toggleDraftAsync',
+    async (product_id, { rejectWithValue }) => {
+        try {
+            const response = await toggleDraft(product_id);
             return response;
         } catch (err) {
             return rejectWithValue(err)
@@ -122,7 +134,13 @@ export const productSlice = createSlice({
             })
             .addCase(fetchProductByIdAsync.rejected, (state, action) => {
                 state.state = 'rejected';
-                state.responses.push({ status: action.payload.status, message: action.payload.message })
+                if (action.payload?.validationErrors) {
+                    for (let error of action.payload.validationErrors) {
+                        state.responses.push({ status: 'error', message: error.msg })
+                    }
+                } else {
+                    state.responses.push({ status: action.payload.status, message: action.payload.message })
+                }
             })
             .addCase(createProductAsync.pending, (state, action) => {
                 state.state = 'pending';
@@ -151,6 +169,23 @@ export const productSlice = createSlice({
             .addCase(updateProductAsync.rejected, (state, action) => {
                 state.state = 'rejected';
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
+            })
+            .addCase(toggleDraftAsync.pending, (state, action) => {
+                state.state = 'pending';
+            })
+            .addCase(toggleDraftAsync.fulfilled, (state, action) => {
+                state.state = 'fulfilled';
+                state.responses.push({ status: action.payload.status, message: action.payload.message })
+                state.validationErrors = null;
+            })
+            .addCase(toggleDraftAsync.rejected, (state, action) => {
+                state.state = 'rejected';
+                if (action.payload?.validationErrors) {
+                    state.validationErrors = action.payload.validationErrors;
+                } else {
+                    state.responses.push({ status: action.payload.status, message: action.payload.message })
+                    state.validationErrors = null;
+                }
             })
     }
 })

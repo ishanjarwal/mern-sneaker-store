@@ -61,10 +61,13 @@ const WishlistModal = () => {
                                         <div className='grid grid-cols-2 gap-2 pt-4'>
                                             {wishlistItems.length > 0 && wishlistItems.map((item, index) => (
                                                 <div key={index} className="md:col-span-1 col-span-2 flex p-4 border border-gray-300 rounded-lg">
-                                                    <Link to={`/product/${item.product_id}`}>
+                                                    <Link
+                                                        to={`/product/${item.product_id}`}
+                                                        onClick={() => { dispatch(hideWishlist()) }}
+                                                    >
                                                         <div className="h-24 w-24 flex-shrink-0 rounded-md overflow-hidden bg-muted-bg">
                                                             <img
-                                                                src={`${DOMAIN}/uploads/product_images/${item.thumbnail}`}
+                                                                src={item.thumbnail}
                                                                 alt={item.name}
                                                                 className="w-full object-contain object-center"
                                                             />
@@ -75,7 +78,10 @@ const WishlistModal = () => {
                                                         <div>
                                                             <div className="font-medium text-gray-900">
                                                                 <h3>
-                                                                    <Link to={`/product/${item.product_id}`}>{item.name.slice(0, 29).concat("...")}</Link>
+                                                                    <Link
+                                                                        to={`/product/${item.product_id}`}
+                                                                        onClick={() => { dispatch(hideWishlist()) }}
+                                                                    >{item.name.slice(0, 29).concat("...")}</Link>
                                                                 </h3>
                                                                 <div>
                                                                     <p>

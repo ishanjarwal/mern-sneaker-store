@@ -1,6 +1,8 @@
 import { check } from "express-validator";
 import Category from "../models/categoryModel.js"
 import Brand from "../models/brandModel.js"
+import mongoose from "mongoose";
+import Product from "../models/productModel.js";
 
 const validateProduct = [
     check('name')
@@ -285,4 +287,46 @@ const validateProduct = [
         }),
 ];
 
-export default validateProduct
+const validateProductById = [
+    check('product_id')
+        .notEmpty().withMessage("please provide a product").bail({ level: 'request' })
+        .custom(async (value, { req }) => {
+            try {
+                if (!mongoose.Types.ObjectId.isValid(value)) {
+                    throw new Error("invalid product id");
+                }
+                const found = await Product.findById(value);
+                if (!found) {
+                    throw new Error("invalid product");
+                }
+                return true;
+            } catch (e) {
+                throw new Error(e.message)
+            }
+        }).bail({ level: 'request' }),
+    check('size')
+        .customSanitizer(value => value === 'null' ? null : value)
+        .optional({
+            values: "null"
+        })
+        .notEmpty().withMessage("please provide a size").bail({ level: 'request' })
+        .custom(async (value, { req }) => {
+            try {
+                if (!mongoose.Types.ObjectId.isValid(value)) {
+                    throw new Error("invalid size id");
+                }
+                const found = await Product.findOne({
+                    _id: req.body.product_id || req.params.product_id,
+                    sizes: { $elemMatch: { _id: value } }
+                });
+                if (!found) {
+                    throw new Error("invalid size");
+                }
+                return true;
+            } catch (e) {
+                throw new Error(e.message)
+            }
+        }).bail({ level: 'request' }),
+]
+
+export { validateProduct, validateProductById }

@@ -159,7 +159,6 @@ export const userSlice = createSlice({
             })
             .addCase(createUserAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
-                state.currUser = action.payload.data;
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
                 state.userValidationErrors = null;
             })
@@ -177,7 +176,6 @@ export const userSlice = createSlice({
             })
             .addCase(loginUserAsync.fulfilled, (state, action) => {
                 state.state = 'fulfilled';
-                state.currUser = action.payload.data;
                 state.responses.push({ status: action.payload.status, message: action.payload.message })
             })
             .addCase(loginUserAsync.rejected, (state, action) => {

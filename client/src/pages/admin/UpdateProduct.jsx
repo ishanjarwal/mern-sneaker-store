@@ -324,7 +324,7 @@ const UpdateProduct = () => {
                                         </div>
                                         {typeof (card) === "string"
                                             ?
-                                            <img src={`${DOMAIN}/uploads/product_images/${card}`} />
+                                            <img src={card} />
                                             :
                                             <ImagePreview key={idx} file={card} />
                                         }

@@ -30,7 +30,7 @@ export const createProduct = async (req, res) => {
     const images = [];
     if (req.files) {
         req.files.forEach(item => {
-            images.push(item.filename)
+            images.push(item.path)
         })
     }
     const newProduct = new Product({
@@ -112,7 +112,9 @@ export const fetchProductsList = async (req, res) => {
                 sortOptions = { "createdAt": "asc" }
                 break;
         }
-        const query = {};
+        const query = {
+            isDraft: false
+        };
         if (categories && categories.length > 0) {
             query.category = { $in: categories };
         }
@@ -325,5 +327,19 @@ export const fetchSizes = async (req, res) => {
         res.status(201).json(genders);
     } catch (error) {
         res.status(400).json(error);
+    }
+}
+
+
+export const toggleDraft = async (req, res) => {
+    try {
+        const { product_id } = req.params;
+        const found = await Product.findById(product_id);
+        const curr = found.isDraft;
+        found.isDraft = !curr;
+        await found.save();
+        return res.status(200).json({ status: "success", message: "product status updated" })
+    } catch (err) {
+        return res.status(500).json({ status: "error", message: "something went wrong", err })
     }
 }

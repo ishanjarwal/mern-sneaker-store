@@ -2,11 +2,12 @@ import React, { useEffect } from 'react'
 import { IoClose } from 'react-icons/io5'
 import { RiLoopLeftLine } from "react-icons/ri";
 import { useDispatch, useSelector } from 'react-redux';
-import { DOMAIN } from '../app/constants';
+import { DOMAIN, orderStates } from '../app/constants';
 import { fetchOrdersAsync, resetCurrRazorpayOrder, verifyPaymentAsync } from '../slices/orderSlice';
 import { Link } from 'react-router-dom'
 import axios from 'axios';
 import { handleRazorpay } from '../utils/razorpayModalOpener';
+import { FaCheck } from 'react-icons/fa6';
 
 const UserOrders = () => {
 
@@ -55,30 +56,23 @@ const UserOrders = () => {
                             </div>
                             <span className='border-b border-gray-300 block'></span>
                         </div>
-                        <div className='mt-6 mb-8'>
-                            <div className='flex justify-between items-center mx-8'>
-                                <span className='w-4 h-4 relative rounded-full bg-green-400'>
-                                    <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text'>Ordered</span>
-                                </span>
-                                <span className='h-1 flex-1  bg-gray-300'></span>
-                                <span className='w-4 h-4 relative rounded-full bg-gray-300'>
-                                    <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text'>Dispatched</span>
-                                </span>
-                                <span className='h-1 flex-1  bg-gray-300'></span>
-                                <span className='w-4 h-4 relative rounded-full bg-gray-300'>
-                                    <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text'>Shipped</span>
-                                </span>
-                                <span className='h-1 flex-1  bg-gray-300'></span>
-                                <span className='w-4 h-4 relative rounded-full bg-gray-300'>
-                                    <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text whitespace-nowrap'>Out for Delivery</span>
-                                </span>
-                                <span className='h-1 flex-1  bg-gray-300'></span>
-                                <span className='w-4 h-4 relative rounded-full bg-gray-300'>
-                                    <span className='absolute left-1/2 top-4 transform -translate-x-1/2 origin-center text-xs text-muted-text'>Delivered</span>
-                                </span>
-
+                        {order.status != 'pending' && (
+                            <div className='mt-6 mb-8'>
+                                <div className='flex justify-between items-center mx-8'>
+                                    {orderStates.map((state, index, arr) => (
+                                        <>
+                                            <span className={`${orderStates.indexOf(state) <= orderStates.indexOf(order.status) ? "bg-green-400" : "bg-gray-400"} w-6 h-6 relative rounded-full`}>
+                                                <span className='absolute left-1/2 top-6 transform -translate-x-1/2 origin-center text-xs text-muted-text'>{state}</span>
+                                                <FaCheck className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white' />
+                                            </span>
+                                            {index < arr.length - 1 && (
+                                                <span className={`${orderStates.indexOf(state) < orderStates.indexOf(order.status) ? "bg-green-400" : "bg-gray-400"} h-1 flex-1 bg-gray-300`}></span>
+                                            )}
+                                        </>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
                         <div>
                             <h2 className='font-semibold'>Items in this Order</h2>
                             {/* items */}
@@ -88,7 +82,7 @@ const UserOrders = () => {
                                         <div className='lg:col-span-3 col-span-8 flex justify-start items-start space-x-2'>
                                             <Link to={`/product/${item.id}`} className='h-24 w-24 bg-gray-100'>
                                                 <img
-                                                    src={`${DOMAIN}/uploads/product_images/${item.thumbnail}`}
+                                                    src={item.thumbnail}
                                                     alt=""
                                                     className='h-full w-full object-center object-cover'
                                                 />

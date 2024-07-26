@@ -1,17 +1,21 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Navigate, Outlet } from "react-router-dom"
+import { Navigate, Outlet, useNavigate } from "react-router-dom"
 import { checkAuthAsync } from '../slices/userSlice';
 
 const AuthLayout = () => {
 
     const dispatch = useDispatch();
     const user = useSelector(state => state.user.currUser);
-    // const state = useSelector(state => state.user.state)
+    const navigate = useNavigate();
+    const state = useSelector(state => state.user.state)
 
-    if (user) {
-        return <Navigate to={"/"} />
-    }
+    useEffect(() => {
+        if (state === 'idle') {
+            navigate('/');
+        }
+    }, [state]);
+
     return (
         <div className='w-full min-h-screen bg-gray-100 flex justify-center items-center'>
             <div className='flex lg:flex-row flex-col max-w-6xl w-full bg-white'>

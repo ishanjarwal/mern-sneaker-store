@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { filterCartAsync, hideCart } from '../slices/cartSlice';
 import CartItemsList from './CartItemsList';
 import CartFooter from './CartFooter';
+import { fetchWishlistAsync } from '../slices/wishlistSlice';
 
 
 const CartPanel = () => {
@@ -19,6 +20,12 @@ const CartPanel = () => {
     const navigate = useNavigate();
 
     const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        if (state === 'idle') {
+            dispatch(fetchWishlistAsync())
+        }
+    }, [state]);
 
     return (
         <div>

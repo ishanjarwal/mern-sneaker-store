@@ -84,7 +84,7 @@ const ManageOrders = () => {
                                                         <img
                                                             src={`${DOMAIN}/uploads/product_images/${item.thumbnail}`}
                                                             alt=""
-                                                            className='h-full w-full object-center object-cover'
+                                                            className='h-full w-full min-w-24 object-center object-cover'
                                                         />
                                                     </Link>
                                                     <div>
@@ -114,26 +114,26 @@ const ManageOrders = () => {
                                 </td>
                                 <td className='min-w-80 text-start text-sm py-2 px-2 border border-muted-text'>
                                     <div>
-                                        <p><b>ID :</b>{order?.customer_id._id}</p>
-                                        <p><b>Fullname :</b>{order?.customer_id.fullname}</p>
-                                        <p><b>Email :</b>{order?.customer_id.email}</p>
-                                        <p><b>Phone :</b>{order?.customer_id.phone}</p>
+                                        <p><b>ID :</b>{order?.customer_id?._id}</p>
+                                        <p><b>Fullname :</b>{order?.customer_id?.fullname}</p>
+                                        <p><b>Email :</b>{order?.customer_id?.email}</p>
+                                        <p><b>Phone :</b>{order?.customer_id?.phone}</p>
                                     </div>
                                 </td>
                                 <td className='min-w-80 text-start text-sm py-2 px-2 border border-muted-text'>
                                     <div>
-                                        <p><b>Name : </b>{order?.shipping_address.first_name}{" "}{order?.shipping_address.last_name}</p>
-                                        <p><b>Email : </b>{order?.shipping_address.email}</p>
-                                        <p><b>Phone : </b>{order?.shipping_address.phone}</p>
+                                        <p><b>Name : </b>{order?.shipping_address?.first_name}{" "}{order?.shipping_address?.last_name}</p>
+                                        <p><b>Email : </b>{order?.shipping_address?.email}</p>
+                                        <p><b>Phone : </b>{order?.shipping_address?.phone}</p>
                                         <div className='flex justify-start space-x-2'>
                                             <p><b>Address </b></p>
                                             <div>
-                                                <p>{order?.shipping_address.plot_no}</p>
-                                                <p>{order?.shipping_address.address_line_1}</p>
-                                                <p>{order?.shipping_address.address_line_2}</p>
-                                                <p>{order?.shipping_address.landmark}</p>
-                                                <p>{order?.shipping_address.country}, {order?.shipping_address.state}, {order?.shipping_address.city}</p>
-                                                <p>{order?.shipping_address.pincode}</p>
+                                                <p>{order?.shipping_address?.plot_no}</p>
+                                                <p>{order?.shipping_address?.address_line_1}</p>
+                                                <p>{order?.shipping_address?.address_line_2}</p>
+                                                <p>{order?.shipping_address?.landmark}</p>
+                                                <p>{order?.shipping_address?.country}, {order?.shipping_address?.state}, {order?.shipping_address?.city}</p>
+                                                <p>{order?.shipping_address?.pincode}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -249,9 +249,9 @@ const ManageOrders = () => {
                                     </Listbox>
                                 </td>
                                 <td className='min-w-64 text-start text-sm py-2 px-2 border border-muted-text'>
-                                    <p><b>Method : </b>{order?.payment_details.method}</p>
-                                    <p><b>Card : </b>{order?.payment_details.card}</p>
-                                    <p><b>VPA : </b>{order?.payment_details.vpa}</p>
+                                    <p><b>Method : </b>{order?.payment_details?.method}</p>
+                                    <p><b>Card : </b>{order?.payment_details?.card}</p>
+                                    <p><b>VPA : </b>{order?.payment_details?.vpa}</p>
                                 </td>
                                 <td className='min-w-64 text-start text-sm py-2 px-2 border border-muted-text'>{order?.placed_at}</td>
                                 <td className='min-w-64 text-start text-sm py-2 px-2 border border-muted-text'>{order?.updated_at}</td>

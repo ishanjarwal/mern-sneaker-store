@@ -74,7 +74,9 @@ export const createUser = async (req, res) => {
             fullname: fullname,
             password: hashedPassword,
         })
+
         const response = await newUser.save()
+
         jwt.sign({
             "_id": response._id,
             "fullname": response.fullname,
@@ -87,7 +89,7 @@ export const createUser = async (req, res) => {
                 if (err) {
                     return res.status(500).json({ status: "error", message: "something went wrong", err });
                 }
-                return res.cookie('user', token).json({ status: "success", message: "user registered" })
+                return res.status(201).cookie('user', token).json({ status: "success", message: "user registered" })
             })
     } catch (err) {
         return res.status(400).json({ status: "error", message: "an error occurred, user not registered", err })
@@ -116,7 +118,7 @@ export const loginUser = async (req, res) => {
             if (err) {
                 return res.status(500).json({ status: "error", message: "something went wrong", err });
             }
-            return res.status(201).cookie('user', token).json({ status: "success", message: "user logged in successfully", data: check });
+            return res.status(201).cookie('user', token).json({ status: "success", message: "user logged in successfully" });
         })
 }
 
@@ -214,8 +216,9 @@ export const sendResetPasswordToken = async (req, res) => {
         const now = new Date();
         const emailToken = generateRandomString(16);
         const expiry = new Date(now.getTime() + (10 * 60000));
-        const link = path.join(__dirname, "reset-password", emailToken);
-        // const link = `http://localhost:5173/reset-password/${emailToken}`;
+        // const link = path.join(__dirname, "reset-password", emailToken);
+        const link = `http://localhost:5173/reset-password/${emailToken}`;
+        // console.log(link)
         const editable = await User.findById(user._id);
         if (!editable) {
             return res.status(400).json({ status: "fail", message: "no user found" });
@@ -223,9 +226,9 @@ export const sendResetPasswordToken = async (req, res) => {
         editable.passwordResetToken.token = emailToken;
         editable.passwordResetToken.expiry = expiry;
         await editable.save();
-        sendEmails("123@example.com", `<a href="${link}">RESET PASSWORD</a>`, "Rest Account Password");
+        const info = await sendEmails("123@example.com", `<a href="${link}">RESET PASSWORD</a>`, "Rest Account Password");
+        // console.log(info)
         return res.status(200).json({ status: "success", message: "Reset link sent to registered email" });
-
     } catch (err) {
         return res.status(500).json({ status: "error", message: "something went wrong", err });
     }

@@ -1,11 +1,11 @@
-NEXT 
-* complete user profile apis including addresses (crud)
 
 TODOs
-# apply isAdmin middleware to admin only actions
-# create all validations with express-validators instead of middlewares
+# ✅apply isAdmin middleware to admin only actions
+# ✅ create all validations with express-validators instead of middlewares
 # on frontend, redirect to pages if condition is not fulfilled.
-# cloudinary uploads
+# cancel order request
+# footer
+# ✅ integrate cloudinary file upload
 # ✅ create an api endpoint to clear the out of stock items from the cart. so that when checkout is hit, this api is called.
 # in the order schema, don't use reference ids, add the actual data (bcoz that might be deleted)
 # ✅ try giving display id to size schema so that _id is unique (solved without it)

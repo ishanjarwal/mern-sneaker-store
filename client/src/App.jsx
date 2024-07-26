@@ -49,7 +49,7 @@ const App = () => {
   useEffect(() => {
     if (user) {
       dispatch(fetchCartAsync());
-      dispatch(fetchWishlistAsync(user._id));
+      dispatch(fetchWishlistAsync());
     }
   }, [user]);
 
@@ -85,7 +85,7 @@ const App = () => {
           <Route path='update-product/:id' element={<UpdateProduct />}></Route>
           <Route path='manage-orders' element={<ManageOrders />}></Route>
         </Route>
-        <Route path='/error' element={<ErrorPage />}></Route>
+        <Route path='*' element={<ErrorPage />}></Route>
       </Routes>
     </DisplayMessages>
   )
