@@ -58,11 +58,13 @@ const ProductDetails = () => {
     }, [cartItems]);
 
     useEffect(() => {
-        const foundItem = cartItems.find(item => {
-            return ((item.product._id == product?._id) && (item.size._id == product?.currSize._id))
-        })
-        const stock = foundItem?.availableStock !== null && foundItem?.availableStock !== undefined ? foundItem.availableStock : product?.currSize.stock
-        setMaxQty(stock);
+        if (cartItems.length) {
+            const foundItem = cartItems.find(item => {
+                return ((item.product._id == product?._id) && (item.size._id == product?.currSize._id))
+            })
+            const stock = foundItem?.availableStock !== null && foundItem?.availableStock !== undefined ? foundItem.availableStock : product?.currSize.stock
+            setMaxQty(stock);
+        }
     }, [cartItems, product]);
 
     const variants = [
@@ -106,7 +108,6 @@ const ProductDetails = () => {
                                 {wishlistState == 'pending' ? (
                                     <span
                                         className='absolute md:top-4 top-16 bg-white lg:w-12 lg:h-12 w-10 h-10 rounded-full flex justify-center items-center lg:text-2xl text-xl hover:bg-muted-bg right-4 duration-150' style={{ "zIndex": 1 }}
-                                        title={`${wishlistItems.find(el => el.product_id == product._id) ? "Remove from Wishlist" : "Add to Wishlist"}`}
                                     >
                                         <IoHeartOutline />
                                     </span>
@@ -114,15 +115,14 @@ const ProductDetails = () => {
                                     <button
                                         className='absolute md:top-4 top-16 bg-white lg:w-12 lg:h-12 w-10 h-10 rounded-full flex justify-center items-center lg:text-2xl text-xl hover:bg-muted-bg right-4 duration-150' style={{ "zIndex": 1 }}
                                         onClick={() => {
-                                            if (wishlistItems.find(el => el.product_id == product._id)) {
+                                            if (wishlistItems?.length && wishlistItems?.find(el => el.product_id == product._id)) {
                                                 dispatch(deleteFromWishlistAsync(wishlistItems.find(el => el.product_id == product._id)._id))
                                             } else {
                                                 dispatch(addToWishlistAsync(product._id))
                                             }
                                         }}
-                                        title={`${wishlistItems.find(el => el.product_id == product._id) ? "Remove from Wishlist" : "Add to Wishlist"}`}
                                     >
-                                        {wishlistItems.find(el => el.product_id == product._id) ?
+                                        {wishlistItems?.length && wishlistItems?.find(el => el.product_id == product._id) ?
                                             <IoHeartSharp className='text-red-500' />
                                             :
                                             <IoHeartOutline />}
@@ -257,7 +257,7 @@ const ProductDetails = () => {
                                     {(maxQty != 0 && product?.currSize.stock != 0) &&
                                         <QuantitySetter qty={qty} setQty={setQty} max={maxQty} />
                                     }
-                                    {cartItems.find(item => {
+                                    {cartItems.length && artItems.find(item => {
                                         return ((item.product._id == product._id) && (item.size._id == product.currSize._id))
                                     })?.availableStock == 0 &&
                                         <div className='py-4 col-span-4'>

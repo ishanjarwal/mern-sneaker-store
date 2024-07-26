@@ -84,9 +84,9 @@ const Navbar = ({ setMobileNav }) => {
                                 title='Your Wishlist'
                                 onClick={() => { dispatch(showWishlist()) }}
                             >
-                                {wishlistItems.length > 0 && (
+                                {wishlistItems?.length > 0 && (
                                     <span className='absolute -right-2 -top-2 text-xs min-w-4 px-1 py-1 h-4 flex justify-center items-center rounded-full bg-black text-white'>
-                                        {wishlistItems.length}
+                                        {wishlistItems?.length}
                                     </span>
                                 )}
                                 <span className='text-black text-2xl'>

@@ -25,7 +25,7 @@ const UserOrders = () => {
             <h1 className='text-3xl font-semibold mb-12'>Your Orders</h1>
             <div className='flex flex-col space-y-4'>
                 {orders?.length > 0 && orders.map((order, idx) => (
-                    <div key={idx} className='rounded-2xl shadow-lg p-8 bg-white'>
+                    <div key={idx} className='rounded-2xl shadow-lg md:p-8 p-4 bg-white'>
                         <div>
                             <h2>
                                 <p className='font-bold'>Order {order.status}</p>
@@ -58,7 +58,7 @@ const UserOrders = () => {
                         </div>
                         {order.status != 'pending' && (
                             <div className='mt-6 mb-8'>
-                                <div className='flex justify-between items-center mx-8'>
+                                <div className='flex justify-between items-center lg:mx-8 mx-2'>
                                     {orderStates.map((state, index, arr) => (
                                         <>
                                             <span className={`${orderStates.indexOf(state) <= orderStates.indexOf(order.status) ? "bg-green-400" : "bg-gray-400"} w-6 h-6 relative rounded-full`}>

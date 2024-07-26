@@ -52,14 +52,14 @@ const WishlistModal = () => {
                                         </button>
                                     </div>
                                     <div>
-                                        {wishlistItems.length == 0 && (
+                                        {wishlistItems?.length == 0 && (
                                             <h3 className='py-12 text-xl font-bold text-center'>
                                                 😔Your wishlist is empty.
                                             </h3>
                                         )}
                                         {/* wishlist card */}
                                         <div className='grid grid-cols-2 gap-2 pt-4'>
-                                            {wishlistItems.length > 0 && wishlistItems.map((item, index) => (
+                                            {wishlistItems?.length > 0 && wishlistItems.map((item, index) => (
                                                 <div key={index} className="md:col-span-1 col-span-2 flex p-4 border border-gray-300 rounded-lg">
                                                     <Link
                                                         to={`/product/${item.product_id}`}
