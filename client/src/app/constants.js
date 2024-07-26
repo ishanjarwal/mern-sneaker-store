@@ -898,6 +898,6 @@ export const product_images = [
 export const ITEMS_PER_PAGE = 9;
 export const MAX_CART_PRODUCT_QTY = 5;
 
-export const DOMAIN = "http://localhost:8080"
+export const DOMAIN = ""
 
 export const orderStates = ['placed', 'processing', 'shipped', 'delivered']

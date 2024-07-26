@@ -216,8 +216,8 @@ export const sendResetPasswordToken = async (req, res) => {
         const now = new Date();
         const emailToken = generateRandomString(16);
         const expiry = new Date(now.getTime() + (10 * 60000));
-        // const link = path.join(__dirname, "reset-password", emailToken);
-        const link = `http://localhost:5173/reset-password/${emailToken}`;
+        const link = path.join(__dirname, "reset-password", emailToken);
+        // const link = `http://localhost:5173/reset-password/${emailToken}`;
         // console.log(link)
         const editable = await User.findById(user._id);
         if (!editable) {
