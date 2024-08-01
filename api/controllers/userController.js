@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import generateRandomString from '../utils/randomString.js'
 import { sendEmails } from "../utils/sendEmails.js";
 import path from 'path';
-import { __dirname } from '../index.js'
+import __dirname from "../utils/dirname.js";
 
 export const fetchUser = async (req, res) => {
     try {
