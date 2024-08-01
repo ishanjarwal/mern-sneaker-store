@@ -64,6 +64,8 @@ const ProductDetails = () => {
             })
             const stock = foundItem?.availableStock !== null && foundItem?.availableStock !== undefined ? foundItem.availableStock : product?.currSize.stock
             setMaxQty(stock);
+        } else {
+            setMaxQty(product?.currSize.stock);
         }
     }, [cartItems, product]);
 

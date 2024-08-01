@@ -4,10 +4,8 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import generateRandomString from '../utils/randomString.js'
 import { sendEmails } from "../utils/sendEmails.js";
-import path, { dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import path from 'path';
+import { __dirname } from '../index.js'
 
 export const fetchUser = async (req, res) => {
     try {

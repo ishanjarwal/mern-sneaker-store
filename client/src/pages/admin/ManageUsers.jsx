@@ -49,7 +49,7 @@ const ManageUsers = () => {
                                 <td className='text-start py-2 px-2 border border-muted-text'>
                                     <img
                                         className='w-32 h-24 object-cover object-center mx-auto'
-                                        src={`${DOMAIN}/uploads/user_profiles/${1}`}
+                                        src={`https://ui-avatars.com/api/?name=${el?.fullname}&background=random`}
                                     />
                                 </td>
                                 <td className='text-start text-sm py-2 px-2 border border-muted-text'>{el.createdAt}</td>

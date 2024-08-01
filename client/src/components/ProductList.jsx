@@ -52,7 +52,7 @@ const ProductList = () => {
                 </div>
             )} */}
             <FilterPanel setFilterMenu={setFilterMenu} filterMenu={filterMenu} filterOptions={filterOptions} setFilterOptions={setFilterOptions} />
-            <div className='flex lg:flex-row flex-col justify-between items-start pt-2 pb-4 px-2 lg:border-b border-muted-text'>
+            <div className='flex lg:flex-row flex-col justify-between items-start pt-2 pb-4 px-2'>
                 <div className='w-full lg:mb-0 mb-2'>
                     <h1 className='md:text-4xl text-2xl font-bold w-full truncate whitespace-nowrap text-ellipsis'>All Products</h1>
                     <span className='text-sm text-muted-text'>{totalItems}{" "} Products</span>
@@ -81,7 +81,7 @@ const ProductList = () => {
                         <h1 className='text-3xl font-bold text-center'>No Products☹️</h1>
                     </div>
                 )}
-                <div className='lg:col-span-4 col-span-5 grid md:grid-cols-3 grid-cols-2 sm:gap-4 gap-0'>
+                <div className='self-start grid lg:col-span-4 col-span-5 md:grid-cols-3 grid-cols-2 sm:gap-4 gap-0 '>
                     {products.length > 0 && products.map((product, index) => (
                         <ProductCard key={index} data={{
                             id: product.id,

@@ -16,7 +16,7 @@ import wishlistRouter from './routes/wishlistRouter.js';
 import orderRouter from './routes/orderRouter.js';
 import nocache from 'nocache';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+export const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // db connection
 connect()

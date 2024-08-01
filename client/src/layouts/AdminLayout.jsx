@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { IoMenuSharp } from 'react-icons/io5'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 
 const AdminLayout = () => {
 
@@ -39,8 +40,16 @@ const AdminLayout = () => {
         // },
 
     ]
+    const navigate = useNavigate();
     const [sidepanel, setSidepanel] = useState(true);
     const location = useLocation();
+    const user = useSelector(state => state.user.currUser);
+    if (user?.role == 'customer') {
+        navigate('/');
+    }
+    if (!user) {
+        navigate('/login');
+    }
 
     return (
         <main>
