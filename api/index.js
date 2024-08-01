@@ -7,15 +7,16 @@ const app = express();
 import cors from "cors"
 import brandRouter from './routes/brandRouter.js';
 import categoryRouter from './routes/categoryRouter.js';
-import path from 'path';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
 import cartRouter from './routes/cartRouter.js';
 import userRouter from './routes/userRouter.js';
 import cookieParser from 'cookie-parser';
 import wishlistRouter from './routes/wishlistRouter.js';
 import orderRouter from './routes/orderRouter.js';
 import nocache from 'nocache';
-import __dirname from './utils/dirname.js'
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // db connection
 connect()
@@ -28,8 +29,6 @@ app.use(express.json());
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-
-console.log(__dirname);
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'dist'), {

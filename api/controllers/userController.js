@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import User from "../models/userModel.js";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt"
@@ -5,7 +7,10 @@ import jwt from "jsonwebtoken";
 import generateRandomString from '../utils/randomString.js'
 import { sendEmails } from "../utils/sendEmails.js";
 import path from 'path';
-import __dirname from "../utils/dirname.js";
+
+const getBaseUrl = () => {
+    return process.env.BASE_URL || 'http://localhost:5173';
+};
 
 export const fetchUser = async (req, res) => {
     try {
@@ -214,9 +219,8 @@ export const sendResetPasswordToken = async (req, res) => {
         const now = new Date();
         const emailToken = generateRandomString(16);
         const expiry = new Date(now.getTime() + (10 * 60000));
-        const link = path.join(__dirname, "reset-password", emailToken);
-        // const link = `http://localhost:5173/reset-password/${emailToken}`;
-        // console.log(link)
+        const baseUrl = getBaseUrl();
+        const link = path.join(baseUrl, "reset-password", emailToken);
         const editable = await User.findById(user._id);
         if (!editable) {
             return res.status(400).json({ status: "fail", message: "no user found" });
